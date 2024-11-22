@@ -1,8 +1,12 @@
 <script>
     import "../app.css";
     import { page } from "$app/stores";
+    $: isMainPage = $page.url.pathname === '/';
+     $: isSignupPage = $page.url.pathname === '/signup';
+     $: isLoginPage = $page.url.pathname === '/login';
   </script>
   
+  {#if !isMainPage && !isSignupPage && !isLoginPage}
   <div class="min-h-screen flex flex-col bg-greenPale">
     <!-- Header -->
     <header class="bg-greenLight text-greenDeep py-4 shadow-md">
@@ -51,4 +55,9 @@
       </div>
     </footer>
   </div>
+  {/if}
   
+  {#if isMainPage ||  isSignupPage || isLoginPage}
+  <!-- Custom layout or no layout for main page -->
+  <slot />
+{/if}
