@@ -12,7 +12,7 @@
     <header class="bg-greenLight text-greenDeep py-4 shadow-md">
       <div class="container mx-auto text-center px-4">
         <h1 class="text-2xl font-bold sm:text-3xl">
-          {#if $page.url.pathname === "/"}
+          {#if $page.url.pathname === "/home"}
             Your Garden 🍌
           {:else if $page.url.pathname === "/articles"}
             Articles
@@ -37,7 +37,7 @@
     <!-- Footer -->
     <footer class="bg-greenDeep text-greenPale py-4">
       <div class="flex justify-center items-center gap-6 mt-4">
-        <a href="/" class="text-greenLight underline">
+        <a href="/home" class="text-greenLight underline">
             <img src="home.png" alt="Home" class="w-14 h-auto" />
           </a>
         <a href="/articles" class="text-greenLight underline">
@@ -58,6 +58,6 @@
   {/if}
   
   {#if isMainPage ||  isSignupPage || isLoginPage}
-  <!-- Custom layout or no layout for main page -->
+  <!-- The Custom layout  -->
   <slot />
 {/if}
