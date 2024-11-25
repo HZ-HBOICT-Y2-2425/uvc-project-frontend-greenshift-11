@@ -23,7 +23,14 @@
 
 <!-- Right Side: Signup Form -->
 <div class="w-1/2 bg-gradient-to-r from-greenDeep to-greenLight  p-12 flex flex-col justify-center">
-  <button on:click={gotoLogin} type="submit" class="bg-white hover:bg-gray-200 text-slate-950 font-bold py-2 px-20 rounded">Login</button> <br>
-  <button on:click={gotoSignup} type="submit" class="bg-black hover:bg-blue-900 text-white font-bold py-2 px-20 rounded">Sign up</button>
+  <button on:click={gotoLogin} type="submit" class="bg-white hover:bg-gray-200 text-slate-950 font-bold py-2 px-20 rounded flex items-center justify-center space-x-2">
+    <img src="login-removebg-preview.png" alt="login" class="h-6 w-6">
+    <span>Login</span>
+  </button>
+  <br>
+  <button on:click={gotoSignup} type="submit" class="bg-black hover:bg-blue-900 text-white font-bold py-2 px-20 rounded flex items-center justify-center space-x-2">
+    <img src="really-removebg-preview.png" alt="signup" class="h-6 w-8">
+    <span>Sign up</span>
+  </button>
 </div>
 </div>
