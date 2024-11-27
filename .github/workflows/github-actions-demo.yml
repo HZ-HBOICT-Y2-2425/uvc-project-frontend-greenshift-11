@@ -33,27 +33,20 @@ jobs:
       - name: Build the software
         run: npm run build
 
-      # Step 5: Run automated tests
-      #- name: Run tests
-      #  run: npm test -- --watchAll=false
+       #Step 5: Run automated tests
+      - name: Run tests
+        run: npm test -- --watchAll=false
 
       # Step 6: Notify on failure using GitHub PR comments
-      - name: Comment on pull request (on failure)
+      - name: Send Slack notification on failure
         if: failure()
-        uses: actions/github-script@v6
+        uses: Ilshidur/action-slack@v3
         with:
-          script: |
-            github.rest.issues.createComment({
-              issue_number: ${{ github.event.pull_request.number }},
-              owner: '${{ github.repository_owner }}',
-              repo: '${{ github.event.repository.name }}',
-              body: `
-              🚨 Build Failed for branch **${{ github.ref_name }}**.
-              Please check the logs and resolve the issues.
-              Workflow: **${{ github.workflow }}**
-              Job Status: **${{ job.status }}**
-              `
-            });
+          slack_webhook_url: ${{ secrets.SLACK_WEBHOOK_URL }}
+          message: |
+            🚨 *Build Failed* for branch *${{ github.ref_name }}*.
+            Workflow: *${{ github.workflow }}*
+            Job Status: *${{ job.status }}*
 
       # Step 7: Log success
       - name: Log success message
