@@ -34,8 +34,8 @@ jobs:
         run: npm run build
 
       # Step 5: Run automated tests
-      #- name: Run tests
-      #  run: npm test -- --watchAll=false
+      - name: Run tests
+        run: npm test -- --watchAll=false
 
       - name: Send Telegram notification on failure
         if: failure()
