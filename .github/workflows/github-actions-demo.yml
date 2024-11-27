@@ -26,25 +26,25 @@ jobs:
           node-version: '18'
 
       # Step 3: Install dependencies
-      - name: Install minimal dependencies
+      - name: Install dependencies
         run: npm install
 
       # Step 4: Run the build process
       - name: Build the software
         run: npm run build
 
-      # Step 5: Run automated tests
+      # Step 5: Run tests
       - name: Run tests
         run: npm test -- --watchAll=false
 
+      # Step 6: Notify on failure using Telegram
       - name: Send Telegram notification on failure
         if: failure()
         uses: appleboy/telegram-action@v0.0.9
         with:
-          telegram_token: ${{ secrets.TELEGRAM_TOKEN }}
-          telegram_chat_id: ${{ secrets.TELEGRAM_CHAT_ID }}
+          token: ${{ secrets.TELEGRAM_TOKEN }}
+          to: ${{ secrets.TELEGRAM_CHAT_ID }}
           message: "🚨 Build Failed for branch *${{ github.ref_name }}*"
-
 
       # Step 7: Log success
       - name: Log success message
