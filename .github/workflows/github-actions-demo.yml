@@ -12,30 +12,40 @@ on:
 
 jobs:
   Build-and-Test:
-    runs-on: ubuntu-24.10
+    runs-on: ubuntu-latest
 
     steps:
       # Step 1: Check out the repository
       - name: Check out repository code
         uses: actions/checkout@v4
 
-      # Step 2: Set up the necessary environment
+      # Step 2: Set up Node.js
       - name: Set up Node.js
         uses: actions/setup-node@v3
         with:
           node-version: '16'
 
       # Step 3: Install dependencies
-      - name: Install dependencies
-        run: npm install
+      - name: Install minimal dependencies
+        run: npm ci
 
-      # Step 4: Run the build process
+      # Step 4: Build the software (Optional, if not required for the assignment)
       - name: Build the software
         run: npm run build
+        if: ${{ always() }}
 
-      # Step 5: Run automated tests
+      # Step 5: Run tests
       - name: Run tests
-        run: npm test
+        run: npm test -- --watchAll=false
 
-      # Step 6: Provide feedback
-      - run: echo "✅ Build and tests completed successfully!"
+      # Step 6: Feedback
+      - run: echo "✅ Pipeline completed successfully!"
+
+      # Step 7: Cache Node.js modules
+      - name: Cache Node.js modules
+        uses: actions/cache@v3
+        with:
+          path: ~/.npm
+          key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-node-
