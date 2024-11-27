@@ -37,15 +37,14 @@ jobs:
       #- name: Run tests
       #  run: npm test -- --watchAll=false
 
-      - name: Send Slack notification on failure
+      - name: Send Telegram notification on failure
         if: failure()
-        uses: Ilshidur/action-slack@v3
+        uses: appleboy/telegram-action@v0.0.6
         with:
-          slack_webhook_url: ${{ secrets.SLACK_WEBHOOK_URL }}
-          message: |
-            🚨 *Build Failed* for branch *${{ github.ref_name }}*.
-            Workflow: *${{ github.workflow }}*
-            Job Status: *${{ job.status }}*
+          telegram_token: ${{ secrets.TELEGRAM_TOKEN }}
+          telegram_chat_id: ${{ secrets.TELEGRAM_CHAT_ID }}
+          message: "🚨 Build Failed for branch *${{ github.ref_name }}*"
+
 
       # Step 7: Log success
       - name: Log success message
