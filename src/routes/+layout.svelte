@@ -4,9 +4,10 @@
     $: isMainPage = $page.url.pathname === '/';
      $: isSignupPage = $page.url.pathname === '/signup';
      $: isLoginPage = $page.url.pathname === '/login';
+     $: isQuestionPage = $page.url.pathname === '/questions';
   </script>
   
-  {#if !isMainPage && !isSignupPage && !isLoginPage}
+  {#if !isMainPage && !isSignupPage && !isLoginPage && !isQuestionPage}
   <div class="min-h-screen flex flex-col bg-greenPale">
     <!-- Header -->
     <header class="bg-greenLight text-greenDeep py-4 shadow-md">
@@ -57,7 +58,7 @@
   </div>
   {/if}
   
-  {#if isMainPage ||  isSignupPage || isLoginPage}
+  {#if isMainPage ||  isSignupPage || isLoginPage || isQuestionPage}
   <!-- The Custom layout  -->
   <slot />
 {/if}
