@@ -30,7 +30,7 @@
     </header>
   
     <!-- Page Content -->
-    <main class="flex-grow container mx-auto px-4 py-8 text-center sm:text-left">
+    <main class="flex-grow container mx-0 px-0 py-0 text-center sm:text-left">
       <slot></slot>
     </main>
   
