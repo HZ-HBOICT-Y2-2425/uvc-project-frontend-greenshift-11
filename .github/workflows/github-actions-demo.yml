@@ -38,30 +38,18 @@ jobs:
         run: npm test -- --watchAll=false
 
       # Step 6: Notify on failure (if build fails on push)
-      - name: Post a comment or create issue on failure
+      - name: Post PR comment on failure
         if: failure()
         uses: actions/github-script@v6
         with:
           script: |
-            const { github, context } = require('@actions/github');
+            github.rest.issues.createComment({
+              issue_number: ${{ github.event.pull_request.number }},
+              owner: '${{ github.repository_owner }}',
+              repo: '${{ github.event.repository.name }}',
+              body: `🚨 Build failed for branch: *${{ github.ref_name }}*. Please check the logs.`
+            });
 
-            if (context.payload.pull_request) {
-              // Handle PR event and post comment
-              github.rest.issues.createComment({
-                issue_number: context.payload.pull_request.number,
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                body: `🚨 Build failed for branch: *${context.ref}*. Please check the logs.`
-              });
-            } else {
-              // Handle push event and create an issue if not a PR
-              github.rest.issues.create({
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                title: `🚨 Build failed for branch: *${context.ref}*`,
-                body: `The build failed for the branch: *${context.ref}*. Please check the logs.`
-              });
-            }
 
       # Step 7: Log success message
       - name: Log success message
