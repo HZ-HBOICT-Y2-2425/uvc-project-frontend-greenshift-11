@@ -1,24 +1,65 @@
 <script>
-    let questions = [
-      {
-        question: "Bawo ni?",
-        options: ["mo wa oh", "omo o dara oh", "kini", "kilode"]
-      },
-      {
-        question: "Iru nonsense wo ni eh?",
-        options: ["ma bi nu", "koshi danu jor", "e fi mi sile jare", "olorun oba"]
-      },
-     //
-    ];
+let questions = [
+  {
+    question: "How many high energy consumption appliances do you have in your house (e.g., washing machine)?",
+    options: ["1-4", "5-7", "7 or more"]
+  },
+  {
+    question: "How often do you use your listed appliances?",
+    options: ["Daily", "Weekly", "Monthly", "Rarely"]
+  },
+  {
+    question: "Would you be willing to switch to energy-efficient appliances if they are more affordable?",
+    options: ["Yes", "No"]
+  },
+  {
+    question: "What kind of heating system do you use at home?",
+    options: ["Gas", "Solar", "Electric", "Heat Pump", "None"]
+  },
+  {
+    question: "What is the primary energy source for your appliances?",
+    options: ["Electricity", "Gas", "Solar", "Other"]
+  },
+  {
+    question: "Do you regularly monitor your energy consumption?",
+    options: ["Yes", "No"]
+  },
+  {
+    question: "What do you use to monitor your energy consumption?",
+    options: ["An application", "A website", "I do not monitor it", "Some other method"]
+  },
+  {
+    question: "Do you use electric fans or air conditioner during hot days?",
+    options: ["Yes", "No"]
+  },
+  {
+    question: "Do you forget to unplug electric devices?",
+    options: ["Yes", "No"]
+  },
+  {
+    question: "Do you use a microwave to save time while cooking?",
+    options: ["Yes", "No"]
+  },
+  {
+    question: "Are you part of a green energy program?",
+    options: ["Yes", "No", "I'd like to join one"]
+  }
+];
+
+function goToHome() {
+      window.location.href = '/home';
+  }
   
     // State to track the current question
     let currentQuestionIndex = 0;
-  
-    // Functions to navigate questions
+
+    // Function to go the next question/preferences/homepage
     function nextQuestion() {
-      if (currentQuestionIndex < questions.length - 1) {
-        currentQuestionIndex++;
-      }
+        if (currentQuestionIndex < questions.length - 1) {
+            currentQuestionIndex++;
+        }else if (currentQuestionIndex === questions.length - 1){
+            goToHome();
+        }
     }
   
     function previousQuestion() {
@@ -74,12 +115,11 @@
         </button>
   
         <button
-          on:click={nextQuestion}
-          class="bg-blue-600 hover:bg-blue-500 text-white font-bold py-2 px-6 rounded"
-          disabled={currentQuestionIndex === questions.length - 1}
-        >
-          Next
-        </button>
+        on:click={nextQuestion}
+        class="bg-blue-600 hover:bg-blue-500 text-white font-bold py-2 px-6 rounded"
+      >
+        {currentQuestionIndex === questions.length - 1 ? "Finish" : "Next"}
+      </button>
   
         <button
           on:click={skipQuestion}
