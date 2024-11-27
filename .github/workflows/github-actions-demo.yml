@@ -1,7 +1,7 @@
 name: GitHub Actions Pipeline
 run-name: ${{ github.actor }} is testing GitHub Actions 🚀
 
-on: 
+on:
   push:
     branches:
       - main
@@ -13,6 +13,10 @@ on:
 jobs:
   Build-and-Test:
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node: [18, 20] # Run tests across multiple Node.js versions for compatibility
+        os: [ubuntu-latest] # Default to Ubuntu
 
     steps:
       # Step 1: Check out the repository
@@ -23,25 +27,21 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: '16'
+          node-version: ${{ matrix.node }}
 
       # Step 3: Install dependencies
       - name: Install minimal dependencies
         run: npm install
 
-      # Step 4: Build the software (Optional, if not required for the assignment)
+      # Step 4: Run the build process
       - name: Build the software
         run: npm run build
-        if: ${{ always() }}
 
-      # Step 5: Run tests
+      # Step 5: Run automated tests
       - name: Run tests
         run: npm test -- --watchAll=false
 
-      # Step 6: Feedback
-      - run: echo "✅ Pipeline completed successfully!"
-
-      # Step 7: Cache Node.js modules
+      # Step 6: Cache dependencies
       - name: Cache Node.js modules
         uses: actions/cache@v3
         with:
@@ -49,3 +49,31 @@ jobs:
           key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
           restore-keys: |
             ${{ runner.os }}-node-
+
+      # Step 7: Notify on failure
+      - name: Notify Developers on Failure
+        if: failure()
+        uses: dawidd6/action-send-mail@v3
+        with:
+          server_address: smtp.gmail.com
+          server_port: 587
+          username: ${{ secrets.EMAIL_USERNAME }}
+          password: ${{ secrets.EMAIL_PASSWORD }}
+          subject: "❌ Build Failure: ${{ github.repository }}"
+          body: |
+            Hi Team,
+
+            The latest build has failed for branch ${{ github.ref }}.
+            Please check the logs and resolve the issue promptly.
+
+            Repository: ${{ github.repository }}
+            Workflow: ${{ github.workflow }}
+            Job Status: ${{ job.status }}
+
+          to: "developer1@example.com,developer2@example.com"
+          from: "pipeline@example.com"
+
+      # Step 8: Notify on success
+      - name: Notify Developers on Success
+        if: success()
+        run: echo "✅ Build and tests completed successfully!"
