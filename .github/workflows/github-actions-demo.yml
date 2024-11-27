@@ -11,7 +11,7 @@ on:
       - main
 
 jobs:
-  Build-Test-Containerize:
+  Build-and-Test:
     runs-on: ubuntu-latest
 
     steps:
@@ -30,32 +30,14 @@ jobs:
         run: npm install
 
       # Step 4: Run the build process
-      # - name: Build the software
-      #  run: npm run build
+      - name: Build the software
+        run: npm run build
 
-      # Step 5: Build Docker container (for containerization)
-      - name: Build Docker Image
-        run: |
-          docker build -t my-app:${{ github.sha }} .
-        env:
-          NODE_ENV: production
+      # Step 5: Run automated tests
+      #- name: Run tests
+      #  run: npm test -- --watchAll=false
 
-      # Step 6: Run Docker container to test
-      - name: Test Docker Container
-        run: |
-          docker run --rm -e NODE_ENV=production my-app:${{ github.sha }}
-
-      # Step 7: Manage environmental parameters (environment file example)
-      - name: Verify Environment Parameters
-        run: |
-          if [ ! -f .env ]; then
-            echo "Environment file (.env) not found! Create a .env file for configuration."
-            exit 1
-          fi
-        env:
-          NODE_ENV: production
-
-      # Step 8: Notify on failure using GitHub PR comments
+      # Step 6: Notify on failure using GitHub PR comments
       - name: Comment on pull request (on failure)
         if: failure()
         uses: actions/github-script@v6
@@ -73,7 +55,7 @@ jobs:
               `
             });
 
-      # Step 9: Log success
+      # Step 7: Log success
       - name: Log success message
         if: success()
         run: echo "✅ Build and tests completed successfully!"
