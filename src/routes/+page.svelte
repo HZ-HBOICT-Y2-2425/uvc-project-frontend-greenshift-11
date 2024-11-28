@@ -1,6 +1,7 @@
 <script>
   import { setContext } from "svelte";
-  export let data;
+  // svelte-ignore export_let_unused
+    export let data;
   import "../app.css";
   function gotoSignup() {
       window.location.href = '/signup';
