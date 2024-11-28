@@ -1,4 +1,6 @@
 <script>
+     import "../../app.css";
+     
 let questions = [
   {
     question: "How many high energy consumption appliances do you have in your house (e.g., washing machine)?",
@@ -46,8 +48,8 @@ let questions = [
   }
 ];
 
-function goToHome() {
-      window.location.href = '/home';
+function goToThankYou() {
+      window.location.href = '/thank-you';
   }
   
     // State to track the current question
@@ -58,7 +60,7 @@ function goToHome() {
         if (currentQuestionIndex < questions.length - 1) {
             currentQuestionIndex++;
         }else if (currentQuestionIndex === questions.length - 1){
-            goToHome();
+            goToThankYou();
         }
     }
   

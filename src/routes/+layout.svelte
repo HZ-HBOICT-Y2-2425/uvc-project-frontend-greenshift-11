@@ -5,9 +5,10 @@
      $: isSignupPage = $page.url.pathname === '/signup';
      $: isLoginPage = $page.url.pathname === '/login';
      $: isQuestionPage = $page.url.pathname === '/questions';
+     $: isThankYouPage = $page.url.pathname === '/thank-you'
   </script>
   
-  {#if !isMainPage && !isSignupPage && !isLoginPage && !isQuestionPage}
+  {#if !isMainPage && !isSignupPage && !isLoginPage && !isQuestionPage && !isThankYouPage}
   <div class="min-h-screen flex flex-col bg-greenPale">
     <!-- Header -->
     <header class="bg-greenLight text-greenDeep py-4 shadow-md">
@@ -45,20 +46,20 @@
           <img src="articles.png" alt="Articles" class="w-14 h-auto" />
         </a>
         <a href="/co2" class="text-greenLight underline">
-          <img src="CO2.png" alt="CO2 Info" class="w-14 h-auto" />
+          <img src="co2.png" alt="CO2 Info" class="w-14 h-auto" />
         </a>
         <a href="/shop" class="text-greenLight underline">
           <img src="shop.png" alt="Shop" class="w-14 h-auto" />
         </a>
         <a href="/setting" class="text-greenLight underline">
-          <img src="setting.png" alt="Setting" class="w-14 h-auto" />
+          <img src="profile.png" alt="Setting" class="w-14 h-auto" />
         </a>
       </div>
     </footer>
   </div>
   {/if}
   
-  {#if isMainPage ||  isSignupPage || isLoginPage || isQuestionPage}
+  {#if isMainPage ||  isSignupPage || isLoginPage || isQuestionPage || isThankYouPage }
   <!-- The Custom layout  -->
   <slot />
 {/if}
