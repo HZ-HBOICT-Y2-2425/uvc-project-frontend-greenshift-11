@@ -6,6 +6,7 @@ on:
     branches:
       - main
       - pipeline
+      - landingPage
   pull_request:
     branches:
       - main
