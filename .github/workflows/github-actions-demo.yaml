@@ -1,75 +1,63 @@
-name: GitHub Actions Pipeline
-run-name: ${{ github.actor }} is testing GitHub Actions 🚀
+name: GitHub Actions Pipeline  # The name of the workflow
 
-on:
-  push:
+on:  # Defines the events that trigger this workflow
+  push:  # Trigger the workflow on a push event
     branches:
-      - main
-      - pipeline
-  pull_request:
+      - main   # Trigger when changes are pushed to the 'main' branch
+      - pipeline  # Trigger when changes are pushed to the 'pipeline' branch
+  pull_request:  # Trigger the workflow on a pull request event
     branches:
-      - main
+      - main  # Trigger when a pull request is made to the 'main' branch
 
-permissions:
-  contents: read
-  packages: read
-  statuses: write
+jobs:  # Defines the jobs in this workflow
+  Build-and-Test:  # Name of the job that builds and tests the code
+    runs-on: ubuntu-latest  # The runner environment to run the job (Ubuntu in this case)
+    name: Build and Test Job  # Name of the job in GitHub Actions UI
 
-jobs:
-  Build-and-Test:
-    runs-on: ubuntu-latest
-    name: Build and Test Job
-    steps:
-      - name: Check out repository code
-        uses: actions/checkout@v4
+    steps:  # List of steps to run for this job
+      - name: Check out repository code  # Step to check out the code from the repository
+        uses: actions/checkout@v4  # Uses the checkout action to retrieve the code
 
-      - name: Set up Node.js
-        uses: actions/setup-node@v3
+      - name: Set up Node.js  # Step to set up Node.js
+        uses: actions/setup-node@v3  # Uses the setup-node action to set up the required Node.js version
         with:
-          node-version: "18"
+          node-version: "18"  # Specifies the version of Node.js to use
 
-      - name: Install dependencies
-        run: npm install
+      - name: Install dependencies  # Step to install dependencies (e.g., npm install)
+        run: npm install  # Runs 'npm install' to install the necessary dependencies
 
-      - name: Build the software
-        run: npm run build
+      - name: Build the software  # Step to build the software
+        run: npm run build  # Runs the build script defined in your package.json
 
-      - name: Log success message
-        if: success()
-        run: echo "✅ Build and tests completed successfully!"
+      - name: Log success message  # Step to log a success message if the job is successful
+        if: success()  # Only runs this step if the previous steps were successful
+        run: echo "✅ Build and tests completed successfully!"  # Prints a success message
 
-  Lint:
-    runs-on: ubuntu-latest
-    name: Lint Code Base
-    permissions:
-      contents: read
-      packages: read
-      statuses: write
+  Lint:  # Name of the job that lints the code base
+    runs-on: ubuntu-latest  # The runner environment for this job
+    name: Lint Code Base  # Name of the job in GitHub Actions UI
+    permissions:  # Defines the permissions for this job
+      contents: read  # Required to fetch repository content
+      packages: read  # If packages are used in the repo, this permission is needed
+      statuses: write  # Required to report the status of the job (success/failure)
 
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
+    steps:  # List of steps to run for this job
+      - name: Checkout code  # Step to check out the code from the repository
+        uses: actions/checkout@v4  # Uses the checkout action to retrieve the code
         with:
-          fetch-depth: 0
+          fetch-depth: 0  # Fetches the entire git history to ensure full context for changes
 
-      - name: Run Super-Linter
-        uses: super-linter/super-linter@v7.2.0
+      - name: Run Super-Linter  # Step to run the Super-Linter on the codebase
+        uses: super-linter/super-linter@v7.2.0  # Uses the Super-Linter GitHub Action
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          VALIDATE_ALL_CODEBASE: false
-          FILTER_REGEX_INCLUDE: "^src/.*$"
-          DEFAULT_BRANCH: main
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Required to interact with GitHub's API for status updates
+          VALIDATE_ALL_CODEBASE: false  # Only validate changed files, not the entire codebase
+          FILTER_REGEX_INCLUDE: "^src/.*$"  # Only lint files inside the 'src/' directory
+          DEFAULT_BRANCH: main  # The default branch to compare the changes against
 
-      # Notify Slack on Success or Failure
-      - name: Notify Slack on Success or Failure
-        if: always()  # Always run this step
-        uses: rtCamp/action-slack-notify@v2
-        with:
-          webhook_url: ${{ secrets.SLACK_WEBHOOK_URL }}
-          message: |
-            GitHub Actions job results for ${{ github.repository }}:
-            - **Job**: Linter
-            - **Status**: ${{ job.status }}
-            - **Link to workflow**: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
-        env:
-          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+      # Custom email-like notifications by ensuring failure
+      - name: Notify on Failure  # Step to notify if the linter fails
+        if: failure()  # Runs only if the previous step (Super-Linter) fails
+        run: |
+          echo "❌ Linter failed. Please check the results above."  # Prints a failure message to the logs
+          echo "Check the workflow details at ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"  # Provides a link to the workflow run details
