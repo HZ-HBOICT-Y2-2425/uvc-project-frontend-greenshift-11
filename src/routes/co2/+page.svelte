@@ -1,4 +1,5 @@
 <script>
+  //All the comments below will be used for creation of the chart
   // export let open = false;
   // import CanvasJS from "@canvasjs/charts";
 	//import Appliance from '$lib/components/Appliance.svelte';
