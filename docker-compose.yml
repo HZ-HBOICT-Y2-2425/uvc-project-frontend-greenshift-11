@@ -1,0 +1,10 @@
+version: '3.8'  # You can remove this line if you get the obsolete version warning
+services:
+  frontend:
+    build:
+      context: .  # This should be the correct context for your Dockerfile
+      dockerfile: Dockerfile  # Ensure this points to the correct Dockerfile
+    ports:
+      - "5173:5173"  # Map the container port to the host port
+    environment:
+      NODE_ENV: production
