@@ -3,12 +3,8 @@ run-name: ${{ github.actor }} is testing GitHub Actions 🚀
 
 on:
   push:
-    branches:
-      - main
-      - pipeline
   pull_request:
-    branches:
-      - main
+
 
 # Define permissions for the workflow, required for all jobs in the pipeline
 permissions:
