@@ -33,24 +33,23 @@ jobs:
       - name: Build the software
         run: npm run build
 
-      # Step 5: notify via Email(SendGrid) on failure
+      # Step 5: Notify via Email (SendGrid) on failure
       - name: Send Email Notification
-  if: failure()
-  uses: dawidd6/action-send-mail@v3
-  with:
-    server_address: smtp.sendgrid.net
-    server_port: 587
-    username: apikey
-    password: ${{ secrets.SENDGRID_API_KEY }}
-    subject: 'Build Failed - CI/CD Pipeline'
-    body: 'The pipeline failed. Please check the logs at: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}'
-    to: nitaifechukwu@gmail.com
-    from: ci-pipeline@example.com
-
+        if: failure()
+        uses: dawidd6/action-send-mail@v3
+        with:
+          server_address: smtp.sendgrid.net
+          server_port: 587
+          username: apikey
+          password: ${{ secrets.SENDGRID_API_KEY }}
+          subject: 'Build Failed - CI/CD Pipeline'
+          body: 'The pipeline failed. Please check the logs at: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}'
+          to: nitaifechukwu@gmail.com
+          from: ci-pipeline@example.com
 
       # Step 6: Notify on failure using GitHub PR comments
       - name: Comment on pull request (on failure)
-        if: failure()
+        if: failure() && github.event_name == 'pull_request'
         uses: actions/github-script@v6
         with:
           script: |
