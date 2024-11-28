@@ -12,7 +12,7 @@ on:
 
 jobs:
   Build-and-Test:
-    runs-on: ubuntu 24.10
+    runs-on: ubuntu-latest
 
     steps:
       # Step 1: Check out the repository
@@ -33,23 +33,13 @@ jobs:
       - name: Build the software
         run: npm run build
 
-      # Step 5: Notify via Email (SendGrid) on failure
-      - name: Send Email Notification
-        if: failure()
-        uses: dawidd6/action-send-mail@v3
-        with:
-          server_address: smtp.sendgrid.net
-          server_port: 587
-          username: apikey
-          password: ${{ secrets.SENDGRID_API_KEY }}
-          subject: 'Build Failed - CI/CD Pipeline'
-          body: 'The pipeline failed. Please check the logs at: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}'
-          to: nitaifechukwu@gmail.com
-          from: ci-pipeline@example.com
+      # Step 5: Run automated tests
+      #- name: Run tests
+      #  run: npm test -- --watchAll=false
 
       # Step 6: Notify on failure using GitHub PR comments
       - name: Comment on pull request (on failure)
-        if: failure() && github.event_name == 'pull_request'
+        if: failure()
         uses: actions/github-script@v6
         with:
           script: |
@@ -58,10 +48,10 @@ jobs:
               owner: '${{ github.repository_owner }}',
               repo: '${{ github.event.repository.name }}',
               body: `
-              🚨 Build Failed for branch *${{ github.ref_name }}*.
+              🚨 Build Failed for branch **${{ github.ref_name }}**.
               Please check the logs and resolve the issues.
-              Workflow: *${{ github.workflow }}*
-              Job Status: *${{ job.status }}*
+              Workflow: **${{ github.workflow }}**
+              Job Status: **${{ job.status }}**
               `
             });
 
