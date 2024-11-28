@@ -1,18 +1,20 @@
-# Use an official Node.js runtime as the base image
-FROM node:18-alpine
+# Dockerfile
+FROM node:18
 
-# Set the working directory inside the container
-WORKDIR /app
+# Set the working directory
+WORKDIR /usr/src/app
 
-# Copy package files and install dependencies
+# Copy package.json and package-lock.json first (for better layer caching)
 COPY package*.json ./
+
+# Install dependencies
 RUN npm install
 
-# Copy the rest of the application code
+# Copy the entire application
 COPY . .
 
-# Expose the application port (change to 5173)
+# Expose the port (if needed for development)
 EXPOSE 5173
 
-# Command to run the application
-CMD ["npm", "start"]
+# Define the command to run your app in development mode
+CMD ["npm", "run", "dev"]
