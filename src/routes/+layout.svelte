@@ -46,7 +46,7 @@
           <img src="articles.png" alt="Articles" class="w-14 h-auto" />
         </a>
         <a href="/co2" class="text-greenLight underline">
-          <img src="co2.png" alt="CO2 Info" class="w-14 h-auto" />
+          <img src="CO2.png" alt="CO2 Info" class="w-14 h-auto" />
         </a>
         <a href="/shop" class="text-greenLight underline">
           <img src="shop.png" alt="Shop" class="w-14 h-auto" />

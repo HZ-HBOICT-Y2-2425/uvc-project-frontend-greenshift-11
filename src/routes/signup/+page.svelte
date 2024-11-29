@@ -5,7 +5,7 @@
   let password = '';
 
   const handleSubmit = () => {
-    window.location.href = '/home';
+    window.location.href = '/questions';
   };
 </script>
 
