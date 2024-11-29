@@ -1,6 +1,19 @@
 {
   "extends": "./.svelte-kit/tsconfig.json",
   "compilerOptions": {
+    "target": "esnext", // or another target you need
+    "module": "esnext"
+  },
+  "include": [
+    "src/**/*.js",
+    "src/routes/**/*.svelte"
+  ],
+  "exclude": [
+    "node_modules",
+    ".svelte-kit",
+    "build"
+  ]
+}
     "allowJs": true,
     "checkJs": true,
     "esModuleInterop": true,
