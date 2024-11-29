@@ -34,6 +34,7 @@ jobs:
       - name: Build the software
         run: npm run build
 
+      #add a step to run the unit tests
       # Step 5: Run unit tests for microservice
       - name: Run unit tests for frontend
         run: npm test
