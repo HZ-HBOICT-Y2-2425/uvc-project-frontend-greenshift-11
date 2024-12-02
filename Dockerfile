@@ -23,5 +23,8 @@ USER appuser
 # Expose the correct port
 EXPOSE 5173
 
+# Define the health check
+HEALTHCHECK --interval=30s --timeout=5s --retries=3 CMD curl -f http://localhost:5173/ || exit 1
+
 # Run the application
 CMD ["npm", "run", "dev"]
