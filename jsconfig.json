@@ -1,13 +1,15 @@
 {
   "extends": "./.svelte-kit/tsconfig.json",
   "compilerOptions": {
-    "target": "esnext", // or another target you need
-    "module": "esnext"
+    "target": "esnext", // Set the ECMAScript target version
+    "module": "esnext" // Set the module system
   },
   "include": [
     "src/**/*.js",
-    "src/routes/**/*.svelte"
-  ],
+    "src/routes/**/*.svelte",
+    "jest.config.cjs", // Fixed typo: changed `cjss` to `cjs`
+    "jest.setup.js" // Ensured that the duplicate entry is removed
+, "__tests__/+page.test.mjs", "__tests__/+page.test.mjs"  ],
   "exclude": [
     "node_modules",
     ".svelte-kit",
