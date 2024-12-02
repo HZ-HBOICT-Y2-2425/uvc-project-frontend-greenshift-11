@@ -1,8 +1,9 @@
 <script>
-  import { onMount, writable } from 'svelte/store';
+  export let appliance;
 
   // State to hold appliance data (initially filled with some sample data)
-  let appliance = {
+  appliance = {
+    id: 1,
     brand: 'Samsung',
     type: 'Washing Machine',
     description: 'Front-load washer with energy efficiency',
@@ -14,7 +15,7 @@
   // Function to handle saving data after editing
   const saveChanges = () => {
     // Here you would typically send the updated data to the server
-    console.log('Saving changes:', appliance);
+    console.log('Saving changes:');
     isEditing = false; // Exit edit mode after saving
   };
 </script>

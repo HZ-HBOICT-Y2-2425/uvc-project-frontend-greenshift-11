@@ -1,15 +1,15 @@
 {
-  "extends": "./.svelte-kit/tsconfig.json",
   "compilerOptions": {
-    "target": "esnext", // Set the ECMAScript target version
-    "module": "esnext" // Set the module system
+    "target": "esnext",
+    "module": "esnext",
+    "checkJs": true,
+    "baseUrl": "."
   },
   "include": [
-    "src/**/*.js",
-    "src/routes/**/*.svelte",
-    "jest.config.cjs", // Fixed typo: changed `cjss` to `cjs`
-    "jest.setup.js" // Ensured that the duplicate entry is removed
-, "__tests__/+page.test.mjs", "__tests__/+page.test.mjs"  ],
+    "src/**/*",
+    "cypress/**/*",
+    "__tests__/**/*"
+  ],
   "exclude": [
     "node_modules",
     ".svelte-kit",
