@@ -13,5 +13,4 @@ describe('Navigation Tests', () => {
     cy.contains('Expected Content for CO2');
   });
 
-  // Add more tests for each link as necessary
 });
