@@ -6,6 +6,9 @@ export default {
       fontFamily: {
         inter: ['Inter', 'sans-serif'],
       },
+      fontFamily: {
+        inter: ['Inter', 'sans-serif'],
+      },
       colors: {
         greenLight: "#C1E899",
         brownWarm: "#9A6735",
@@ -17,5 +20,6 @@ export default {
       },
     },
   },
-  plugins: [],
-};
+  plugins: [], 
+}
+
