@@ -5,8 +5,6 @@ on:
   push:
   pull_request:
 
-
-# Define permissions for the workflow, required for all jobs in the pipeline
 permissions:
   contents: read    # Minimum required to check out code
   packages: read    # Minimum required for accessing packages (if necessary)
@@ -36,9 +34,10 @@ jobs:
       - name: Build the software
         run: npm run build
 
-      # Step 5: (Optional) Run tests
-      # - name: Run tests
-      #   run: npm test -- --watchAll=false
+      #add a step to run the unit tests
+      # Step 5: Run unit tests for microservice
+      - name: Run unit tests for frontend
+        run: npm test
 
       # Step 6: Log success message
       - name: Log success message
@@ -68,9 +67,8 @@ jobs:
           FILTER_REGEX_INCLUDE: "^src/.*$"                  # Lint only files in the src/ folder
           DEFAULT_BRANCH: main                              # Specify the default branch for comparison
 
-           # Custom email-like notifications by ensuring failure
       - name: Notify on Failure  # Step to notify if the linter fails
         if: failure()  # Runs only if the previous step (Super-Linter) fails
         run: |
-          echo "❌ Linter failed. Please check the results above."  # Prints a failure message to the logs
-          echo "Check the workflow details at ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"  # Provides a link to the workflow run details
+          echo "❌ Linter failed. Please check the results above."
+          echo "Check the workflow details at ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
