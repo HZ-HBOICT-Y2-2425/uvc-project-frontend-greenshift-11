@@ -5,7 +5,7 @@
      $: isSignupPage = $page.url.pathname === '/signup';
      $: isLoginPage = $page.url.pathname === '/login';
      $: isQuestionPage = $page.url.pathname === '/questions';
-     $: isThankYouPage = $page.url.pathname === '/thank-you'
+     $: isThankYouPage = $page.url.pathname === '/thank-you';
   </script>
   
   {#if !isMainPage && !isSignupPage && !isLoginPage && !isQuestionPage && !isThankYouPage}
