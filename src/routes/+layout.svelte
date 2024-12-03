@@ -9,7 +9,7 @@
 {#if !isMainPage && !isSignupPage && !isLoginPage}
 <div class="flex flex-col h-screen bg-greenPale"> <!-- Keep your background color -->
   <!-- Header -->
-  <header class="bg-greenLight text-greenDeep py-4 shadow-md">
+  <header class="bg-greenLight text-greenDeep py-4 shadow-md w-100%s mx-0 h-15vh">
     <div class="container mx-auto text-center px-4">
       <h1 class="text-2xl font-bold sm:text-3xl">
         {#if $page.url.pathname === "/home"}
@@ -30,12 +30,12 @@
   </header>
 
   <!-- Page Content -->
-  <main class="flex-grow container mx-auto px-4 py-0 text-center sm:text-left">
+  <main class="mt-15vh h-70vh flex-grow container mx-0 px-0 py-0 text-center sm:text-left">
     <slot></slot>
   </main>
 
   <!-- Footer -->
-  <footer class="bg-greenDeep text-greenPale h-20 flex justify-center items-center">
+  <footer class="bg-greenDeep text-greenPale h-15vh flex justify-center items-center">
     <div class="flex justify-center items-center gap-6">
       <a href="/home" class="flex flex-col items-center text-greenLight hover:text-green-400 transition duration-300">
         <img src="home.png" alt="Home" class="w-14 h-auto mb-1" />

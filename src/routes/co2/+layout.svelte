@@ -6,9 +6,9 @@
     //import Appliance from '$lib/components/Appliance.svelte';
 </script>
 
-<div class="flex h-screen">
+<div class="flex mx-0 my-0 p-0">
     <!-- Sidebar Navbar -->
-  <aside class="w-1/4 bg-sideBarGreen h-[77vh] p-3 shadow-lg transition-all">
+  <aside class="w-1/4 bg-sideBarGreen p-3 shadow-lg transition-all h-100%">
     <nav class="p-0 text-xl">
       <h1 class="text-white text-lg font-bold mb-2">Appliances</h1>
       <h2 class="text-white text-base mb-1">All appliances</h2>
@@ -21,7 +21,7 @@
     </nav>
   </aside>
 
-  <main class="flex-1 p-4 overflow-y-auto">
+  <main class="flex-1 p-4 my-0 overflow-y-auto">
     <slot></slot>
   </main>
 </div>
