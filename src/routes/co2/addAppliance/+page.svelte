@@ -12,7 +12,7 @@
 <div class="flex-grow p-4">
   <div class="flex justify-between items-start">
     <!-- Form Section -->
-    <form class="flex flex-col gap-4 w-2/3" method="GET">
+    <form class="flex flex-col gap-4 w-2/3" method="POST">
       <label class="block">
         <span class="text-gray-700 font-medium">Brand</span>
         <input name="brand" type="text" class="w-full border rounded p-2 mt-1" />
@@ -31,7 +31,7 @@
         <span class="text-gray-700 font-medium">Hours per week usage</span>
         <input name="hoursPerWeek" type="number" class="w-full border rounded p-2 mt-1" />
       </label>
-      <button class="bg-blue-500 text-white font-semibold py-2 px-4 rounded hover:bg-blue-600">
+      <button class="bg-green-600 text-white font-semibold py-2 px-4 rounded hover:bg-blue-600">
         Log in
       </button>
     </form>

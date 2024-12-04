@@ -1,7 +1,6 @@
 <script>
   export let appliance;
 
-  // State to hold appliance data (initially filled with some sample data)
   appliance = {
     id: 1,
     brand: 'Samsung',
@@ -10,19 +9,16 @@
     hoursPerWeek: 10
   };
 
-  let isEditing = false; // State to control edit mode
+  let isEditing = false;
 
-  // Function to handle saving data after editing
   const saveChanges = () => {
-    // Here you would typically send the updated data to the server
     console.log('Saving changes:');
-    isEditing = false; // Exit edit mode after saving
+    isEditing = false;
   };
 </script>
 
 <div class="flex-grow p-4">
   <div class="flex justify-between items-start">
-    <!-- Display Section -->
     {#if !isEditing}
       <div class="flex flex-col gap-4 w-2/3">
         <div>
@@ -43,11 +39,11 @@
         </div>
         <button 
           on:click={() => isEditing = true} 
-          class="bg-blue-500 text-white font-semibold py-2 px-4 rounded hover:bg-blue-600">
+          class="bg-green-600 text-white font-semibold py-2 px-4 rounded hover:bg-blue-600">
           Edit
         </button>
       </div>
-    {:else} <!-- Edit Mode -->
+    {:else}
       <form class="flex flex-col gap-4 w-2/3" on:submit|preventDefault={saveChanges}>
         <label class="block">
           <span class="text-gray-700 font-medium">Brand</span>
@@ -95,11 +91,9 @@
         </button>
       </form>
     {/if}
-    
-    <!-- Photo Section (for illustration) -->
+
     <div class="ml-4">
       <p class="text-center text-gray-700 mt-2">Upload a photo</p>
-      <!-- You can insert an image here if you want -->
     </div>
   </div>
 </div>
