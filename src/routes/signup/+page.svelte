@@ -6,13 +6,45 @@
   let confirmPassword = '';
   let showPassword = false;
   let isPasswordMatching = false; 
+  let errorMessage = '';
+  let successMessage = '';
 
-  const handleSubmit = () => {
-    if (isPasswordMatching) {
-      window.location.href = '/questions';
+  //base URL of the backend
+  const BASE_URL = "http://localhost:3010/";
+  
+
+  // Function to handle the form submission
+  const handleSubmit = async () => {
+    // Send POST request to the backend
+    try {
+      const response = await fetch(`${BASE_URL}auth/signup`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ name, email, password }), // Send form data
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        successMessage = "User registered successfully!";
+        console.log("Response from server:", data);
+
+        // Redirect the user to the questions page
+        window.location.href = "/questions";
+      } else {
+        // Handle errors
+        const errorText = await response.text(); 
+        errorMessage = `Error: ${errorText}`;
+        console.error(errorMessage);
+      }
+    } catch (error) {
+      errorMessage = "Could not connect to the server.";
+      console.error("Network error:", error);
     }
   };
 
+ 
   // Function to check if passwords match
   const validatePasswords = () => {
     isPasswordMatching = password === confirmPassword;
@@ -52,6 +84,13 @@
           <p class="text-red-500 text-sm">Passwords do not match.</p>
         {/if}
       </div>
+      <div>
+        {#if errorMessage}
+          <p class="text-red-500 text-sm">{errorMessage}</p>
+        {/if}
+        {#if successMessage}
+          <p class="text-green-500 text-sm">{successMessage}</p>
+        {/if}
       <button type="submit" class="w-full bg-blue-500 hover:bg-blue-700 text-white font-bold py-3 px-20 rounded-full" disabled={!isPasswordMatching}>
         Sign up
       </button>
