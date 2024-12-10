@@ -1,70 +1,76 @@
 <script>
-    import "../../app.css";
+  import "../../app.css";
+  import { quoteStore, changeQuote } from "../stores/quoteStore.js";
+  import { get } from "svelte/store";
+
+  let view = "default"; // Tracks the current view: "default", "current", or "previous"
+
+  // Mock data for current articles
+  const currentArticles = [
+      { title: "Fast Fashion Crisis", content: "Exploring the impact of fast fashion." },
+      { title: "Deforestation Woes", content: "How deforestation affects our planet." },
+      { title: "Plastic Pollution", content: "Understanding the dangers of plastics." },
+      { title: "Sustainable Living", content: "Tips for an eco-friendly lifestyle." }
+  ];
 </script>
 
-<!-- Page-Specific Content -->
-<div class="bg-greenPale min-h-screen">
-  <!-- Articles Section -->
-  <div class="container mx-auto px-4 py-8">
-    <h1 class="text-greenDeep text-3xl font-bold text-center mb-8">Articles</h1>
-    <div class="grid grid-cols-1 gap-8">
-      <!-- Top Row of 4 Articles -->
-      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-        {#each [1, 2, 3, 4] as i}
-          <div class="bg-greenLight rounded-lg shadow-md overflow-hidden">
-            <img
-              src={`/path-to-image-placeholder-${i}.png`}
-              alt="Article Image"
-              class="w-full h-40 object-cover"
-            />
-            <div class="p-4">
-              <h2 class="text-greenDeep font-bold text-lg mb-2">
-                {i % 2 === 0 ? "Fast fashion" : "Deforestation"}
-              </h2>
-              <p class="text-greenDeep text-sm mb-4">
-                {i % 2 === 0
-                  ? "Fast fashion is the business model of replicating recent catwalk trends and high-fashion designs, mass-producing them at a low cost, and bringing them to retail quickly while demand is at its highest."
-                  : "Deforestation or forest clearance is the removal and destruction of a forest or stand of trees from land that is then converted to non-forest use. Deforestation can involve conversion of forest land to farms, ranches, or urban use."}
-              </p>
-              <a
-                href="#"
-                class="text-greenDeep bg-greenPale px-4 py-2 text-sm rounded hover:bg-greenDeep hover:text-greenPale transition-all"
-              >
-                📖 Click here to find out more
-              </a>
-            </div>
-          </div>
-        {/each}
-      </div>
+<div class="bg-white min-h-screen flex flex-col items-center py-8">
+<!-- Navigation Buttons -->
+<div class="flex justify-between items-center w-3/4 mb-8">
+  <!-- Current Articles Button -->
+  <button
+    on:click={() => (view = "current")}
+    class="bg-green-300 text-green-700 font-semibold py-2 px-4 rounded shadow-md hover:bg-green-700 hover:text-white transition-all"
+  >
+    📅 Current
+  </button>
 
-      <!-- Bottom Row of 4 Articles -->
-      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-        {#each [5, 6, 7, 8] as i}
-          <div class="bg-greenLight rounded-lg shadow-md overflow-hidden">
-            <img
-              src={`/path-to-image-placeholder-${i}.png`}
-              alt="Article Image"
-              class="w-full h-40 object-cover"
-            />
-            <div class="p-4">
-              <h2 class="text-greenDeep font-bold text-lg mb-2">
-                {i % 2 === 0 ? "Fast fashion" : "Deforestation"}
-              </h2>
-              <p class="text-greenDeep text-sm mb-4">
-                {i % 2 === 0
-                  ? "Fast fashion is the business model of replicating recent catwalk trends and high-fashion designs, mass-producing them at a low cost, and bringing them to retail quickly while demand is at its highest."
-                  : "Deforestation or forest clearance is the removal and destruction of a forest or stand of trees from land that is then converted to non-forest use. Deforestation can involve conversion of forest land to farms, ranches, or urban use."}
-              </p>
-              <a
-                href="#"
-                class="text-greenDeep bg-greenPale px-4 py-2 text-sm rounded hover:bg-greenDeep hover:text-greenPale transition-all"
-              >
-                📖 Click here to find out more
-              </a>
-            </div>
-          </div>
-        {/each}
-      </div>
+  <!-- Previous Articles Button -->
+  <button
+    on:click={() => (view = "previous")}
+    class="bg-green-300 text-green-700 font-semibold py-2 px-4 rounded shadow-md hover:bg-green-700 hover:text-white transition-all"
+  >
+    ❤️ Favorites
+  </button>
+</div>
+
+<!-- Conditional Rendering of Content -->
+{#if view === "default"}
+  <!-- Default View -->
+  <div class="w-3/4 bg-green-100 p-6 rounded-lg shadow-lg text-center">
+    <h2 class="text-xl font-bold text-green-700 mb-4">Inspirational Quote</h2>
+    <p class="text-green-600 text-center italic mb-4 h-lvh text-xl ">
+      "{ $quoteStore }"
+    </p>
+  </div>
+{:else if view === "current"}
+  <!-- Current Articles View -->
+  <div class="w-3/4">
+    <h2 class="text-xl font-bold text-green-700 mb-4">Available Articles</h2>
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+      {#each currentArticles as article}
+        <div class="bg-green-100 p-4 rounded-lg shadow-md">
+          <h3 class="font-bold text-green-700">{article.title}</h3>
+          <p class="text-green-600 text-sm">{article.content}</p>
+        </div>
+      {/each}
+      <button
+        on:click={() => (view = "default")}
+        class="bg-red-700 text-white-700 font-semibold py-2 px-4 rounded shadow-md hover:bg-black hover:text-white transition-all shrink w-20 h-14"
+        >Back</button>
     </div>
   </div>
+{:else if view === "previous"}
+  <!-- Placeholder for Previous Articles -->
+  <div class="w-3/4 bg-red-100 p-6 rounded-lg shadow-lg">
+    <h2 class="text-xl font-bold text-red-700 mb-4">Previous Articles</h2>
+    <p class="text-red-600 text-center">
+      Content for previous articles will go here.
+    </p>
+  </div>
+  <button
+        on:click={() => (view = "default")}
+        class="bg-red-700 text-white-700 font-semibold py-2 px-4 rounded shadow-md hover:bg-black hover:text-white transition-all"
+        >Back</button>
+{/if}
 </div>
