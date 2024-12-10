@@ -16,7 +16,7 @@
         Welcome to GreenShift
       </h1>
       <p class="text-base sm:text-lg mb-8 font-mono">
-        The app that makes you aware of your energy usage and CO2 footprint
+        The place where you are made aware of your energy usage and CO2 footprint
       </p>
     </div>
   </div>
