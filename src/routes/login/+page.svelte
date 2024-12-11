@@ -12,27 +12,28 @@
   // Function to handle form submission
   const handleSubmit = async () => {
     try {
-      const response = await fetch(`${BASE_URL}/login`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ name, password }),
-      });
+        const response = await fetch(`${BASE_URL}/login`, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ name, password }),
+        });
 
-      if (response.ok) {
-        const data = await response.json();
-        localStorage.setItem("authToken", data.accessToken); // Store token
-        window.location.href = "/home"; // Redirect to app's home page
-      } else {
-        const errorData = await response.json();
-        errorMessage = errorData.message || "Login failed!";
-      }
+        if (response.ok) {
+            const data = await response.json();
+            localStorage.setItem("authToken", data.accessToken); // Store token
+            localStorage.setItem("username", data.username); // Store username
+            window.location.href = "/home"; // Redirect to app's home page
+        } else {
+            const errorData = await response.json();
+            errorMessage = errorData.message || "Login failed!";
+        }
     } catch (error) {
-      errorMessage = "Could not connect to the server.";
-      console.error("Error:", error);
+        errorMessage = "Could not connect to the server.";
+        console.error("Error:", error);
     }
-  };
+};
 
 
   const togglePasswordVisibility = () => {

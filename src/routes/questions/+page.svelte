@@ -53,14 +53,15 @@
   let selectedOption = null;
   let currentQuestionIndex = 0;
   let showModal = false; // Controls the visibility of the modal
+  let skipClicked = false;
 
   function goToThankYou() {
     window.location.href = "/thank-you";
   }
 
+//if there are no selected options, show the modal but if the user clicks on the skip button, skip the question
   function nextQuestion() {
     if (!selectedOption) {
-      // Show the modal if no option is selected
       showModal = true;
       return;
     }
@@ -81,6 +82,7 @@
   }
 
   function skipQuestion() {
+    skipClicked = true;
     nextQuestion();
   }
 
