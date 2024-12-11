@@ -3,88 +3,71 @@
   let activeSection = "account"; // Default active section
 </script>
 
-<div class="min-h-screen flex bg-greenPale">
-  <!-- Sidebar on the Left -->
-  <aside class="bg-greenLight w-64 p-4 fixed top-0 left-0 bottom-0 shadow-lg">
-    <div class="text-greenDeep font-semibold text-lg">
+<div class="min-h-screen flex bg-greenPale relative">
+  <!-- Sidebar -->
+  <aside id="default-sidebar" class="fixed bg-greenLight left-0 z-10 w-64 h-screen transition-transform sm:translate-x-0" aria-label="Sidebar">
+    <div class="h-full px-3 py-4 overflow-y-auto">
       <h2 class="text-xl font-bold mb-6 text-center">Settings</h2>
-      <ul class="mt-4 space-y-4">
-        <!-- Sidebar links with dynamic active class -->
+      <ul class="space-y-4">
         <li
-          class="p-2 rounded"
+          class="p-2 rounded hover:bg-greenDeep hover:text-white"
           class:bg-greenDeep={activeSection === "account"}
           class:text-white={activeSection === "account"}
           class:font-bold={activeSection === "account"}
         >
-          <!-- the # in the href is for now a stateholder so the page does not refresh itself-->
           <a href="#" on:click={() => (activeSection = "account")}>Account</a>
         </li>
         <li
-          class="p-2 rounded"
+          class="p-2 rounded hover:bg-greenDeep hover:text-white"
           class:bg-greenDeep={activeSection === "privacy"}
           class:text-white={activeSection === "privacy"}
           class:font-bold={activeSection === "privacy"}
         >
-          <!-- the # in the href is for now a stateholder so the page does not refresh itself-->
           <a href="#" on:click={() => (activeSection = "privacy")}>Privacy</a>
         </li>
         <li
-          class="p-2 rounded"
+          class="p-2 rounded hover:bg-greenDeep hover:text-white"
           class:bg-greenDeep={activeSection === "notifications"}
           class:text-white={activeSection === "notifications"}
           class:font-bold={activeSection === "notifications"}
         >
-          <!-- the # in the href is for now a stateholder so the page does not refresh itself-->
-          <a href="#" on:click={() => (activeSection = "notifications")}
-            >Notifications</a
-          >
+          <a href="#" on:click={() => (activeSection = "notifications")}>Notifications</a>
         </li>
         <li
-          class="p-2 rounded"
+          class="p-2 rounded hover:bg-greenDeep hover:text-white"
           class:bg-greenDeep={activeSection === "sounds"}
           class:text-white={activeSection === "sounds"}
           class:font-bold={activeSection === "sounds"}
         >
-          <!-- the # in the href is for now a stateholder so the page does not refresh itself-->
           <a href="#" on:click={() => (activeSection = "sounds")}>Sounds</a>
         </li>
         <li
-          class="p-2 rounded"
+          class="p-2 rounded hover:bg-greenDeep hover:text-white"
           class:bg-greenDeep={activeSection === "appearance"}
           class:text-white={activeSection === "appearance"}
           class:font-bold={activeSection === "appearance"}
         >
-          <!-- the # in the href is for now a stateholder so the page does not refresh itself-->
-          <a href="#" on:click={() => (activeSection = "appearance")}
-            >Appearance</a
-          >
+          <a href="#" on:click={() => (activeSection = "appearance")}>Appearance</a>
         </li>
         <li
-          class="p-2 rounded"
+          class="p-2 rounded hover:bg-greenDeep hover:text-white"
           class:bg-greenDeep={activeSection === "content-preferences"}
           class:text-white={activeSection === "content-preferences"}
           class:font-bold={activeSection === "content-preferences"}
         >
-          <!-- the # in the href is for now a stateholder so the page does not refresh itself-->
-          <a href="#" on:click={() => (activeSection = "content-preferences")}
-            >Content Preferences</a
-          >
+          <a href="#" on:click={() => (activeSection = "content-preferences")}>Content Preferences</a>
         </li>
         <li
-          class="p-2 rounded"
+          class="p-2 rounded hover:bg-greenDeep hover:text-white"
           class:bg-greenDeep={activeSection === "about-app"}
           class:text-white={activeSection === "about-app"}
           class:font-bold={activeSection === "about-app"}
         >
-          <!-- the # in the href is for now a stateholder so the page does not refresh itself-->
-          <a href="#" on:click={() => (activeSection = "about-app")}
-            >About App</a
-          >
+          <a href="#" on:click={() => (activeSection = "about-app")}>About App</a>
         </li>
       </ul>
     </div>
   </aside>
-
   <!-- Main Content -->
   <main class="flex-grow ml-64 p-8">
     <!-- Conditional rendering based on activeSection -->
