@@ -3,9 +3,12 @@
   let activeSection = "account"; // Default active section
 </script>
 
-<div class="min-h-screen flex bg-greenPale relative">
+<div class="flex min-h-screen bg-greenPale">
   <!-- Sidebar -->
-  <aside id="default-sidebar" class="fixed bg-greenLight left-0 z-10 w-64 h-screen transition-transform sm:translate-x-0" aria-label="Sidebar">
+  <aside
+    class="fixed top-16 bottom-16 bg-greenLight left-0 z-10 w-64 h-[calc(100vh-128px)] overflow-y-auto"
+    aria-label="Sidebar"
+  >
     <div class="h-full px-3 py-4 overflow-y-auto">
       <h2 class="text-xl font-bold mb-6 text-center">Settings</h2>
       <ul class="space-y-4">
@@ -16,15 +19,6 @@
           class:font-bold={activeSection === "account"}
         >
           <a href="#" on:click={() => (activeSection = "account")}>Account</a>
-        </li>
-        <li
-          class="p-2 rounded hover:bg-greenDeep hover:text-white"
-          class:bg-greenDeep={activeSection === "privacy"}
-          class:text-white={activeSection === "privacy"}
-          class:font-bold={activeSection === "privacy"}
-        >
-          <a href="#" on:click={() => (activeSection = "privacy")}>Privacy</a>
-        </li>
         <li
           class="p-2 rounded hover:bg-greenDeep hover:text-white"
           class:bg-greenDeep={activeSection === "notifications"}
@@ -147,46 +141,6 @@
       </form>
     {/if}
 
-    {#if activeSection === "privacy"}
-      <h3 class="text-2xl font-bold text-greenDeep mb-4">Privacy Settings</h3>
-      <p>Adjust your privacy preferences below.</p>
-
-      <form class="space-y-6">
-        <!-- Profile Visibility -->
-        <div>
-          <label class="block text-lg font-semibold">Profile Visibility</label>
-          <div class="flex items-center">
-            <label for="publicProfile" class="mr-4">Public</label>
-            <input
-              type="radio"
-              name="profileVisibility"
-              id="publicProfile"
-              class="mr-2"
-            />
-            <label for="privateProfile" class="mr-4">Private</label>
-            <input type="radio" name="profileVisibility" id="privateProfile" />
-          </div>
-        </div>
-
-        <!-- Data Sharing -->
-        <div>
-          <label class="block text-lg font-semibold">Allow Data Sharing</label>
-          <div class="flex items-center">
-            <input type="checkbox" id="dataSharing" class="mr-2" />
-            <label for="dataSharing"
-              >Allow us to share your usage data with partners for improving the
-              app</label
-            >
-          </div>
-        </div>
-
-        <button
-          type="submit"
-          class="bg-greenDeep text-white px-4 py-2 rounded-md"
-          >Save Privacy Settings</button
-        >
-      </form>
-    {/if}
 
     {#if activeSection === "notifications"}
       <h3 class="text-2xl font-bold text-greenDeep mb-4">
@@ -321,7 +275,7 @@
       <form class="space-y-6">
         <!-- Content Type -->
         <div>
-          <label class="block text-lg font-semibold"
+          <label for="contentType" class="block text-lg font-semibold"
             >Preferred Content Type</label
           >
           <select id="contentType" class="w-full p-3 border rounded-md">
@@ -334,7 +288,7 @@
 
         <!-- Content Filter -->
         <div>
-          <label class="block text-lg font-semibold">Content Filter</label>
+          <label for="contentFilter" class="block text-lg font-semibold">Content Filter</label>
           <input
             type="text"
             id="contentFilter"
@@ -353,13 +307,14 @@
 
     {#if activeSection === "about-app"}
       <h3 class="text-2xl font-bold text-greenDeep mb-4">About App</h3>
-      <p>Learn more about the app and access important information below.</p>
+      
 
       <ul class="space-y-4">
-        <li><a href="#" class="text-blue-500">Privacy Policy</a></li>
-        <li><a href="#" class="text-blue-500">Terms of Service</a></li>
-        <li><a href="#" class="text-blue-500">Contact Support</a></li>
-        <li><a href="#" class="text-blue-500">App Version: 1.0.0</a></li>
+        <li><a href="https://github.com/HZ-HBOICT-Y2-2425/uvc-project-frontend-greenshift-11/wiki/ToS" target="_blank" class="text-blue-500 font-bold">Terms of Service</a>
+        <p> Check our ToS. </p></li>
+        <li><a href="https://github.com/HZ-HBOICT-Y2-2425/uvc-project-frontend-greenshift-11/discussions/19" target="_blank" class="text-blue-500 font-bold">Contact Support </a>
+        <p> Post your questions on our GitHub discussions! </p> </li>
+        <li><a href="#" class="text-blue-500 font-bold">App Version: 1.0.0</a></li>
       </ul>
     {/if}
   </main>
