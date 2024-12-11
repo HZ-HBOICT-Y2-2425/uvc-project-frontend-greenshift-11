@@ -11,7 +11,7 @@
   }
   
   setContext('apiReference', {
-		mainUrl: 'http://localhost:3011'
+		mainUrl: 'http://localhost:3010'
 	});
 </script>
 

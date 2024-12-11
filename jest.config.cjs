@@ -8,6 +8,6 @@ module.exports = {
   transformIgnorePatterns: [
     "/node_modules/(?!@testing-library|svelte)", // Transform specific packages
   ],
-  setupFilesAfterEnv: ["@testing-library/jest-dom/extend-expect"],
+  setupFilesAfterEnv: ["@testing-library/jest-dom"],
   testEnvironment: "jsdom", // Use jsdom for testing environment
 };
