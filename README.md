@@ -36,7 +36,8 @@ npm run build
 You can preview the production build with `npm run preview`.
 
 > To deploy your app, you may need to install an [adapter](https://svelte.dev/docs/kit/adapters) for your target environment.
---------------------------------------------------------------------------------------------------------------------------------
+
+---
 
 ## GreenShift: Personal Carbon Footprint Awareness Through Gamified Engagement
 
@@ -76,8 +77,8 @@ As you complete tasks and reduce your carbon footprint, you earn **in-game curre
 - **Customizable Garden**: Use earned currency to make your garden your own.
 - **FAQ Page**: See Frequently Asked Questions about the appplication.
 
-
 ### Frequently Asked Questions (FAQ)
+
 **1. How do I start tracking my household's carbon footprint?**
 
 Steps:
@@ -148,4 +149,3 @@ Complete Daily Tasks to reduce your carbon footprint.
 Adjust your appliance settings or usage patterns to minimize CO₂ emissions.
 Check back on your Virtual Garden after making changes.
 Tip: Focus on consistently completing daily tasks and tracking improvements.
-
