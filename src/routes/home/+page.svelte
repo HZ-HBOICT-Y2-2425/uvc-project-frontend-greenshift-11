@@ -12,6 +12,6 @@
 
 <!-- Daily Tasks Section -->
 <section class="text-center px-4 py-6">
-  <p class="text-lg font-medium">Do your Daily tasks,</p>
+  <p class="text-lg font-medium">Do your Daily tasks.</p>
   <p class="text-greenDeep font-bold">to keep your garden nice! 👀</p>
 </section>
