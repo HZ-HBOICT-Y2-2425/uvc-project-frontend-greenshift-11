@@ -73,7 +73,7 @@
               CO2
             {:else if $page.url.pathname === "/shop"}
               Shop
-            {:else if $page.url.pathname === "/setting"}
+            {:else if $page.url.pathname === "/settings"}
               Setting
             {:else if $page.url.pathname === "/calendar"}
               Calendar
@@ -104,7 +104,7 @@
           <a href="/shop" class="text-greenLight underline">
             <img src="shop.png" alt="Shop" class="w-14 h-auto" />
           </a>
-          <a href="/setting" class="text-greenLight underline">
+          <a href="/settings" class="text-greenLight underline">
             <img src="profile.png" alt="Setting" class="w-14 h-auto" />
           </a>
           <a href="/calendar" class="text-greenLight underline">
