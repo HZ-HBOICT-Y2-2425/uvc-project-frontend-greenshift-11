@@ -31,10 +31,18 @@
   <div class="flex justify-between items-center w-3/4 mb-8">
     <!-- Current Articles Button -->
     <button
-      on:click={() => (view = "current")}
+      on:click={() => (view = "default")}
       class="bg-green-300 text-green-700 font-semibold py-2 px-4 rounded shadow-md hover:bg-green-700 hover:text-white transition-all"
     >
       📅 Current
+    </button>
+
+    <!-- Inspirational Quote Button -->
+    <button
+    on:click={() => (view = "current")}
+      class="bg-green-300 text-green-700 font-semibold py-2 px-4 rounded shadow-md hover:bg-green-700 hover:text-white transition-all"
+    >
+      🌱 Quote
     </button>
 
     <!-- Previous Articles Button -->
@@ -48,6 +56,27 @@
 
   <!-- Conditional Rendering of Content -->
   {#if view === "default"}
+  <!-- Current Articles View -->
+  <div class="w-3/4">
+    <h2 class="text-xl font-bold text-green-700 mb-4">Available Articles</h2>
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+      {#each currentArticles as article}
+        <div class="bg-green-100 p-4 rounded-lg shadow-md">
+          <h3 class="font-bold text-green-700">{article.title}</h3>
+          <p class="text-green-600 text-sm mb-2">{article.content}</p>
+          <button
+            on:click={() => addToFavorites(article)}
+            class="bg-white text-white py-1 px-2 rounded hover:bg-green-100 transition-all"
+          >
+           ⭐ 
+          </button>
+        </div>
+      {/each}
+    </div>
+  </div>
+
+
+  {:else if view === "current"}
     <!-- Default View -->
     <div class="w-3/4 bg-green-100 p-6 rounded-lg shadow-lg text-center">
       <h2 class="text-xl font-bold text-green-700 mb-4">Inspirational Quote</h2>
@@ -58,35 +87,9 @@
         <img
           src="Earthug.png"
           alt="Earth Hugging Illustration"
-          class="w-full h-auto"
+          class="w-90% h-auto"
         />
       </div>
-    </div>
-
-  {:else if view === "current"}
-    <!-- Current Articles View -->
-    <div class="w-3/4">
-      <h2 class="text-xl font-bold text-green-700 mb-4">Available Articles</h2>
-      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-        {#each currentArticles as article}
-          <div class="bg-green-100 p-4 rounded-lg shadow-md">
-            <h3 class="font-bold text-green-700">{article.title}</h3>
-            <p class="text-green-600 text-sm mb-2">{article.content}</p>
-            <button
-              on:click={() => addToFavorites(article)}
-              class="bg-white text-white py-1 px-2 rounded hover:bg-green-100 transition-all"
-            >
-             ⭐ 
-            </button>
-          </div>
-        {/each}
-      </div>
-      <button
-        on:click={() => (view = "default")}
-        class="mt-4 bg-red-700 text-white font-semibold py-2 px-4 rounded shadow-md hover:bg-black hover:text-white transition-all"
-      >
-        Back
-      </button>
     </div>
 
   {:else if view === "previous"}

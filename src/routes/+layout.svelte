@@ -104,11 +104,11 @@
           <a href="/shop" class="text-greenLight underline">
             <img src="shop.png" alt="Shop" class="w-14 h-auto" />
           </a>
-          <a href="/settings" class="text-greenLight underline">
-            <img src="profile.png" alt="Setting" class="w-14 h-auto" />
-          </a>
           <a href="/calendar" class="text-greenLight underline">
             <img src="calendar.png" alt="Calendar" class="w-14 h-auto" />
+          </a>
+          <a href="/settings" class="text-greenLight underline">
+            <img src="profile.png" alt="Setting" class="w-14 h-auto" />
           </a>
         </div>
       </footer>
