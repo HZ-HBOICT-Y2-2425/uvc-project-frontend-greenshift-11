@@ -59,31 +59,31 @@
     window.location.href = "/thank-you";
   }
 
-//if there are no selected options, show the modal but if the user clicks on the skip button, skip the question
-  function nextQuestion() {
-    if (!selectedOption) {
-      showModal = true;
-      return;
-    }
-
-    if (currentQuestionIndex < questions.length - 1) {
-      currentQuestionIndex++;
-      selectedOption = null; // Reset selection for the next question
-    } else if (currentQuestionIndex === questions.length - 1) {
-      goToThankYou();
-    }
+  function skipQuestion() {
+    skipClicked = true;
+    nextQuestion();
   }
+
+function nextQuestion() {
+  if (!selectedOption && !skipClicked) {
+    showModal = true;
+    return;
+  }
+
+  if (currentQuestionIndex < questions.length - 1) {
+    currentQuestionIndex++;
+    selectedOption = null; // Reset selection for the next question
+    skipClicked = false; // Reset skipClicked
+  } else if (currentQuestionIndex === questions.length - 1) {
+    goToThankYou();
+  }
+}
 
   function previousQuestion() {
     if (currentQuestionIndex > 0) {
       currentQuestionIndex--;
       selectedOption = null; // Reset selection for the previous question
     }
-  }
-
-  function skipQuestion() {
-    skipClicked = true;
-    nextQuestion();
   }
 
   function selectOption(option) {
