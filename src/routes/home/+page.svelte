@@ -1,8 +1,12 @@
 <script>
+  import "../../app.css";
   import { writable } from 'svelte/store';
   import { onMount } from 'svelte';
 
   const gardenStateStore = writable(1);
+  let tasks = [];
+  let randomTasks = [];
+  let categories = [];
 
   function randomizeGardenHealth() {
     gardenStateStore.set(Math.floor(Math.random() * 3) + 1);
@@ -67,34 +71,37 @@
     randomizeGardenHealth();
   });
 
-  // Store for tasks
-  const tasksStore = writable([]);
-
-  // Function to fetch tasks from backend
-  async function fetchTasks() {
-    try {
-      const response = await fetch('/api/tasks'); // Call the API endpoint
-      console.log('API Response: ', await response.json());
-      const data = await response.json();
-
-      // Log the fetched tasks
-      console.log('Fetched tasks:', data);
-
-      // Update the store with fetched tasks
-      if (response.ok) {
-        tasksStore.set(data);
-      } else {
-        console.error('Failed to fetch tasks:', data);
-      }
-    } catch (error) {
-      console.error('Error during fetchTasks:', error);
-    }
+  function getCategories() {
+    const savedCategories = localStorage.getItem("taskCategories");
+    return savedCategories ? JSON.parse(savedCategories) : ["general_users"];
   }
 
-  // Fetch tasks on mount
-  onMount(() => {
-    fetchTasks();
-  });
+  async function fetchTasks() {
+    categories = getCategories();
+
+    let allTasks = [];
+    for (const category of categories) {
+      try {
+        const response = await fetch(`http://localhost:3011/api/tasks/${category}`);
+        if (response.ok) {
+          const data = await response.json();
+          allTasks = allTasks.concat(data.tasks);
+        }
+      } catch (error) {
+        console.error(`Error fetching tasks for category ${category}:`, error);
+      }
+    }
+
+    tasks = allTasks;
+    selectRandomTasks();
+  }
+
+  function selectRandomTasks() {
+    const shuffled = [...tasks].sort(() => 0.5 - Math.random());
+    randomTasks = shuffled.slice(0, 3);
+  }
+
+  onMount(fetchTasks);
 </script>
 
 
@@ -139,4 +146,19 @@
 <section class="text-center px-4 py-6">
   <p class="text-lg font-medium">Do your Daily tasks.</p>
   <p class="text-greenDeep font-bold">to keep your garden nice! 👀</p>
+</section>
+
+<!-- Tasks Section -->
+<section class="text-left px-6 py-4 bg-green-100 rounded-md shadow-md mx-4 sm:mx-auto max-w-3xl">
+  <h2 class="text-xl font-bold mb-4 text-green-800">Today's Tasks</h2>
+  <ul class="space-y-4">
+    {#each randomTasks as task}
+      <li class="flex items-start space-x-3">
+        <input type="checkbox" class="h-5 w-5 mt-1 text-green-600" />
+        <div>
+          <p class="font-bold text-gray-800">{task}</p>
+        </div>
+      </li>
+    {/each}
+  </ul>
 </section>

@@ -4,10 +4,12 @@
 
   let questions = [
     {
-      question: "How many high energy consumption appliances do you have in your house (e.g., washing machine)?",
-      options: ["1-4", "5-7", "7 or more"]
+      id: "appliance_count",
+      question: "How many high energy consumption appliances do you have in your house (AC, fridge, washing machine, heater)?",
+      options: ["none", "1-3", "4-6", "7 or more"]
     },
     {
+      id: "appliance_usage",
       question: "How often do you use your listed appliances?",
       options: ["Daily", "Weekly", "Monthly", "Rarely"]
     },
@@ -32,16 +34,13 @@
       options: ["An application", "A website", "I do not monitor it", "Some other method"]
     },
     {
-      question: "Do you use electric fans or air conditioner during hot days?",
-      options: ["Yes", "No"]
+      id: "personal_devices",
+      question: "How many personal devices (e.g., phones, laptops, TVs) do you use daily?",
+      options: ["1-3", "4-6", "More than 6"]
     },
     {
-      question: "Do you forget to unplug electric devices?",
-      options: ["Yes", "No"]
-    },
-    {
-      question: "Do you use a microwave to save time while cooking?",
-      options: ["Yes", "No"]
+      question: "How often do you charge your devices?",
+      options: ["Multiple times a day", "Once a day", "Rarely"]
     },
     {
       question: "Are you part of a green energy program?",
@@ -54,36 +53,86 @@
   let currentQuestionIndex = 0;
   let showModal = false; // Controls the visibility of the modal
   let skipClicked = false;
+  let userResponses = {};
+
+  function saveCategoriesToLocalStorage() {
+    let categories = ["general_users"]; // Default category
+    if (userResponses.appliance_count == "4-6" || userResponses.appliance_count == "7 or more" || userResponses.appliance_usage == "Daily" || userResponses.appliance_usage == "Weekly") {
+      categories.push("large_appliances");
+    }
+    if (userResponses.personal_devices == "4-6" || userResponses.personal_devices == "More than 6") {
+      categories.push("multiple_devices");
+    }
+    localStorage.setItem("taskCategories", JSON.stringify(categories));
+  }
+
+  async function saveCategories(categories) {
+  const username = localStorage.getItem("username"); // Assume username is stored locally
+
+  try {
+    const response = await fetch("http://localhost:3011/api/users/categories", {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ user: username, categories })
+    });
+
+    if (response.ok) {
+      const data = await response.json();
+      console.log("Categories saved successfully:", data.categories);
+    } else {
+      console.error("Failed to save categories:", response.statusText);
+    }
+  } catch (error) {
+    console.error("Error saving categories:", error);
+  }
+}
 
   function goToThankYou() {
     window.location.href = "/thank-you";
   }
 
-//if there are no selected options, show the modal but if the user clicks on the skip button, skip the question
-  function nextQuestion() {
-    if (!selectedOption) {
-      showModal = true;
-      return;
-    }
-
-    if (currentQuestionIndex < questions.length - 1) {
-      currentQuestionIndex++;
-      selectedOption = null; // Reset selection for the next question
-    } else if (currentQuestionIndex === questions.length - 1) {
-      goToThankYou();
-    }
+  function skipQuestion() {
+    skipClicked = true;
+    nextQuestion();
   }
+
+  function nextQuestion() {
+  // Show the modal if no selection and the question wasn't skipped
+  if (!selectedOption && !skipClicked) {
+    showModal = true;
+    return;
+  }
+
+  // Save the selected option only if the user has answered
+  if (selectedOption) {
+    userResponses[questions[currentQuestionIndex].id] = selectedOption;
+    selectedOption = null; // Reset selection for the next question
+  }
+
+  // Reset skipClicked after moving to the next question
+  skipClicked = false;
+
+  // Move to the next question or finish if it's the last question
+  if (currentQuestionIndex < questions.length - 1) {
+    currentQuestionIndex++;
+  } else {
+    // Save categories to local storage
+    saveCategoriesToLocalStorage();
+    
+    // Get the categories and update the backend
+    let categories = JSON.parse(localStorage.getItem("taskCategories"));
+    saveCategories(categories);
+
+    // Redirect to the thank-you page
+    goToThankYou();
+  }
+}
 
   function previousQuestion() {
     if (currentQuestionIndex > 0) {
       currentQuestionIndex--;
       selectedOption = null; // Reset selection for the previous question
     }
-  }
-
-  function skipQuestion() {
-    skipClicked = true;
-    nextQuestion();
   }
 
   function selectOption(option) {
