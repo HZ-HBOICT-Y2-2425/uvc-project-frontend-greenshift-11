@@ -1,6 +1,4 @@
 <script>
-  import { setContext } from "svelte";
-  export let data;
   import "../app.css";
   function gotoSignup() {
       window.location.href = '/signup';
@@ -8,10 +6,6 @@
   function gotoLogin() {
       window.location.href = '/login';
   }
-  
-  setContext('apiReference', {
-		mainUrl: 'http://localhost:3011'
-	});
 </script>
 
 <div class="flex min-h-screen bg-gray-100">

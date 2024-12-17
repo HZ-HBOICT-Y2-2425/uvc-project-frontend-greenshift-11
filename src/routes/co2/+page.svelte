@@ -1,45 +1,79 @@
 <script>
-  // export let open = false;
-  // import CanvasJS from "@canvasjs/charts";
-	//import Appliance from '$lib/components/Appliance.svelte';
+  import { chart } from "svelte-apexcharts";
+  let chartType = "bar";
 
-  let selected = $state();
+  let options = {
+    chart: {
+      id: "appliance-usage-chart",
+      type: chartType,
+      height: 400,
+      width: 800,
+    },
+    series: [],
+    xaxis: {
+      categories: [],
+    },
+    dataLabels: {
+      enabled: chartType === 'pie',
+      formatter: function (val) {
+        return val.toFixed(2);
+      }
+    },
+    labels: [],
+  };
+
+  const barData = [
+    {
+      name: "Average usage",
+      data: [30, 40, 20, 25],
+    },
+    {
+      name: "Current usage",
+      data: [50, 65, 30, 35],
+    },
+  ];
+
+  const pieData = [
+    { name: "Refrigerator", data: 30 },
+    { name: "Washing Machine", data: 40 },
+    { name: "Dishwasher", data: 20 },
+    { name: "Oven", data: 25 },
+  ];
+
+  function switchChart(type) {
+    if (type === "bar") {
+      options.chart.type = "bar";
+      options.series = barData;
+      options.xaxis.categories = ["Refrigerator", "Washing Machine", "Dishwasher", "Oven"];
+    } else {
+      options.chart.type = "pie";
+      options.series = pieData.map(entry => entry.data);
+      options.labels = pieData.map(entry => entry.name);
+      options.dataLabels.enabled = true;
+    }
+    options = { ...options, chart: { ...options.chart } };
+  }
+
+  switchChart(chartType);
 </script>
 
-<aside class="absolute w-64 bg-green-600 bg-opacity-65 h-[77vh] p-3 shadow-lg transition-all">
-  <nav class="p-0 text-xl">
-    <h1 class="text-white text-lg font-bold mb-2">Appliances</h1>
-    <h2 class="text-white text-base mb-1">All appliances</h2>
-    <p><a class="block text-white text-sm hover:underline" href="#addapp">Add an appliance first</a></p>
-    <h2 class="text-white text-base mt-4 mb-1">Rooms</h2>
-    <p><a class="block text-white text-sm hover:underline" href="#addroom">Add a room first</a></p>
-    <h2><a class="block text-white text-base mt-4 hover:underline" id="addapp" href="#about">Add an appliance</a></h2>
-    <h2><a class="block text-white text-base mt-2 hover:underline" id="addroom" href="#about">Add a room</a></h2>
-    <h2><a class="block text-white text-base mt-2 hover:underline" href="#about">Log single activity</a></h2>
-    <h2><a class="block text-white text-base mt-2 hover:underline" href="#about">Change defaults</a></h2>
-  </nav>
-</aside>
+<div class="max-w-100% max-h-90% mx-0">
+  <div use:chart={options}></div>
+</div>
 
-<form class="flex flex-col gap-4 p-4" method="GET">
-  <label class="block">
-    <span class="text-gray-700 font-medium">Brand</span>
-    <input name="brand" type="text" class="w-full border rounded p-2 mt-1" />
-  </label>
-  <label class="block">
-    <span class="text-gray-700 font-medium">Type</span>
-    <select bind:value={selected} class="w-full border rounded p-2 mt-1">
-
-    </select>
-  </label>
-  <label class="block">
-    <span class="text-gray-700 font-medium">Description</span>
-    <input name="description" type="text" class="w-full border rounded p-2 mt-1" />
-  </label>
-  <label class="block">
-    <span class="text-gray-700 font-medium">Hours per week usage</span>
-    <input name="hoursPerWeek" type="number" class="w-full border rounded p-2 mt-1" />
-  </label>
-  <button class="bg-blue-500 text-white font-semibold py-2 px-4 rounded hover:bg-blue-600">
-    Log in
+<div class="text-center m-10">
+  <button 
+    class="fa fa-bar-chart cursor-pointer text-6xl mx-2 transition-transform transform hover:scale-110" 
+    on:click={() => switchChart("bar")} 
+    aria-label="Switch to bar chart" 
+    type="button"
+    style="font-size: 40px;">
   </button>
-</form>
+  <button 
+    class="fa fa-pie-chart cursor-pointer text-6xl mx-2 transition-transform transform hover:scale-110" 
+    on:click={() => switchChart("pie")} 
+    aria-label="Switch to pie chart" 
+    type="button"
+    style="font-size: 40px;">
+  </button>
+</div>

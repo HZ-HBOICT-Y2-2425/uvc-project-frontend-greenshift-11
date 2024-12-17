@@ -1,20 +1,30 @@
-# Dockerfile
-FROM node:18
+# Use the latest LTS version of Node.js
+FROM node:lts
+
+# Create a user and a group
+RUN groupadd -r appuser && useradd -r -g appuser appuser
 
 # Set the working directory
-WORKDIR /usr/src/app
+WORKDIR /app
 
-# Copy package.json and package-lock.json first (for better layer caching)
+# Copy and install the dependencies
 COPY package*.json ./
-
-# Install dependencies
 RUN npm install
 
-# Copy the entire application
+# Copy the application source code
 COPY . .
 
-# Expose the port (if needed for development)
+# Change the ownership of the working directory to the new user
+RUN chown -R appuser:appuser /app
+
+# Switch to the non-root user
+USER appuser
+
+# Expose the correct port
 EXPOSE 5173
 
-# Define the command to run your app in development mode
+# Define the health check
+HEALTHCHECK --interval=30s --timeout=5s --retries=3 CMD curl -f http://localhost:5173/ || exit 1
+
+# Run the application
 CMD ["npm", "run", "dev"]
