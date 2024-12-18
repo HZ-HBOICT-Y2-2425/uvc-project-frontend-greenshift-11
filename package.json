@@ -20,9 +20,7 @@
     ]
   },
   "dependencies": {
-    "@canvasjs/charts": "^3.10.17",
     "apexcharts": "^4.2.0",
-    "chart.js": "^4.4.7",
     "cors": "^2.8.5",
     "dotenv": "^16.4.5",
     "esm-env": "^1.2.1",
