@@ -4,54 +4,75 @@
 </script>
 
 
-  <div class="flex-grow flex">
+  <div class="flex h-full">
 
     <!-- Sidebar -->
-    <aside class="w-1/4 bg-sideBarGreen p-3 shadow-lg bg-greenLight h-full flex-grow-0">
+    <aside class="w-1/4 bg-sideBarGreen p-3 shadow-lg bg-greenLight h-full">
       <div class="h-full px-3 py-4 overflow-y-auto">
         <h2 class="text-xl font-bold mb-6 text-center">Settings</h2>
         <ul class="space-y-4">
-          <li
-            class="p-2 rounded hover:bg-greenDeep hover:text-white"
-            class:bg-greenDeep={activeSection === "account"}
-            class:text-white={activeSection === "account"}
-            class:font-bold={activeSection === "account"}
-          >
-            <a href="#" on:click={() => (activeSection = "account")}>Account</a>
+          <li>
+            <a
+              href="#"
+              class="block p-2 rounded hover:bg-greenDeep hover:text-white"
+              class:bg-greenDeep={activeSection === "account"}
+              class:text-white={activeSection === "account"}
+              class:font-bold={activeSection === "account"}
+              on:click={() => (activeSection = "account")}
+            >
+              Account
+            </a>
           </li>
-          <li
-            class="p-2 rounded hover:bg-greenDeep hover:text-white"
-            class:bg-greenDeep={activeSection === "notifications"}
-            class:text-white={activeSection === "notifications"}
-            class:font-bold={activeSection === "notifications"}
-          >
-            <a href="#" on:click={() => (activeSection = "notifications")}>Notifications</a>
+          <li>
+            <a
+              href="#"
+              class="block p-2 rounded hover:bg-greenDeep hover:text-white"
+              class:bg-greenDeep={activeSection === "notifications"}
+              class:text-white={activeSection === "notifications"}
+              class:font-bold={activeSection === "notifications"}
+              on:click={() => (activeSection = "notifications")}
+            >
+              Notifications
+            </a>
           </li>
-          <li
-            class="p-2 rounded hover:bg-greenDeep hover:text-white"
-            class:bg-greenDeep={activeSection === "sounds"}
-            class:text-white={activeSection === "sounds"}
-            class:font-bold={activeSection === "sounds"}
-          >
-            <a href="#" on:click={() => (activeSection = "sounds")}>Sounds</a>
+          <li>
+            <a
+              href="#"
+              class="block p-2 rounded hover:bg-greenDeep hover:text-white"
+              class:bg-greenDeep={activeSection === "sounds"}
+              class:text-white={activeSection === "sounds"}
+              class:font-bold={activeSection === "sounds"}
+              on:click={() => (activeSection = "sounds")}
+            >
+              Sounds
+            </a>
           </li>
-          <li
-            class="p-2 rounded hover:bg-greenDeep hover:text-white"
-            class:bg-greenDeep={activeSection === "content-preferences"}
-            class:text-white={activeSection === "content-preferences"}
-            class:font-bold={activeSection === "content-preferences"}
-          >
-            <a href="#" on:click={() => (activeSection = "content-preferences")}>Content Preferences</a>
+          <li>
+            <a
+              href="#"
+              class="block p-2 rounded hover:bg-greenDeep hover:text-white"
+              class:bg-greenDeep={activeSection === "content-preferences"}
+              class:text-white={activeSection === "content-preferences"}
+              class:font-bold={activeSection === "content-preferences"}
+              on:click={() => (activeSection = "content-preferences")}
+            >
+              Content Preferences
+            </a>
           </li>
-          <li
-            class="p-2 rounded hover:bg-greenDeep hover:text-white"
-            class:bg-greenDeep={activeSection === "about-app"}
-            class:text-white={activeSection === "about-app"}
-            class:font-bold={activeSection === "about-app"}
-          >
-            <a href="#" on:click={() => (activeSection = "about-app")}>About App</a>
+          <li>
+            <a
+              href="#"
+              class="block p-2 rounded hover:bg-greenDeep hover:text-white"
+              class:bg-greenDeep={activeSection === "about-app"}
+              class:text-white={activeSection === "about-app"}
+              class:font-bold={activeSection === "about-app"}
+              on:click={() => (activeSection = "about-app")}
+            >
+              About App
+            </a>
           </li>
         </ul>
+        
       </div>
     </aside>
 
