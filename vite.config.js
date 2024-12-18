@@ -1,18 +1,12 @@
 import { sveltekit } from "@sveltejs/kit/vite";
 import { defineConfig } from "vite";
 
-export default defineConfig({
+export default {
   plugins: [sveltekit()],
-  server: {
-    host: '0.0.0.0',  // Allow connections from outside the Docker container
-    port: 5173,       // Correct port for Vite
-    hmr: {
-      protocol: 'ws',
-      host: 'localhost',
-    },
+  optimizeDeps: {
+    include: ['svelte-apexcharts'] // Force Vite to optimize svelte-apexcharts
   },
-  test: {
-    globals: true,
-    environment: 'jsdom',
-  },
-});
+  ssr: {
+    noExternal: ['svelte-apexcharts'] // Prevents SSR issues with svelte-apexcharts
+  }
+};

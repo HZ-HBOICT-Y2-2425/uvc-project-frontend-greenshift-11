@@ -1,6 +1,10 @@
 <script>
-  import { chart } from "svelte-apexcharts";
+  let ApexCharts;
   let chartType = "bar";
+
+  import.meta.env.SSR ? null : import("svelte-apexcharts").then((module) => {
+    ApexCharts = module.default;
+  });
 
   let options = {
     chart: {
@@ -9,71 +13,58 @@
       height: 400,
       width: 800,
     },
-    series: [],
     xaxis: {
-      categories: [],
+      categories: ["Refrigerator", "Washing Machine", "Dishwasher", "Oven"],
     },
     dataLabels: {
-      enabled: chartType === 'pie',
+      enabled: chartType === "pie",
       formatter: function (val) {
         return val.toFixed(2);
-      }
+      },
     },
-    labels: [],
+    labels: ["Refrigerator", "Washing Machine", "Dishwasher", "Oven"],
   };
 
-  const barData = [
-    {
-      name: "Average usage",
-      data: [30, 40, 20, 25],
-    },
-    {
-      name: "Current usage",
-      data: [50, 65, 30, 35],
-    },
+  let barData = [
+    { name: "Average usage", data: [30, 40, 20, 25] },
+    { name: "Current usage", data: [50, 65, 30, 35] },
   ];
 
-  const pieData = [
-    { name: "Refrigerator", data: 30 },
-    { name: "Washing Machine", data: 40 },
-    { name: "Dishwasher", data: 20 },
-    { name: "Oven", data: 25 },
-  ];
+  let pieData = [30, 40, 20, 25];
 
   function switchChart(type) {
+    chartType = type;
     if (type === "bar") {
-      options.chart.type = "bar";
       options.series = barData;
-      options.xaxis.categories = ["Refrigerator", "Washing Machine", "Dishwasher", "Oven"];
     } else {
+      options.series = pieData;
       options.chart.type = "pie";
-      options.series = pieData.map(entry => entry.data);
-      options.labels = pieData.map(entry => entry.name);
-      options.dataLabels.enabled = true;
     }
-    options = { ...options, chart: { ...options.chart } };
+    options = { ...options };
   }
 
   switchChart(chartType);
 </script>
 
-<div class="max-w-100% max-h-90% mx-0">
-  <div use:chart={options}></div>
-</div>
+{#if ApexCharts}
+  <div class="flex justify-center items-center mt-4">
+    <ApexCharts {options} type={chartType} series={options.series} />
+  </div>
+{:else}
+  <p class="text-center">Loading chart...</p>
+{/if}
 
-<div class="text-center m-10">
-  <button 
-    class="fa fa-bar-chart cursor-pointer text-6xl mx-2 transition-transform transform hover:scale-110" 
-    on:click={() => switchChart("bar")} 
-    aria-label="Switch to bar chart" 
-    type="button"
-    style="font-size: 40px;">
+<div class="text-center mt-6">
+  <button
+    class="cursor-pointer mx-2 px-4 py-2 rounded bg-blue-500 text-white hover:bg-blue-700"
+    on:click={() => switchChart("bar")}
+  >
+    Bar Chart
   </button>
-  <button 
-    class="fa fa-pie-chart cursor-pointer text-6xl mx-2 transition-transform transform hover:scale-110" 
-    on:click={() => switchChart("pie")} 
-    aria-label="Switch to pie chart" 
-    type="button"
-    style="font-size: 40px;">
+  <button
+    class="cursor-pointer mx-2 px-4 py-2 rounded bg-green-500 text-white hover:bg-green-700"
+    on:click={() => switchChart("pie")}
+  >
+    Pie Chart
   </button>
 </div>

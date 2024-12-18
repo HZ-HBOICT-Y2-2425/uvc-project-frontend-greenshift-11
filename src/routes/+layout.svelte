@@ -2,27 +2,41 @@
   import "../app.css"; // Ensure your styles are imported
   import { page } from "$app/stores";
 
+  // Page-specific flags
   $: isMainPage = $page.url.pathname === '/';
   $: isSignupPage = $page.url.pathname === '/signup';
   $: isLoginPage = $page.url.pathname === '/login';
+  $: isCO2Page = $page.url.pathname.startsWith('/co2');
+
+  // Sample data for appliances and rooms (from her layout)
+  let appliances = [
+    { id: 1, brand: 'Samsung', type: 'Washing Machine' },
+    { id: 2, brand: 'LG', type: 'Refrigerator' },
+    { id: 3, brand: 'Bosch', type: 'Dishwasher' }
+  ];
+
+  let rooms = [
+    { id: 1, name: 'Living Room', appliances: ['Television', 'Air Conditioner', 'Lamp'] },
+    { id: 2, name: 'Kitchen', appliances: ['Refrigerator', 'Microwave', 'Oven'] },
+    { id: 3, name: 'Bedroom', appliances: ['Bedside Lamp', 'Fan', 'Heater'] }
+  ];
 </script>
 
 {#if !isMainPage && !isSignupPage && !isLoginPage}
-  <div class="flex flex-col h-screen bg-greenPale"> <!-- Full height for the main container -->
-  
+  <div class="flex flex-col h-screen bg-greenPale">
     <!-- Header -->
     <header class="bg-greenLight text-greenDeep py-4 shadow-md w-full">
       <div class="container mx-auto text-center px-4">
         <h1 class="text-2xl font-bold sm:text-3xl">
           {#if $page.url.pathname === "/home"}
             Your Garden 🍌
-          {:else if $page.url.pathname === "/articles"}
+          {:else if $page.url.pathname.startsWith("/articles")}
             Articles
-          {:else if $page.url.pathname === "/co2"}
+          {:else if $page.url.pathname.startsWith("/co2")}
             CO2
-          {:else if $page.url.pathname === "/shop"}
+          {:else if $page.url.pathname.startsWith("/shop")}
             Shop
-          {:else if $page.url.pathname === "/setting"}
+          {:else if $page.url.pathname.startsWith("/setting")}
             Setting
           {:else}
             GreenShift
@@ -31,10 +45,56 @@
       </div>
     </header>
 
-    <!-- Page Content -->
-    <main class="flex-grow container mx-0 px-0 py-0 text-center sm:text-left overflow-hidden"> <!-- Removed overflow-y-auto -->
-      <slot></slot>
-    </main>
+    <!-- Layout for CO2 Page with Sidebar -->
+    {#if isCO2Page}
+      <div class="flex h-screen mx-0 my-0 p-0">
+        <!-- Sidebar -->
+        <aside class="w-1/4 bg-sideBarGreen p-3 shadow-lg transition-all h-100%">
+          <nav class="text-xl">
+            <h1 class="text-white text-lg font-bold mb-2">Manage appliances</h1>
+            <h2 class="block text-white text-base font-bold mt-4 hover:underline">All appliances</h2>
+            {#if appliances.length > 0}
+              {#each appliances as appliance}
+                <p>
+                  <a 
+                    class="block text-white text-sm hover:underline" 
+                    href="/co2/appliance"
+                  >
+                    {appliance.brand} {appliance.type}
+                  </a>
+                </p>
+              {/each}
+            {:else}
+              <p><a class="block text-white text-sm hover:underline" href="/co2/addAppliance">Add an appliance first</a></p>
+            {/if}
+
+            <h1><a class="block text-white text-base font-bold mt-4 hover:underline" href="/co2/addAppliance">Add an appliance</a></h1>
+            <h1><a class="text-white text-lg font-bold mb-2" href="/co2/rooms">Manage rooms</a></h1>
+            {#if rooms.length > 0}
+              <ul class="list-none pl-4">
+                {#each rooms as room}
+                  <li class="block text-white text-sm hover:underline">
+                    <a href="/co2/rooms">{room.name}</a>
+                  </li>
+                {/each}
+              </ul>
+            {:else}
+              <p><a class="block text-white text-sm hover:underline" href="/co2/addRoom">Add a room first</a></p>
+            {/if}
+          </nav>
+        </aside>
+
+        <!-- Main Content with CO2 Slot -->
+        <main class="flex-1 p-4 overflow-hidden">
+          <slot />
+        </main>
+      </div>
+    {:else}
+      <!-- Standard Page Content -->
+      <main class="flex-grow container mx-0 px-0 py-0 text-center sm:text-left overflow-hidden">
+        <slot />
+      </main>
+    {/if}
 
     <!-- Footer -->
     <footer class="bg-greenDeep text-greenPale h-15vh flex justify-center items-center">
@@ -65,6 +125,6 @@
 {/if}
 
 {#if isMainPage || isSignupPage || isLoginPage}
-  <!-- The Custom layout  -->
+  <!-- Custom layout for main, signup, and login pages -->
   <slot />
 {/if}

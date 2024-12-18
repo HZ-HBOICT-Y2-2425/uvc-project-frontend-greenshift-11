@@ -36,15 +36,15 @@
 
 <div class="flex flex-wrap justify-center">
   {#each rooms as room}
-    <div 
+    <button 
       class="flex flex-col items-center bg-white border border-gray-200 rounded-lg p-4 m-4 shadow-lg hover:shadow-xl transition-shadow cursor-pointer"
       on:click={() => selectRoom(room)}
-      aria-role = "button"
       key={room.id}
+      type="button"
     >
       <i class={`fa ${room.icon} fa-3x mb-4 text-gray-700`}></i>
       <h3 class="text-lg font-semibold">{room.name}</h3>
-    </div>
+    </button>
   {/each}
 </div>
 
