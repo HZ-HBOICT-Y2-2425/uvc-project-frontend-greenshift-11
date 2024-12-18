@@ -7,7 +7,7 @@
   $: isSignupPage = $page.url.pathname === '/signup';
   $: isLoginPage = $page.url.pathname === '/login';
   $: isCO2Page = $page.url.pathname.startsWith('/co2');
-
+  
   // Sample data for appliances and rooms (from her layout)
   let appliances = [
     { id: 1, brand: 'Samsung', type: 'Washing Machine' },
