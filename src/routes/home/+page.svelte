@@ -7,6 +7,7 @@
   let tasks = [];
   let randomTasks = [];
   let categories = [];
+  const TASK_REFRESH_INTERVAL = 24 * 60 * 60 * 1000; // 24 hours in milliseconds
 
   function randomizeGardenHealth() {
     gardenStateStore.set(Math.floor(Math.random() * 3) + 1);
@@ -63,10 +64,6 @@
 
   $: gardenDetails = getGardenDetails($gardenStateStore);
 
-  function randomizeTasks() {
-    console.log("Randomizing tasks..."); // Replace with your logic
-  }
-
   onMount(() => {
     randomizeGardenHealth();
   });
@@ -79,13 +76,18 @@
   async function fetchTasks() {
     categories = getCategories();
 
+    console.log("Categories to fetch tasks for:", categories);
+
     let allTasks = [];
     for (const category of categories) {
       try {
         const response = await fetch(`http://localhost:3011/api/tasks/${category}`);
         if (response.ok) {
           const data = await response.json();
+          console.log(`Tasks for category ${category}:`, data.tasks);
           allTasks = allTasks.concat(data.tasks);
+        } else {
+          console.error(`Failed to fetch tasks for category ${category}`);
         }
       } catch (error) {
         console.error(`Error fetching tasks for category ${category}:`, error);
@@ -93,7 +95,28 @@
     }
 
     tasks = allTasks;
-    selectRandomTasks();
+    console.log("All tasks the user has access to:", tasks);
+
+    handleDailyTasks();
+  }
+
+  function handleDailyTasks() {
+    const storedTasks = JSON.parse(localStorage.getItem("dailyTasks")) || {};
+    const now = Date.now();
+
+    if (!storedTasks.timestamp || now - storedTasks.timestamp > TASK_REFRESH_INTERVAL) {
+      // Refresh tasks if no stored tasks or the interval has passed
+      selectRandomTasks();
+      localStorage.setItem(
+        "dailyTasks",
+        JSON.stringify({ timestamp: now, tasks: randomTasks })
+      );
+      console.log("New tasks selected:", randomTasks);
+    } else {
+      // Use stored tasks
+      randomTasks = storedTasks.tasks || [];
+      console.log("Using stored tasks:", randomTasks);
+    }
   }
 
   function selectRandomTasks() {
@@ -101,9 +124,13 @@
     randomTasks = shuffled.slice(0, 3);
   }
 
+  function markTaskAsCompleted(task) {
+    randomTasks = randomTasks.filter((t) => t !== task);
+    console.log("Updated random tasks list:", randomTasks);
+  }
+
   onMount(fetchTasks);
 </script>
-
 
 <!-- Garden section -->
 <section class={`flex flex-col sm:flex-row justify-center items-center ${gardenDetails.bgColor} py-8 rounded-md shadow-md mx-4 sm:mx-0 border-2 ${gardenDetails.borderColor} relative`}>
@@ -154,7 +181,11 @@
   <ul class="space-y-4">
     {#each randomTasks as task}
       <li class="flex items-start space-x-3">
-        <input type="checkbox" class="h-5 w-5 mt-1 text-green-600" />
+        <input 
+          type="checkbox" 
+          class="h-5 w-5 mt-1 text-green-600" 
+          on:change={() => markTaskAsCompleted(task)}
+        />
         <div>
           <p class="font-bold text-gray-800">{task}</p>
         </div>

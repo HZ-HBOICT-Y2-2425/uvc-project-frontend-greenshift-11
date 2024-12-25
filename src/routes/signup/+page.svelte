@@ -1,4 +1,4 @@
-signup
+
 <script>
   import "../../app.css";
   let name = '';

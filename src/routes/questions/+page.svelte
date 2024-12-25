@@ -3,51 +3,16 @@
   import { fade } from "svelte/transition";
 
   let questions = [
-    {
-      id: "appliance_count",
-      question: "How many high energy consumption appliances do you have in your house (AC, fridge, washing machine, heater)?",
-      options: ["none", "1-3", "4-6", "7 or more"]
-    },
-    {
-      id: "appliance_usage",
-      question: "How often do you use your listed appliances?",
-      options: ["Daily", "Weekly", "Monthly", "Rarely"]
-    },
-    {
-      question: "Would you be willing to switch to energy-efficient appliances if they are more affordable?",
-      options: ["Yes", "No"]
-    },
-    {
-      question: "What kind of heating system do you use at home?",
-      options: ["Gas", "Solar", "Electric", "Heat Pump", "None"]
-    },
-    {
-      question: "What is the primary energy source for your appliances?",
-      options: ["Electricity", "Gas", "Solar", "Other"]
-    },
-    {
-      question: "Do you regularly monitor your energy consumption?",
-      options: ["Yes", "No"]
-    },
-    {
-      question: "What do you use to monitor your energy consumption?",
-      options: ["An application", "A website", "I do not monitor it", "Some other method"]
-    },
-    {
-      id: "personal_devices",
-      question: "How many personal devices (e.g., phones, laptops, TVs) do you use daily?",
-      options: ["1-3", "4-6", "More than 6"]
-    },
-    {
-      question: "How often do you charge your devices?",
-      options: ["Multiple times a day", "Once a day", "Rarely"]
-    },
-    {
-      question: "Are you part of a green energy program?",
-      options: ["Yes", "No", "I'd like to join one"]
-    }
-  ];
-
+    { id: "appliance_count", question: "How many high energy consumption appliances do you have in your house?", options: ["none", "1-3", "4-6", "7 or more"] },
+    { id: "appliance_usage", question: "How often do you use your listed appliances?", options: ["Daily", "Weekly", "Monthly", "Rarely"] },
+    { id: "personal_devices", question: "How many personal devices do you use daily?", options: ["1-3", "4-6", "More than 6"] },
+    { id: "green_energy", question: "Are you part of a green energy program?", options: ["Yes", "No", "I'd like to join one"] },
+    { id: "monitor_energy", question: "Do you regularly monitor your energy consumption?", options: ["Yes", "No"] },
+    { id: "heating_system", question: "What kind of heating system do you use at home?", options: ["Gas", "Solar", "Electric", "Heat Pump", "None"] },
+    { id: "energy_source", question: "What is the primary energy source for your appliances?", options: ["Electricity", "Gas", "Solar", "Other"] },
+    { id: "charge_frequency", question: "How often do you charge your devices?", options: ["Multiple times a day", "Once a day", "Rarely"] },
+    { id: "energy_efficiency", question: "Would you be willing to switch to energy-efficient appliances if they are more affordable?", options: ["Yes", "No"] },
+];
 
   let selectedOption = null;
   let currentQuestionIndex = 0;
@@ -55,35 +20,65 @@
   let skipClicked = false;
   let userResponses = {};
 
-  function saveCategoriesToLocalStorage() {
-    let categories = ["general_users"]; // Default category
-    if (userResponses.appliance_count == "4-6" || userResponses.appliance_count == "7 or more" || userResponses.appliance_usage == "Daily" || userResponses.appliance_usage == "Weekly") {
-      categories.push("large_appliances");
+  let generalTasks = []; 
+
+   // Fetch general tasks from the backend API
+  async function fetchGeneralTasks() {
+    try {
+      const response = await fetch("http://localhost:3011/api/tasks/general_users");
+      if (response.ok) {
+        const data = await response.json();
+        generalTasks = data.tasks;
+      } else {
+        console.error("Failed to fetch general tasks");
+      }
+    } catch (error) {
+      console.error("Error fetching general tasks:", error);
     }
-    if (userResponses.personal_devices == "4-6" || userResponses.personal_devices == "More than 6") {
-      categories.push("multiple_devices");
-    }
-    localStorage.setItem("taskCategories", JSON.stringify(categories));
   }
 
-  async function saveCategories(categories) {
-  const username = localStorage.getItem("username"); // Assume username is stored locally
+   // Function to generate tasks based on responses
+   async function generateTasks() {
+    let tasks = [...generalTasks];
+
+    if (userResponses.appliance_count == "4-6" || userResponses.appliance_count == "7 or more") {
+      tasks.push("Monitor fridge temperature and clean AC filters regularly.");
+    }
+    if (userResponses.appliance_usage == "Daily" || userResponses.appliance_usage == "Weekly") {
+      tasks.push("Run appliances like washing machines only with full loads.");
+    }
+    if (userResponses.personal_devices == "4-6" || userResponses.personal_devices == "More than 6") {
+      tasks.push("Unplug devices when not in use and use power-saving modes.");
+    }
+    if (userResponses.green_energy == "No") {
+      tasks.push("Consider joining a green energy program to reduce emissions.");
+    }
+    if (userResponses.monitor_energy == "No") {
+      tasks.push("Start using an energy monitoring app to track your usage.");
+    }
+    if (userResponses.heating_system == "Gas" ) {
+      tasks.push("Don't keep your heating system at the highest ");
+    }
+    return tasks;
+  }
+
+  async function saveUserTasks() {
+  const tasks = await generateTasks(); // Ensure generateTasks() provides new tasks to add.
 
   try {
-    const response = await fetch("http://localhost:3011/api/users/categories", {
+    const response = await fetch("http://localhost:3011/api/tasks/general_users", {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ user: username, categories })
+      body: JSON.stringify({ tasks }), // Send only the new tasks.
     });
 
     if (response.ok) {
-      const data = await response.json();
-      console.log("Categories saved successfully:", data.categories);
+      console.log("Tasks successfully added to general_users:", tasks);
     } else {
-      console.error("Failed to save categories:", response.statusText);
+      console.error("Failed to add tasks to general_users.");
     }
   } catch (error) {
-    console.error("Error saving categories:", error);
+    console.error("Error saving tasks to general_users:", error);
   }
 }
 
@@ -97,36 +92,25 @@
   }
 
   function nextQuestion() {
-  // Show the modal if no selection and the question wasn't skipped
-  if (!selectedOption && !skipClicked) {
-    showModal = true;
-    return;
+    if (!selectedOption && !skipClicked) {
+      showModal = true;
+      return;
+    }
+
+    if (selectedOption) {
+      userResponses[questions[currentQuestionIndex].id] = selectedOption;
+      selectedOption = null;
+    }
+
+    skipClicked = false;
+
+    if (currentQuestionIndex < questions.length - 1) {
+      currentQuestionIndex++;
+    } else {
+      saveUserTasks(); 
+      goToThankYou();
+    }
   }
-
-  // Save the selected option only if the user has answered
-  if (selectedOption) {
-    userResponses[questions[currentQuestionIndex].id] = selectedOption;
-    selectedOption = null; // Reset selection for the next question
-  }
-
-  // Reset skipClicked after moving to the next question
-  skipClicked = false;
-
-  // Move to the next question or finish if it's the last question
-  if (currentQuestionIndex < questions.length - 1) {
-    currentQuestionIndex++;
-  } else {
-    // Save categories to local storage
-    saveCategoriesToLocalStorage();
-    
-    // Get the categories and update the backend
-    let categories = JSON.parse(localStorage.getItem("taskCategories"));
-    saveCategories(categories);
-
-    // Redirect to the thank-you page
-    goToThankYou();
-  }
-}
 
   function previousQuestion() {
     if (currentQuestionIndex > 0) {
@@ -142,6 +126,9 @@
   function closeModal() {
     showModal = false;
   }
+
+  //Fetch general tasks when component is intiialized 
+  fetchGeneralTasks();
 
   $: progress = ((currentQuestionIndex + 1) / questions.length) * 100;
 </script>
