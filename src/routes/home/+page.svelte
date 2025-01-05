@@ -7,7 +7,14 @@
   let tasks = [];
   let randomTasks = [];
   let categories = [];
+  let completedTasks = []; // Tracks completed tasks
   const TASK_REFRESH_INTERVAL = 24 * 60 * 60 * 1000; // 24 hours in milliseconds
+
+  // Initialize completedTasks from localStorage
+  function loadCompletedTasks() {
+    const storedCompletedTasks = JSON.parse(localStorage.getItem("completedTasks")) || [];
+    completedTasks = storedCompletedTasks;
+  }
 
   function randomizeGardenHealth() {
     gardenStateStore.set(Math.floor(Math.random() * 3) + 1);
@@ -66,6 +73,7 @@
 
   onMount(() => {
     randomizeGardenHealth();
+    loadCompletedTasks(); // Load completed tasks from localStorage
   });
 
   function getCategories() {
@@ -125,8 +133,19 @@
   }
 
   function markTaskAsCompleted(task) {
-    randomTasks = randomTasks.filter((t) => t !== task);
-    console.log("Updated random tasks list:", randomTasks);
+    // Add the marked task to the completed tasks list if not already added
+    if (!completedTasks.includes(task)) {
+      completedTasks.push(task);
+
+      // Save completedTasks to localStorage
+      localStorage.setItem("completedTasks", JSON.stringify(completedTasks));
+      console.log("Task marked as completed:", task);
+    }
+  }
+
+  // Check if a task is completed
+  function isTaskCompleted(task) {
+    return completedTasks.includes(task);
   }
 
   onMount(fetchTasks);
@@ -184,6 +203,7 @@
         <input 
           type="checkbox" 
           class="h-5 w-5 mt-1 text-green-600" 
+          checked={isTaskCompleted(task)}
           on:change={() => markTaskAsCompleted(task)}
         />
         <div>
