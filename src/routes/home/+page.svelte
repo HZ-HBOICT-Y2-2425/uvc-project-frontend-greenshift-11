@@ -70,6 +70,7 @@
   }
 
   $: gardenDetails = getGardenDetails($gardenStateStore);
+  $: allTasksCompleted = randomTasks.every((task) => isTaskCompleted(task))
 
   onMount(() => {
     randomizeGardenHealth();
@@ -197,19 +198,23 @@
 <!-- Tasks Section -->
 <section class="text-left px-6 py-4 bg-green-100 rounded-md shadow-md mx-4 sm:mx-auto max-w-3xl">
   <h2 class="text-xl font-bold mb-4 text-green-800">Today's Tasks</h2>
-  <ul class="space-y-4">
-    {#each randomTasks as task}
-      <li class="flex items-start space-x-3">
-        <input 
-          type="checkbox" 
-          class="h-5 w-5 mt-1 text-green-600" 
-          checked={isTaskCompleted(task)}
-          on:change={() => markTaskAsCompleted(task)}
-        />
-        <div>
-          <p class="font-bold text-gray-800">{task}</p>
-        </div>
-      </li>
-    {/each}
-  </ul>
+  {#if allTasksCompleted}
+    <p class="text-green-800 font-bold">All tasks completed. Check in tomorrow for new ones!</p>
+  {:else}
+    <ul class="space-y-4">
+      {#each randomTasks as task}
+        <li class="flex items-start space-x-3">
+          <input 
+            type="checkbox" 
+            class="h-5 w-5 mt-1 text-green-600" 
+            checked={isTaskCompleted(task)}
+            on:change={() => markTaskAsCompleted(task)}
+          />
+          <div>
+            <p class="font-bold text-gray-800">{task}</p>
+          </div>
+        </li>
+      {/each}
+    </ul>
+  {/if}
 </section>
