@@ -1,162 +1,246 @@
 <script>
-  // Sidebar state
-  let activeSection = "account"; // Default active section
+  import { onMount } from "svelte";
+  let activeSection = "account";
+  let userName = "";
+  let userEmail = "";
+  let showConfirmDialog = false;
+  let showSuccessDialog = false;
+  
+  const BASE_URL = "http://localhost:3010/";
+
+  const fetchUserData = async () => {
+    try {
+      const username = localStorage.getItem("username");
+      const response = await fetch(`${BASE_URL}auth/users/${username}`, {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("authToken")}`,
+        },
+      });
+
+      if (response.ok) {
+        const userData = await response.json();
+        userName = userData.user.user;
+        userEmail = userData.user.email;
+      } else {
+        console.error("Failed to fetch user data:", await response.text());
+      }
+    } catch (error) {
+      console.error("Error fetching user data:", error);
+    }
+  };
+
+  const updateUserData = async () => {
+    try {
+      const response = await fetch(`${BASE_URL}auth/users/${localStorage.getItem("username")}`, {
+        method: 'PUT',
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${localStorage.getItem("authToken")}`,
+        },
+        body: JSON.stringify({
+          name: userName,
+          email: userEmail,
+        }),
+      });
+
+      if (response.ok) {
+        const result = await response.json();
+        if (result.user.user !== localStorage.getItem("username")) {
+          localStorage.setItem("username", result.user.user);
+        }
+        showConfirmDialog = false;
+        showSuccessDialog = true;
+        setTimeout(() => {
+          showSuccessDialog = false;
+        }, 3000);
+      } else {
+        const error = await response.json();
+      }
+    } catch (error) {
+      console.error("Error updating user data:", error);
+    }
+  };
+
+  const handleSubmit = (event) => {
+    event.preventDefault();
+    showConfirmDialog = true;
+  };
+
+  onMount(() => {
+    fetchUserData();
+  });
 </script>
 
+<div class="flex h-full">
+  <!-- Sidebar -->
+  <aside class="w-1/4 bg-sideBarGreen p-3 shadow-lg bg-greenLight h-full">
+    <div class="h-full px-3 py-4 overflow-y-auto">
+      <h2 class="text-xl font-bold mb-6 text-center">Settings</h2>
+      <ul class="space-y-4">
+        <li>
+          <a
+            href="#"
+            class="block p-2 rounded hover:bg-greenDeep hover:text-white"
+            class:bg-greenDeep={activeSection === "account"}
+            class:text-white={activeSection === "account"}
+            class:font-bold={activeSection === "account"}
+            on:click={() => (activeSection = "account")}
+          >
+            Account
+          </a>
+        </li>
+        <li>
+          <a
+            href="#"
+            class="block p-2 rounded hover:bg-greenDeep hover:text-white"
+            class:bg-greenDeep={activeSection === "notifications"}
+            class:text-white={activeSection === "notifications"}
+            class:font-bold={activeSection === "notifications"}
+            on:click={() => (activeSection = "notifications")}
+          >
+            Notifications
+          </a>
+        </li>
+        <li>
+          <a
+            href="#"
+            class="block p-2 rounded hover:bg-greenDeep hover:text-white"
+            class:bg-greenDeep={activeSection === "sounds"}
+            class:text-white={activeSection === "sounds"}
+            class:font-bold={activeSection === "sounds"}
+            on:click={() => (activeSection = "sounds")}
+          >
+            Sounds
+          </a>
+        </li>
+        <li>
+          <a
+            href="#"
+            class="block p-2 rounded hover:bg-greenDeep hover:text-white"
+            class:bg-greenDeep={activeSection === "content-preferences"}
+            class:text-white={activeSection === "content-preferences"}
+            class:font-bold={activeSection === "content-preferences"}
+            on:click={() => (activeSection = "content-preferences")}
+          >
+            Content Preferences
+          </a>
+        </li>
+        <li>
+          <a
+            href="#"
+            class="block p-2 rounded hover:bg-greenDeep hover:text-white"
+            class:bg-greenDeep={activeSection === "about-app"}
+            class:text-white={activeSection === "about-app"}
+            class:font-bold={activeSection === "about-app"}
+            on:click={() => (activeSection = "about-app")}
+          >
+            About App
+          </a>
+        </li>
+      </ul>
+    </div>
+  </aside>
 
-  <div class="flex h-full">
-
-    <!-- Sidebar -->
-    <aside class="w-1/4 bg-sideBarGreen p-3 shadow-lg bg-greenLight h-full">
-      <div class="h-full px-3 py-4 overflow-y-auto">
-        <h2 class="text-xl font-bold mb-6 text-center">Settings</h2>
-        <ul class="space-y-4">
-          <li>
-            <a
-              href="#"
-              class="block p-2 rounded hover:bg-greenDeep hover:text-white"
-              class:bg-greenDeep={activeSection === "account"}
-              class:text-white={activeSection === "account"}
-              class:font-bold={activeSection === "account"}
-              on:click={() => (activeSection = "account")}
-            >
-              Account
-            </a>
-          </li>
-          <li>
-            <a
-              href="#"
-              class="block p-2 rounded hover:bg-greenDeep hover:text-white"
-              class:bg-greenDeep={activeSection === "notifications"}
-              class:text-white={activeSection === "notifications"}
-              class:font-bold={activeSection === "notifications"}
-              on:click={() => (activeSection = "notifications")}
-            >
-              Notifications
-            </a>
-          </li>
-          <li>
-            <a
-              href="#"
-              class="block p-2 rounded hover:bg-greenDeep hover:text-white"
-              class:bg-greenDeep={activeSection === "sounds"}
-              class:text-white={activeSection === "sounds"}
-              class:font-bold={activeSection === "sounds"}
-              on:click={() => (activeSection = "sounds")}
-            >
-              Sounds
-            </a>
-          </li>
-          <li>
-            <a
-              href="#"
-              class="block p-2 rounded hover:bg-greenDeep hover:text-white"
-              class:bg-greenDeep={activeSection === "content-preferences"}
-              class:text-white={activeSection === "content-preferences"}
-              class:font-bold={activeSection === "content-preferences"}
-              on:click={() => (activeSection = "content-preferences")}
-            >
-              Content Preferences
-            </a>
-          </li>
-          <li>
-            <a
-              href="#"
-              class="block p-2 rounded hover:bg-greenDeep hover:text-white"
-              class:bg-greenDeep={activeSection === "about-app"}
-              class:text-white={activeSection === "about-app"}
-              class:font-bold={activeSection === "about-app"}
-              on:click={() => (activeSection = "about-app")}
-            >
-              About App
-            </a>
-          </li>
-        </ul>
-        
-      </div>
-    </aside>
-
-  
-  <!-- Main Content -->
-  <main class="flex-grow ml-64 p-8">
-    <!-- Conditional rendering based on activeSection -->
-    <!--Account settings-->
+   <!-- Main Content -->
+   <main class="flex-grow ml-64 p-8">
     {#if activeSection === "account"}
       <h3 class="text-2xl font-bold text-greenDeep mb-4">Account Settings</h3>
       <p>Manage your account details below.</p>
-
-      <form class="space-y-6">
-        <!-- Full Name -->
+      <form class="space-y-6" on:submit={handleSubmit}>
         <div>
-          <label for="fullName" class="block text-lg font-semibold"
-            >Full Name</label
-          >
+          <label for="fullName" class="block text-lg font-semibold">Name</label>
           <input
             type="text"
             id="fullName"
             class="w-full p-3 border rounded-md"
             placeholder="Enter your full name"
+            bind:value={userName}
           />
         </div>
-
-        <!-- Email -->
+      
         <div>
-          <label for="email" class="block text-lg font-semibold"
-            >Email Address</label
-          >
+          <label for="email" class="block text-lg font-semibold">Email Address</label>
           <input
             type="email"
             id="email"
             class="w-full p-3 border rounded-md"
             placeholder="Enter your email address"
+            bind:value={userEmail}
           />
         </div>
-
-        <!-- Change Password -->
-        <div>
-          <label for="currentPassword" class="block text-lg font-semibold"
-            >Current Password</label
-          >
-          <input
-            type="password"
-            id="currentPassword"
-            class="w-full p-3 border rounded-md"
-            placeholder="Enter current password"
-          />
-        </div>
-
-        <div>
-          <label for="newPassword" class="block text-lg font-semibold"
-            >New Password</label
-          >
-          <input
-            type="password"
-            id="newPassword"
-            class="w-full p-3 border rounded-md"
-            placeholder="Enter a new password"
-          />
-        </div>
-
-        <div>
-          <label for="confirmPassword" class="block text-lg font-semibold"
-            >Confirm New Password</label
-          >
-          <input
-            type="password"
-            id="confirmPassword"
-            class="w-full p-3 border rounded-md"
-            placeholder="Re-enter new password"
-          />
-        </div>
-
-        <button
-          type="submit"
-          class="bg-greenDeep text-white px-4 py-2 rounded-md"
-          >Save Changes</button
-        >
+      
+        <button type="submit" class="bg-greenDeep text-white px-4 py-2 rounded-md">
+          Save Changes
+        </button>
       </form>
+
+      {#if showConfirmDialog}
+        <div class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div class="bg-white rounded-lg p-8 max-w-md w-11/12 mx-4">
+            <h3 class="text-xl font-bold mb-4">
+              Confirm Changes
+            </h3>
+            
+            <div class="space-y-4 mb-6">
+              <p>Are you sure you want to update your account information?</p>
+              <div class="bg-gray-50 p-4 rounded-md">
+                <p class="mb-2">
+                  <span class="font-semibold">New Name:</span> {userName}
+                </p>
+                <p>
+                  <span class="font-semibold">New Email:</span> {userEmail}
+                </p>
+              </div>
+            </div>
+
+            <div class="flex justify-end space-x-4">
+              <button 
+                class="px-4 py-2 rounded-md border border-gray-300 hover:bg-gray-100 transition-colors"
+                on:click={() => showConfirmDialog = false}
+              >
+                Cancel
+              </button>
+              <button 
+                class="px-4 py-2 rounded-md bg-greenDeep text-white hover:bg-opacity-90 transition-colors"
+                on:click={updateUserData}
+              >
+                Confirm
+              </button>
+            </div>
+          </div>
+        </div>
+      {/if}
+
+      {#if showSuccessDialog}
+        <div class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div class="bg-white rounded-lg p-8 max-w-md w-11/12 mx-4">
+            <div class="text-center">
+              <div class="mb-4">
+                <svg class="mx-auto h-12 w-12 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                </svg>
+              </div>
+              <h3 class="text-xl font-bold mb-4 text-gray-900">Account Updated Successfully!</h3>
+              <div class="bg-gray-50 p-4 rounded-md mb-6">
+                <p class="mb-2">
+                  <span class="font-semibold">Name:</span> {userName}
+                </p>
+                <p>
+                  <span class="font-semibold">Email:</span> {userEmail}
+                </p>
+              </div>
+              <button 
+                class="px-4 py-2 rounded-md bg-greenDeep text-white hover:bg-opacity-90 transition-colors"
+                on:click={() => showSuccessDialog = false}
+              >
+                Close
+              </button>              
+            </div>
+          </div>
+        </div>
+        {/if}
     {/if}
-    
+
     <!--Notification settings-->
     {#if activeSection === "notifications"}
       <h3 class="text-2xl font-bold text-greenDeep mb-4">
@@ -270,7 +354,9 @@
 
         <!-- Content Filter -->
         <div>
-          <label for="contentFilter" class="block text-lg font-semibold">Content Filter</label>
+          <label for="contentFilter" class="block text-lg font-semibold"
+            >Content Filter</label
+          >
           <input
             type="text"
             id="contentFilter"
@@ -290,15 +376,33 @@
     <!--About app-->
     {#if activeSection === "about-app"}
       <h3 class="text-2xl font-bold text-greenDeep mb-4">About App</h3>
-      
 
       <ul class="space-y-4">
-        <li><a href="https://github.com/HZ-HBOICT-Y2-2425/uvc-project-frontend-greenshift-11/wiki/ToS" target="_blank" class="text-blue-500 font-bold">Terms of Service</a>
-        <p> Check our ToS. </p></li>
-        <li><a href="https://github.com/HZ-HBOICT-Y2-2425/uvc-project-frontend-greenshift-11/discussions/19" target="_blank" class="text-blue-500 font-bold">Contact Support </a>
-        <p> Post your questions on our GitHub discussions! </p> </li>
-        <li><a href="https://github.com/HZ-HBOICT-Y2-2425/uvc-project-frontend-greenshift-11/releases" target="_blank" class="text-blue-500 font-bold">App Version: 1.0.0</a>
-        <p> Our Releases and App versions. </p></li>
+        <li>
+          <a
+            href="https://github.com/HZ-HBOICT-Y2-2425/uvc-project-frontend-greenshift-11/wiki/ToS"
+            target="_blank"
+            class="text-blue-500 font-bold">Terms of Service</a
+          >
+          <p>Check our ToS.</p>
+        </li>
+        <li>
+          <a
+            href="https://github.com/HZ-HBOICT-Y2-2425/uvc-project-frontend-greenshift-11/discussions/19"
+            target="_blank"
+            class="text-blue-500 font-bold"
+            >Contact Support
+          </a>
+          <p>Post your questions on our GitHub discussions!</p>
+        </li>
+        <li>
+          <a
+            href="https://github.com/HZ-HBOICT-Y2-2425/uvc-project-frontend-greenshift-11/releases"
+            target="_blank"
+            class="text-blue-500 font-bold">App Version: 1.0.0</a
+          >
+          <p>Our Releases and App versions.</p>
+        </li>
       </ul>
     {/if}
   </main>
