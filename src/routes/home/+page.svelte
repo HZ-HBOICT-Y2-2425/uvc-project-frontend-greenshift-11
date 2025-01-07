@@ -2,6 +2,11 @@
   import { writable } from 'svelte/store';
   import { onMount } from 'svelte';
 
+  import BackgroundMusic from '../../components/BackgroundMusic.svelte';
+
+  let isMusicPlaying = true;  // Whether the music is playing
+  let musicVolume = 100;      // Volume of the music
+
   const gardenStateStore = writable(1);
 
   function randomizeGardenHealth() {
@@ -97,21 +102,19 @@
   });
 </script>
 
-
 <!-- Garden section -->
 <section class={`flex flex-col sm:flex-row justify-center items-center ${gardenDetails.bgColor} py-8 rounded-md shadow-md mx-4 sm:mx-0 border-2 ${gardenDetails.borderColor} relative`}>
-  <!-- Faded Background Image -->
   <div class="absolute inset-0 overflow-hidden">
     <img 
       src={gardenDetails.image} 
       alt="Garden State Representation" 
       class="w-full h-full object-cover opacity-20"
     />
+    <BackgroundMusic />
   </div>
 
-  <!-- Content Container -->
   <div class="flex flex-col items-center text-center z-10 relative">
-    <h2 class={`text-xl font-bold mb-4 ${gardenDetails.textColor}`}>
+    <h2 class={`text-xl font-bold mb-4 ${gardenDetails.textColor}`} >
       {gardenDetails.topMessage}
     </h2>
     
@@ -119,7 +122,6 @@
       <p class={`${gardenDetails.textColor}`}>{gardenDetails.status}</p>
     </div>
 
-    <!-- Garden Visual Representation -->
     <div class="w-48 h-48 mb-4 rounded-lg border-2 flex items-center justify-center ${gardenDetails.borderColor} relative">
       <div class={`text-6xl ${gardenDetails.textColor} z-10 relative`}>
         {gardenDetails.emoji}
@@ -133,6 +135,7 @@
       Randomize Garden CO2 Footprint
     </button>
   </div>
+  
 </section>
 
 <!-- Daily Tasks Section -->
@@ -140,3 +143,6 @@
   <p class="text-lg font-medium">Do your Daily tasks.</p>
   <p class="text-greenDeep font-bold">to keep your garden nice! 👀</p>
 </section>
+
+<!-- Move the BackgroundMusic button below -->
+

@@ -1,11 +1,36 @@
 <script>
   import { onMount } from "svelte";
+  import { isMusicEnabled, volumeLevel } from '$lib/stores/musicStore.js';
+  import BackgroundMusic from "../../components/BackgroundMusic.svelte";
+
   let activeSection = "account";
   let userName = "";
   let userEmail = "";
   let showConfirmDialog = false;
   let showSuccessDialog = false;
+
+  // Local volume state that syncs with the store
+  let volume;
   
+  // Subscribe to the volume store to keep local state in sync
+  volumeLevel.subscribe(value => {
+    volume = value;
+  });
+
+  // Volume Change Handler
+  const handleVolumeChange = (event) => {
+    volume = parseInt(event.target.value);
+    volumeLevel.set(volume);
+  };
+
+  // Music Toggle Handler
+
+const handleMusicToggle = (event) => {
+  const newValue = event.target.checked;
+  console.log('Toggling music to:', newValue);
+  isMusicEnabled.set(newValue);
+};
+
   const BASE_URL = "http://localhost:3010/";
 
   const fetchUserData = async () => {
@@ -31,17 +56,20 @@
 
   const updateUserData = async () => {
     try {
-      const response = await fetch(`${BASE_URL}auth/users/${localStorage.getItem("username")}`, {
-        method: 'PUT',
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${localStorage.getItem("authToken")}`,
-        },
-        body: JSON.stringify({
-          name: userName,
-          email: userEmail,
-        }),
-      });
+      const response = await fetch(
+        `${BASE_URL}auth/users/${localStorage.getItem("username")}`,
+        {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${localStorage.getItem("authToken")}`,
+          },
+          body: JSON.stringify({
+            name: userName,
+            email: userEmail,
+          }),
+        }
+      );
 
       if (response.ok) {
         const result = await response.json();
@@ -54,7 +82,7 @@
           showSuccessDialog = false;
         }, 3000);
       } else {
-        const error = await response.json();
+        console.error("Error updating user data:", await response.json());
       }
     } catch (error) {
       console.error("Error updating user data:", error);
@@ -141,8 +169,8 @@
     </div>
   </aside>
 
-   <!-- Main Content -->
-   <main class="flex-grow ml-64 p-8">
+  <!-- Main Content -->
+  <main class="flex-grow ml-64 p-8">
     {#if activeSection === "account"}
       <h3 class="text-2xl font-bold text-greenDeep mb-4">Account Settings</h3>
       <p>Manage your account details below.</p>
@@ -157,9 +185,11 @@
             bind:value={userName}
           />
         </div>
-      
+
         <div>
-          <label for="email" class="block text-lg font-semibold">Email Address</label>
+          <label for="email" class="block text-lg font-semibold"
+            >Email Address</label
+          >
           <input
             type="email"
             id="email"
@@ -168,39 +198,44 @@
             bind:value={userEmail}
           />
         </div>
-      
-        <button type="submit" class="bg-greenDeep text-white px-4 py-2 rounded-md">
+
+        <button
+          type="submit"
+          class="bg-greenDeep text-white px-4 py-2 rounded-md"
+        >
           Save Changes
         </button>
       </form>
 
       {#if showConfirmDialog}
-        <div class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+        <div
+          class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
+        >
           <div class="bg-white rounded-lg p-8 max-w-md w-11/12 mx-4">
-            <h3 class="text-xl font-bold mb-4">
-              Confirm Changes
-            </h3>
-            
+            <h3 class="text-xl font-bold mb-4">Confirm Changes</h3>
+
             <div class="space-y-4 mb-6">
               <p>Are you sure you want to update your account information?</p>
               <div class="bg-gray-50 p-4 rounded-md">
                 <p class="mb-2">
-                  <span class="font-semibold">New Name:</span> {userName}
+                  <span class="font-semibold">New Name:</span>
+                  {userName}
                 </p>
                 <p>
-                  <span class="font-semibold">New Email:</span> {userEmail}
+                  <span class="font-semibold">New Email:</span>
+                  {userEmail}
                 </p>
               </div>
             </div>
 
             <div class="flex justify-end space-x-4">
-              <button 
+              <button
                 class="px-4 py-2 rounded-md border border-gray-300 hover:bg-gray-100 transition-colors"
-                on:click={() => showConfirmDialog = false}
+                on:click={() => (showConfirmDialog = false)}
               >
                 Cancel
               </button>
-              <button 
+              <button
                 class="px-4 py-2 rounded-md bg-greenDeep text-white hover:bg-opacity-90 transition-colors"
                 on:click={updateUserData}
               >
@@ -212,125 +247,75 @@
       {/if}
 
       {#if showSuccessDialog}
-        <div class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+        <div
+          class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
+        >
           <div class="bg-white rounded-lg p-8 max-w-md w-11/12 mx-4">
             <div class="text-center">
               <div class="mb-4">
-                <svg class="mx-auto h-12 w-12 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                <svg
+                  class="mx-auto h-12 w-12 text-green-500"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M5 13l4 4L19 7"
+                  ></path>
                 </svg>
               </div>
-              <h3 class="text-xl font-bold mb-4 text-gray-900">Account Updated Successfully!</h3>
-              <div class="bg-gray-50 p-4 rounded-md mb-6">
-                <p class="mb-2">
-                  <span class="font-semibold">Name:</span> {userName}
-                </p>
-                <p>
-                  <span class="font-semibold">Email:</span> {userEmail}
-                </p>
-              </div>
-              <button 
-                class="px-4 py-2 rounded-md bg-greenDeep text-white hover:bg-opacity-90 transition-colors"
-                on:click={() => showSuccessDialog = false}
-              >
-                Close
-              </button>              
+              <h3 class="text-xl font-bold mb-4 text-gray-900">
+                Account Updated Successfully!
+              </h3>
+              <p>Your account information has been updated.</p>
             </div>
           </div>
         </div>
-        {/if}
+      {/if}
     {/if}
-
-    <!--Notification settings-->
-    {#if activeSection === "notifications"}
-      <h3 class="text-2xl font-bold text-greenDeep mb-4">
-        Notification Settings
-      </h3>
-      <p>Manage your notifications preferences here.</p>
-
-      <form class="space-y-6">
-        <!-- Email Notifications -->
-        <div>
-          <label class="block text-lg font-semibold">Email Notifications</label>
-          <div class="flex items-center">
-            <input type="checkbox" id="emailNotifications" class="mr-2" />
-            <label for="emailNotifications"
-              >Receive notifications via email</label
-            >
-          </div>
-        </div>
-
-        <!-- Push Notifications -->
-        <div>
-          <label class="block text-lg font-semibold">Push Notifications</label>
-          <div class="flex items-center">
-            <input type="checkbox" id="pushNotifications" class="mr-2" />
-            <label for="pushNotifications"
-              >Receive notifications on your device</label
-            >
-          </div>
-        </div>
-
-        <!-- Sounds -->
-        <div>
-          <label class="block text-lg font-semibold">Sound Alerts</label>
-          <div class="flex items-center">
-            <input type="checkbox" id="soundNotifications" class="mr-2" />
-            <label for="soundNotifications"
-              >Play sound when a new notification arrives</label
-            >
-          </div>
-        </div>
-
-        <button
-          type="submit"
-          class="bg-greenDeep text-white px-4 py-2 rounded-md"
-          >Save Notification Settings</button
-        >
-      </form>
-    {/if}
-
-    <!--Sound settings-->
     {#if activeSection === "sounds"}
       <h3 class="text-2xl font-bold text-greenDeep mb-4">Sound Settings</h3>
-      <p>Manage your sound preferences here.</p>
-
-      <form class="space-y-6">
-        <!-- Sound Volume -->
+    
+      <div class="space-y-6">
         <div>
-          <label for="soundVolume" class="block text-lg font-semibold"
-            >Sound Volume</label
-          >
+          <label for="volume" class="block text-lg font-semibold mb-2">Volume</label>
           <input
             type="range"
-            id="soundVolume"
+            id="volume"
             min="0"
             max="100"
+            step="1"
+            bind:value={volume}
+            on:input={handleVolumeChange}
             class="w-full"
           />
-          <div class="flex justify-between">
-            <span>Low</span><span>High</span>
-          </div>
+          <p class="mt-2">Volume: {volume}%</p>
         </div>
-
-        <!-- Notification Sounds -->
-        <div>
-          <label class="block text-lg font-semibold">Notification Sounds</label>
-          <select id="notificationSounds" class="w-full p-3 border rounded-md">
-            <option value="default">Default</option>
-            <option value="chime">Chime</option>
-            <option value="beep">Beep</option>
-          </select>
+    
+        <div class="flex items-center space-x-2">
+          <label for="music-toggle" class="text-lg font-semibold">Enable Music</label>
+          <input
+            type="checkbox"
+            id="music-toggle"
+            checked={$isMusicEnabled}
+            on:change={(e) => {
+              isMusicEnabled.set(e.target.checked);
+              console.log('Checkbox changed:', e.target.checked);
+            }}
+            class="form-checkbox h-5 w-5"
+          />
         </div>
-
-        <button
-          type="submit"
-          class="bg-greenDeep text-white px-4 py-2 rounded-md"
-          >Save Sound Settings</button
-        >
-      </form>
+        
+        <p class="text-sm text-gray-600">
+          Current music state: {$isMusicEnabled ? 'Enabled' : 'Disabled'}
+        </p>
+      </div>
+    
+      <BackgroundMusic />
     {/if}
-
     <!--Content preferences-->
     {#if activeSection === "content-preferences"}
       <h3 class="text-2xl font-bold text-greenDeep mb-4">
