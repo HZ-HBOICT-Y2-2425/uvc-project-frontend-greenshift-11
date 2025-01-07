@@ -1,6 +1,9 @@
 <script>
   // Functional setup for the component
   let selected = "";
+  let brand = "";
+  let description = "";
+  let hoursPerWeek = 0;
   
   // List of possible home appliance types
   const applianceTypes = [
@@ -25,16 +28,42 @@
     "Deep Fryer",
     "Electric Grill"
   ];
+
+   const BASE_URL = "http://localhost:3010/appliance/";
+
+  const handleSubmit = async () => {
+    try {
+        const url = new URL(`${BASE_URL}appliance`);
+        url.searchParams.append('brand', brand);
+        url.searchParams.append('type', selected);
+        url.searchParams.append('description', description);
+        url.searchParams.append('hoursPerWeek', hoursPerWeek.toString());
+        const response = await fetch(url, {
+            method: "POST",
+        });
+
+        if (response.ok) {
+            const data = await response.json();
+            console.log(data);
+            window.location.href = "/co2"; // Redirect to app's home page
+        } else {
+            const errorData = await response.json();
+            console.error(errorData.message);
+        }
+    } catch (error) {
+        console.error("Error:", error);
+    }
+};
 </script>
 
 <!-- Main Content Area -->
 <div class="flex-grow p-4">
   <div class="flex justify-between items-start">
     <!-- Form Section -->
-    <form class="flex flex-col gap-4 w-2/3" method="POST">
+    <form class="flex flex-col gap-4 w-2/3" method="POST" on:submit|preventDefault={handleSubmit}>
       <label class="block">
         <span class="text-gray-700 font-medium">Brand</span>
-        <input name="brand" type="text" class="w-full border rounded p-2 mt-1" required />
+        <input name="brand" type="text" bind:value={brand} class="w-full border rounded p-2 mt-1" required />
       </label>
       <label class="block">
         <span class="text-gray-700 font-medium">Type</span>
@@ -47,11 +76,11 @@
       </label>
       <label class="block">
         <span class="text-gray-700 font-medium">Description</span>
-        <input name="description" type="text" class="w-full border rounded p-2 mt-1" required />
+        <input name="description" type="text" bind:value={description} class="w-full border rounded p-2 mt-1" required />
       </label>
       <label class="block">
         <span class="text-gray-700 font-medium">Hours per week usage</span>
-        <input name="hoursPerWeek" type="number" class="w-full border rounded p-2 mt-1" required />
+        <input name="hoursPerWeek" type="number" bind:value={hoursPerWeek} class="w-full border rounded p-2 mt-1" required />
       </label>
       <button class="bg-green-600 text-white font-semibold py-2 px-4 rounded hover:bg-blue-600">
         Add an appliance
