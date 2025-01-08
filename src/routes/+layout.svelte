@@ -138,6 +138,7 @@
 
 <ToastContainer />
 
+
 {#if isAuthenticated}
   {#if !isMainPage && !isSignupPage && !isLoginPage && !isQuestionPage && !isThankYouPage}
     <div class="fixed inset-0 flex flex-col bg-greenDeep">
