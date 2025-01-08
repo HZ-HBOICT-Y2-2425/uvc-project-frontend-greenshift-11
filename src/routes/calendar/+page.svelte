@@ -1,10 +1,12 @@
 <script>
   import "../../app.css";
+  import { onMount } from 'svelte';
 
   let selectedDate = ''; // Holds the selected date
   let note = ''; // Holds the current note being written
   let notes = {}; // Stores notes locally for display
   let username = localStorage.getItem("username");
+  let completedTasks = []; // Tracks completed tasks
 
   // Save the note by sending it to the backend
   async function saveNote() {
@@ -65,9 +67,24 @@
     }
   }
 
+  //fucntion to load completed tasks a user has completed
+  function loadCompletedTasks() {
+  const username = localStorage.getItem("username"); // Get the current username
+  if (!username) return;
+
+  // Load completed tasks for the current user
+  const allCompletedTasks = JSON.parse(localStorage.getItem("completedTasksByUser")) || {};
+  completedTasks = allCompletedTasks[username] || [];
+}
+
+
   $: if (selectedDate) {
     loadNotes();
   }
+
+  onMount(() => {
+    loadCompletedTasks();
+  });
 </script>
 
 <div>
@@ -102,20 +119,32 @@
       {/if}
     </div>
 
-    <!-- Completed Tasks Section -->
-    <div class="bg-greenLight p-4 rounded-lg shadow-lg w-full sm:w-1/2">
-      <h2 class="text-lg font-semibold mb-4">Completed Tasks</h2>
-      <ul>
-        <li class="flex items-center justify-between">
-          <span class="font-serif">Task 1</span>
-        </li>
-        <li class="flex items-center justify-between">
-          <span class="font-serif">Task 2</span>
-        </li>
-        <li class="flex items-center justify-between">
-          <span class="font-serif">Task 3</span>
-        </li>
-      </ul>
+    <!-- Completed Tasks Section with improved styling -->
+    <div class="bg-gradient-to-br from-green-50 to-green-100 p-6 rounded-lg shadow-lg w-full sm:w-1/2 border border-green-200">
+      <div class="flex items-center gap-2 mb-6">
+        <h2 class="text-xl font-semibold text-green-800">Completed Tasks</h2>
+        <span class="bg-green-500 text-white text-sm px-2 py-1 rounded-full">
+          {completedTasks.length}
+        </span>
+      </div>
+      
+      {#if completedTasks.length > 0}
+        <ul class="space-y-3">
+          {#each completedTasks as task, index}
+            <li class="flex items-center gap-3 bg-white p-3 rounded-lg shadow-sm border border-green-100 hover:shadow-md transition-shadow">
+              <span class="flex-shrink-0 w-8 h-8 bg-green-500 text-white rounded-full flex items-center justify-center font-semibold">
+                {index + 1}
+              </span>
+              <span class="font-medium text-gray-700">{task.text}</span>
+            </li>
+          {/each}
+        </ul>
+      {:else}
+        <div class="text-center py-8 text-gray-500">
+          <p class="text-lg mb-2">No tasks completed yet</p>
+          <p class="text-sm">Complete tasks in the home page to see them here!</p>
+        </div>
+      {/if}
     </div>
   </div>
 </div>

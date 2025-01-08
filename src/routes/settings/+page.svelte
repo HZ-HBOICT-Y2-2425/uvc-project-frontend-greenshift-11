@@ -1,35 +1,9 @@
 <script>
-  import { onMount } from 'svelte';
-    import { on } from 'svelte/events';
-
   // Sidebar state
   let activeSection = "account"; // Default active section
 
   // Content type dropdown state
   let contentType = "all";
-  $: taskSelected = contentType === "tasks";
-
-  // get all task gategories
-   // Task categories
-  let taskCategories = [];
-  async function getTaskCategories() {
-    try {
-      const response = await fetch("http://localhost:3011/api/tasks");
-      if (response.ok) {
-        const data = await response.json();
-        return data.categories;
-      } else {
-        console.error("Failed to fetch task categories.");
-        return [];
-      }
-    } catch (error) {
-      console.error("Error fetching task categories:", error);
-      return [];
-    }
-  }
-  onMount(async () => {
-    taskCategories = await getTaskCategories();
-  });
 
 </script>
 
@@ -272,25 +246,8 @@
             <option value="articles">Articles</option>
             <option value="videos">Videos</option>
             <option value="news">News</option>
-            <option value="tasks">Tasks</option>
           </select>
         </div>
-
-         <!-- Render tasks if "tasks" is selected -->
-        {#if taskSelected}
-          <h3 class="text-2xl font-bold text-greenDeep mb-4">Tasks</h3>
-          <p>Choose a different task category <img id="question-mark" src="questionmark.png" alt="question mark" /></p>
-  
-          {#if taskCategories.length > 0}
-            <ul class="space-y-4">
-            {#each taskCategories as category}
-              <li> <input type="checkbox" class="h-5 w-5 mt-1 text-green-600" /> {category}</li> 
-            {/each}
-            </ul>
-          {:else}
-            <p>Loading categories...</p>
-         {/if}
-        {/if}
 
         <!-- Content Filter -->
         <div>
