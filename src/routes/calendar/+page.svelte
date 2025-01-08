@@ -8,10 +8,12 @@
   let note = ""; // Holds the current note being written
   let notes = {}; // Stores notes locally for display
   let username = localStorage.getItem("username");
+  // @ts-ignore
   let dateInput; // Reference for the Flatpickr calendar
 
   // Initialize Flatpickr
   onMount(() => {
+    // @ts-ignore
     flatpickr(dateInput, {
       inline: true, // Always visible calendar
       dateFormat: "Y-m-d", // Date format Year-Month-Day
@@ -40,8 +42,11 @@
         if (response.ok) {
           const data = await response.json();
           console.log("Note saved successfully:", data);
+          // @ts-ignore
           notes[selectedDate] = data.notes
+            // @ts-ignore
             .filter((n) => n.date === selectedDate)
+            // @ts-ignore
             .map((n) => n.note);
           alert(`Note saved for ${selectedDate}`);
           note = ""; // Clear note input
@@ -68,8 +73,11 @@
           const data = await response.json();
           console.log("Loaded notes:", data);
 
+          // @ts-ignore
           notes[selectedDate] = data.notes
+            // @ts-ignore
             .filter((n) => n.date === selectedDate)
+            // @ts-ignore
             .map((n) => n.note);
         }
       } catch (err) {
@@ -78,7 +86,8 @@
     }
   }
 
-  $: if (selectedDate) {
+ // @ts-ignore
+   $: if (selectedDate) {
     loadNotes();
   }
 </script>

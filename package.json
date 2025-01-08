@@ -27,6 +27,7 @@
 		"vitest": "^2.1.8"
 	},
 	"dependencies": {
+		"apexcharts": "^4.3.0",
 		"axios": "^1.7.9",
 		"flatpickr": "^4.6.13"
 	}

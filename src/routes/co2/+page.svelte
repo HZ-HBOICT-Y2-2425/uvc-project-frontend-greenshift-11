@@ -1,7 +1,11 @@
 <script>
-  import { chart } from "svelte-apexcharts";
-  let chartType = "bar";
+  import { onMount } from "svelte";
+  // @ts-ignore
+  import ApexCharts from 'apexcharts';
 
+  // @ts-ignore
+  let chart;
+  let chartType = "bar";
   let options = {
     chart: {
       id: "appliance-usage-chart",
@@ -15,6 +19,7 @@
     },
     dataLabels: {
       enabled: chartType === 'pie',
+      // @ts-ignore
       formatter: function (val) {
         return val.toFixed(2);
       }
@@ -22,43 +27,52 @@
     labels: [],
   };
 
-  const barData = [
-    {
-      name: "Average usage",
-      data: [30, 40, 20, 25],
-    },
-    {
-      name: "Current usage",
-      data: [50, 65, 30, 35],
-    },
-  ];
+  const fetchData = async () => {
+    try {
+      const response = await fetch("http://localhost:3010/appliance/api/appliance-usage");
+      if (!response.ok) {
+        throw new Error("Failed to fetch data");
+      }
+      const data = await response.json();
+      updateChartData(data);
+    } catch (error) {
+      console.error("Error fetching data:", error);
+    }
+  };
 
-  const pieData = [
-    { name: "Refrigerator", data: 30 },
-    { name: "Washing Machine", data: 40 },
-    { name: "Dishwasher", data: 20 },
-    { name: "Oven", data: 25 },
-  ];
-
-  function switchChart(type) {
-    if (type === "bar") {
-      options.chart.type = "bar";
-      options.series = barData;
-      options.xaxis.categories = ["Refrigerator", "Washing Machine", "Dishwasher", "Oven"];
+  // @ts-ignore
+  const updateChartData = (data) => {
+    if (chartType === "bar") {
+      options.series = data.series;
+      options.xaxis.categories = data.categories;
     } else {
-      options.chart.type = "pie";
-      options.series = pieData.map(entry => entry.data);
-      options.labels = pieData.map(entry => entry.name);
+      // @ts-ignore
+      options.series = data.series.map(entry => entry.data);
+      options.labels = data.labels;
       options.dataLabels.enabled = true;
     }
     options = { ...options, chart: { ...options.chart } };
-  }
+  };
 
-  switchChart(chartType);
+  // @ts-ignore
+  const switchChart = async (type) => {
+    chartType = type;
+    await fetchData();
+    // @ts-ignore
+    if (chart) {
+      chart.updateOptions(options);
+    }
+  };
+
+  onMount(() => {
+    chart = new ApexCharts(document.querySelector("#chart"), options);
+    chart.render();
+    fetchData();
+  });
 </script>
 
 <div class="max-w-100% max-h-90% mx-0">
-  <div use:chart={options}></div>
+  <div id="chart"></div>
 </div>
 
 <div class="text-center m-10">
