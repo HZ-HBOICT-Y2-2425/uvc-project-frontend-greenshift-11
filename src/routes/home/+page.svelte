@@ -110,7 +110,6 @@
       alt="Garden State Representation" 
       class="w-full h-full object-cover opacity-20"
     />
-    <BackgroundMusic />
   </div>
 
   <div class="flex flex-col items-center text-center z-10 relative">

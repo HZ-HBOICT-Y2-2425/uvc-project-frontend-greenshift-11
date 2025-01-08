@@ -314,7 +314,6 @@ const handleMusicToggle = (event) => {
         </p>
       </div>
     
-      <BackgroundMusic />
     {/if}
     <!--Content preferences-->
     {#if activeSection === "content-preferences"}
