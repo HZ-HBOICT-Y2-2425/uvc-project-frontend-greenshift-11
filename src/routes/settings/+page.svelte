@@ -11,30 +11,24 @@
   let showConfirmDialog = false;
   let showSuccessDialog = false;
 
-  // Local volume state that syncs with the store
   let volume;
+  let isEditable = false; // Flag to track edit mode
 
-  // Subscribe to the volume store to keep local state in sync
   volumeLevel.subscribe((value) => {
     volume = value;
   });
 
-  // Volume Change Handler
   const handleVolumeChange = (event) => {
     volume = parseInt(event.target.value);
     volumeLevel.set(volume);
   };
 
-  // Music Toggle Handler
   const handleMusicToggle = (event) => {
     const newValue = event.target.checked;
-    console.log("Toggling music to:", newValue);
     isMusicEnabled.set(newValue);
   };
 
-  // Function to confirm account changes
   const confirmChanges = async () => {
-    // Save the updated user details
     try {
       const response = await fetch(
         `${BASE_URL}auth/users/${localStorage.getItem("username")}`,
@@ -69,7 +63,6 @@
     }
   };
 
-  // Cancel the confirmation dialog
   const cancelChanges = () => {
     showConfirmDialog = false;
   };
@@ -101,14 +94,10 @@
     fetchUserData();
   });
 
-  function handleSubmit(event) {
+  const handleSubmit = (event) => {
     event.preventDefault();
-    // Show the confirmation dialog instead of notification
     showConfirmDialog = true;
-    // Save the settings (add your API call here)
-    notifications.add("Settings saved successfully!", "success");
     if (pushNotifications) {
-      // Demo notifications
       setTimeout(() => {
         notifications.add("Time to water your plants! 🌱", "info");
       }, 2000);
@@ -119,9 +108,8 @@
         );
       }, 5000);
     }
-  }
+  };
 
-  // Example function to trigger demo notifications
   function triggerDemoNotification() {
     const types = ["success", "error", "warning", "info"];
     const messages = [
@@ -136,13 +124,15 @@
     notifications.add(randomMessage, randomType);
   }
 
-  // Logout handler
   const handleLogout = () => {
-    // Clear the session data
     localStorage.removeItem("authToken");
     localStorage.removeItem("username");
-    // Redirect to the login page
     window.location.href = "/"; // Redirect to the login page
+  };
+
+  // Toggle edit mode
+  const toggleEdit = () => {
+    isEditable = !isEditable;
   };
 </script>
 
@@ -217,9 +207,10 @@
   </aside>
 
   <!-- Main Content -->
+  <!-- Main Content -->
   <main class="flex-grow ml-64 p-8">
-    <!-- Account Settings -->
     {#if activeSection === "account"}
+      <!-- Account Settings Section -->
       <h3 class="text-2xl font-bold text-greenDeep mb-4">Account Settings</h3>
       <p>Manage your account details below.</p>
       <form class="space-y-6" on:submit={handleSubmit}>
@@ -231,6 +222,7 @@
             class="w-full p-3 border rounded-md"
             placeholder="Enter your full name"
             bind:value={userName}
+            readonly={!isEditable}
           />
         </div>
 
@@ -244,15 +236,30 @@
             class="w-full p-3 border rounded-md"
             placeholder="Enter your email address"
             bind:value={userEmail}
+            readonly={!isEditable}
           />
         </div>
 
-        <button
-          type="submit"
-          class="bg-greenDeep text-white px-4 py-2 rounded-md"
-        >
-          Save Changes
-        </button>
+        <div class="flex space-x-4">
+          <!-- Edit Button -->
+          <button
+            type="button"
+            on:click={toggleEdit}
+            class="bg-blue-500 text-white px-4 py-2 rounded-md"
+          >
+            {isEditable ? "Cancel" : "Edit Details"}
+          </button>
+
+          <!-- Save Changes Button (Only visible in edit mode) -->
+          {#if isEditable}
+            <button
+              type="submit"
+              class="bg-greenDeep text-white px-4 py-2 rounded-md"
+            >
+              Save Changes
+            </button>
+          {/if}
+        </div>
       </form>
 
       {#if showConfirmDialog}
@@ -261,7 +268,6 @@
         >
           <div class="bg-white rounded-lg p-8 max-w-md w-11/12 mx-4">
             <h3 class="text-xl font-bold mb-4">Confirm Changes</h3>
-
             <div class="space-y-4 mb-6">
               <p>Are you sure you want to update your account information?</p>
               <div class="bg-gray-50 p-4 rounded-md">
@@ -281,10 +287,10 @@
                 >Cancel</button
               >
               <button
-                on:click={handleLogout}
-                class="bottom-20 right-8 bg-red-500 text-white px-6 py-2 rounded-md"
+                on:click={confirmChanges}
+                class="bg-greenDeep text-white px-6 py-2 rounded-md"
               >
-                Logout
+                Confirm
               </button>
             </div>
           </div>
