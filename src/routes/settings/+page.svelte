@@ -1,7 +1,7 @@
 <script>
   import { onMount } from "svelte";
-  import { isMusicEnabled, volumeLevel } from '$lib/stores/musicStore.js';
-  import { notifications } from '$lib/stores/notificationStore.js';
+  import { isMusicEnabled, volumeLevel } from "$lib/stores/musicStore.js";
+  import { notifications } from "$lib/stores/notificationStore.js";
 
   let emailNotifications = false;
   let pushNotifications = false;
@@ -13,9 +13,9 @@
 
   // Local volume state that syncs with the store
   let volume;
-  
+
   // Subscribe to the volume store to keep local state in sync
-  volumeLevel.subscribe(value => {
+  volumeLevel.subscribe((value) => {
     volume = value;
   });
 
@@ -28,7 +28,7 @@
   // Music Toggle Handler
   const handleMusicToggle = (event) => {
     const newValue = event.target.checked;
-    console.log('Toggling music to:', newValue);
+    console.log("Toggling music to:", newValue);
     isMusicEnabled.set(newValue);
   };
 
@@ -106,32 +106,44 @@
     // Show the confirmation dialog instead of notification
     showConfirmDialog = true;
     // Save the settings (add your API call here)
-    notifications.add('Settings saved successfully!', 'success');
+    notifications.add("Settings saved successfully!", "success");
     if (pushNotifications) {
       // Demo notifications
       setTimeout(() => {
-        notifications.add('Time to water your plants! 🌱', 'info');
+        notifications.add("Time to water your plants! 🌱", "info");
       }, 2000);
       setTimeout(() => {
-        notifications.add('Check out new eco-friendly products in the shop! 🛍️', 'info');
+        notifications.add(
+          "Check out new eco-friendly products in the shop! 🛍️",
+          "info"
+        );
       }, 5000);
     }
   }
 
   // Example function to trigger demo notifications
   function triggerDemoNotification() {
-    const types = ['success', 'error', 'warning', 'info'];
+    const types = ["success", "error", "warning", "info"];
     const messages = [
-      '🌱 Remember to water your plants!',
-      '🌍 You reduced your CO2 emissions by 5kg today!',
-      '🛍️ New sustainable products in the shop!',
-      '📅 Garden maintenance scheduled for tomorrow',
-      '🌿 Your tomato plants need attention'
+      "🌱 Remember to water your plants!",
+      "🌍 You reduced your CO2 emissions by 5kg today!",
+      "🛍️ New sustainable products in the shop!",
+      "📅 Garden maintenance scheduled for tomorrow",
+      "🌿 Your tomato plants need attention",
     ];
     const randomType = types[Math.floor(Math.random() * types.length)];
     const randomMessage = messages[Math.floor(Math.random() * messages.length)];
     notifications.add(randomMessage, randomType);
   }
+
+  // Logout handler
+  const handleLogout = () => {
+    // Clear the session data
+    localStorage.removeItem("authToken");
+    localStorage.removeItem("username");
+    // Redirect to the login page
+    window.location.href = "/"; // Redirect to the login page
+  };
 </script>
 
 <div class="flex h-full">
@@ -221,9 +233,11 @@
             bind:value={userName}
           />
         </div>
-      
+
         <div>
-          <label for="email" class="block text-lg font-semibold">Email Address</label>
+          <label for="email" class="block text-lg font-semibold"
+            >Email Address</label
+          >
           <input
             type="email"
             id="email"
@@ -232,98 +246,126 @@
             bind:value={userEmail}
           />
         </div>
-      
-        <button type="submit" class="bg-greenDeep text-white px-4 py-2 rounded-md">
+
+        <button
+          type="submit"
+          class="bg-greenDeep text-white px-4 py-2 rounded-md"
+        >
           Save Changes
         </button>
       </form>
 
       {#if showConfirmDialog}
-        <div class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+        <div
+          class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
+        >
           <div class="bg-white rounded-lg p-8 max-w-md w-11/12 mx-4">
-            <h3 class="text-xl font-bold mb-4">
-              Confirm Changes
-            </h3>
-            
+            <h3 class="text-xl font-bold mb-4">Confirm Changes</h3>
+
             <div class="space-y-4 mb-6">
               <p>Are you sure you want to update your account information?</p>
               <div class="bg-gray-50 p-4 rounded-md">
                 <p class="mb-2">
-                  <span class="font-semibold">New Name:</span> {userName}
+                  <span class="font-semibold">New Name:</span>
+                  {userName}
                 </p>
                 <p>
-                  <span class="font-semibold">New Email:</span> {userEmail}
+                  <span class="font-semibold">New Email:</span>
+                  {userEmail}
                 </p>
               </div>
             </div>
-            
+
             <div class="flex justify-end space-x-4">
-              <button on:click={cancelChanges} class="text-gray-500">Cancel</button>
-              <button on:click={confirmChanges} class="bg-greenDeep text-white px-4 py-2 rounded-md">Confirm</button>
+              <button on:click={cancelChanges} class="text-gray-500"
+                >Cancel</button
+              >
+              <button
+                on:click={handleLogout}
+                class="bottom-20 right-8 bg-red-500 text-white px-6 py-2 rounded-md"
+              >
+                Logout
+              </button>
             </div>
           </div>
         </div>
       {/if}
 
       {#if showSuccessDialog}
-        <div class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+        <div
+          class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
+        >
           <div class="bg-white rounded-lg p-8 max-w-md w-11/12 mx-4">
-            <h3 class="text-xl font-bold mb-4">
-              Success!
-            </h3>
+            <h3 class="text-xl font-bold mb-4">Success!</h3>
             <p>Your changes have been saved successfully.</p>
             <div class="flex justify-end mt-6">
-              <button on:click={() => showSuccessDialog = false} class="text-gray-500">Close</button>
+              <button
+                on:click={() => (showSuccessDialog = false)}
+                class="text-gray-500">Close</button
+              >
             </div>
           </div>
         </div>
       {/if}
+      <!-- Logout Button inside the Account Section -->
+      <div class="fixed bottom-8 right-4 pb-16">
+        <button
+          on:click={handleLogout}
+          class="bg-red-500 text-white px-6 py-2 rounded-md"
+        >
+          Logout
+        </button>
+      </div>
     {/if}
 
     <!--Notifications-->
     {#if activeSection === "notifications"}
-    <div class="p-6">
-        <h3 class="text-2xl font-bold text-greenDeep mb-4">Notification Settings</h3>
+      <div class="p-6">
+        <h3 class="text-2xl font-bold text-greenDeep mb-4">
+          Notification Settings
+        </h3>
         <p class="mb-6">Manage your notification settings below.</p>
         <form class="space-y-6" on:submit|preventDefault={handleSubmit}>
-            <div class="flex items-center space-x-2">
-                <label for="push-notifications" class="text-lg font-semibold">
-                    Push Notifications
-                </label>
-                <input
-                    type="checkbox"
-                    id="push-notifications"
-                    bind:checked={pushNotifications}
-                    class="form-checkbox h-5 w-5 text-greenDeep rounded border-gray-300"
-                />
-            </div>
-            <div class="space-y-4">
-                <button
-                    type="submit"
-                    class="bg-greenDeep text-white px-6 py-2 rounded-md hover:bg-opacity-90 transition-colors"
-                >
-                    Save Settings
-                </button>
-                <!-- Demo button - remove in production -->
-                <button
-                    type="button"
-                    on:click={triggerDemoNotification}
-                    class="ml-4 bg-gray-200 text-gray-700 px-6 py-2 rounded-md hover:bg-gray-300 transition-colors"
-                >
-                    Test Notification
-                </button>
-            </div>
+          <div class="flex items-center space-x-2">
+            <label for="push-notifications" class="text-lg font-semibold">
+              Push Notifications
+            </label>
+            <input
+              type="checkbox"
+              id="push-notifications"
+              bind:checked={pushNotifications}
+              class="form-checkbox h-5 w-5 text-greenDeep rounded border-gray-300"
+            />
+          </div>
+          <div class="space-y-4">
+            <button
+              type="submit"
+              class="bg-greenDeep text-white px-6 py-2 rounded-md hover:bg-opacity-90 transition-colors"
+            >
+              Save Settings
+            </button>
+            <!-- Demo button - remove in production -->
+            <button
+              type="button"
+              on:click={triggerDemoNotification}
+              class="ml-4 bg-gray-200 text-gray-700 px-6 py-2 rounded-md hover:bg-gray-300 transition-colors"
+            >
+              Test Notification
+            </button>
+          </div>
         </form>
-    </div>
+      </div>
     {/if}
 
     <!--Sound settings-->
     {#if activeSection === "sounds"}
       <h3 class="text-2xl font-bold text-greenDeep mb-4">Sound Settings</h3>
-    
+
       <div class="space-y-6">
         <div>
-          <label for="volume" class="block text-lg font-semibold mb-2">Volume</label>
+          <label for="volume" class="block text-lg font-semibold mb-2"
+            >Volume</label
+          >
           <input
             type="range"
             id="volume"
@@ -336,26 +378,27 @@
           />
           <p class="mt-2">Volume: {volume}%</p>
         </div>
-    
+
         <div class="flex items-center space-x-2">
-          <label for="music-toggle" class="text-lg font-semibold">Enable Music</label>
+          <label for="music-toggle" class="text-lg font-semibold"
+            >Enable Music</label
+          >
           <input
             type="checkbox"
             id="music-toggle"
             checked={$isMusicEnabled}
             on:change={(e) => {
               isMusicEnabled.set(e.target.checked);
-              console.log('Checkbox changed:', e.target.checked);
+              console.log("Checkbox changed:", e.target.checked);
             }}
             class="form-checkbox h-5 w-5"
           />
         </div>
-        
+
         <p class="text-sm text-gray-600">
-          Current music state: {$isMusicEnabled ? 'Enabled' : 'Disabled'}
+          Current music state: {$isMusicEnabled ? "Enabled" : "Disabled"}
         </p>
       </div>
-    
     {/if}
 
     <!--Content preferences-->
@@ -432,6 +475,5 @@
         </li>
       </ul>
     {/if}
-
   </main>
 </div>
