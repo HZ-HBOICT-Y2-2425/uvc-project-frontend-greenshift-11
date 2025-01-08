@@ -2,80 +2,107 @@
   import "../../app.css";
   import { onMount } from "svelte";
 
-  let categories = [];
-  let articlesByCategory = {};
+  // State management for articles
+  let allArticles = [];
   let error = null;
+  let loading = true;
 
-  // Fetch all categories
-  async function fetchCategories() {
-    try {
-      const response = await fetch("http://localhost:3011/api/articles");
-      if (response.ok) {
-        const data = await response.json();
-        categories = data.categories;
-        fetchArticles();
-      } else {
-        error = "Failed to fetch categories";
-      }
-    } catch (err) {
-      console.error("Error fetching categories:", err);
-      error = "An error occurred while fetching categories.";
+  // Fetch all categories and their articles, then flatten into a single array
+  async function fetchAllArticles() {
+  try {
+    // Fetch all articles from the backend
+    const response = await fetch("http://localhost:3011/api/articles");
+    if (!response.ok) {
+      throw new Error("Failed to fetch articles");
     }
+    const categoriesData = await response.json();
+    const categories = categoriesData.categories || [];
+
+    // Fetch and combine all articles into a single array
+    const articlesPromises = categories.map(async (category) => {
+      const categoryResponse = await fetch(`http://localhost:3011/api/articles/${category}`);
+      if (categoryResponse.ok) {
+        const data = await categoryResponse.json();
+        return data.articles.map((article) => ({
+          ...article,
+          category,
+        }));
+      }
+      return [];
+    });
+
+    const articlesByCategory = await Promise.all(articlesPromises);
+
+    // Flatten and sort articles by title
+    allArticles = articlesByCategory
+      .flat()
+      .sort((a, b) => a.title.localeCompare(b.title));
+  } catch (err) {
+    console.error("Error fetching articles:", err);
+    error = "An error occurred while fetching articles.";
+  } finally {
+    loading = false;
+  }
+}
+  // Format category name for display (used as a tag)
+  function formatCategoryName(category) {
+    return category.split('_').map(word => 
+      word.charAt(0).toUpperCase() + word.slice(1)
+    ).join(' ');
   }
 
-  // Fetch articles for each category
-  async function fetchArticles() {
-    for (const category of categories) {
-      try {
-        const response = await fetch(`http://localhost:3011/api/articles/${category}`);
-        if (response.ok) {
-          const data = await response.json();
-          articlesByCategory[category] = data.articles;
-        } else {
-          console.error(`Failed to fetch articles for category ${category}`);
-        }
-      } catch (err) {
-        console.error(`Error fetching articles for category ${category}:`, err);
-      }
-    }
-  }
-
-  // Fetch data on mount
-  onMount(fetchCategories);
+  // Initialize data on component mount
+  onMount(fetchAllArticles);
 </script>
 
-<!-- Page Content -->
 <div class="bg-greenPale min-h-screen">
+  <!-- Header Section -->
+  <div class="bg-greenDeep text-greenPale py-8">
+    <div class="container mx-auto px-4">
+      <h1 class="text-3xl font-bold">Sustainable Living Articles</h1>
+      <p class="mt-2 text-lg">Explore our comprehensive collection of sustainability resources</p>
+    </div>
+  </div>
+
   <!-- Articles Section -->
   <div class="container mx-auto px-4 py-8">
-    <h1 class="text-2xl font-bold text-greenDeep mb-6">Articles</h1>
-
     {#if error}
-      <p class="text-red-600">{error}</p>
-    {:else if Object.keys(articlesByCategory).length === 0}
-      <p class="text-greenDeep">Loading articles...</p>
+      <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative" role="alert">
+        <p class="font-bold">Error</p>
+        <p>{error}</p>
+      </div>
+    {:else if loading}
+      <div class="flex justify-center items-center h-32">
+        <p class="text-greenDeep text-lg">Loading articles...</p>
+      </div>
     {:else}
-      {#each Object.entries(articlesByCategory) as [category, articles]}
-        <div class="mb-8">
-          <h2 class="text-xl font-bold text-green-700 mb-4">{category.replace("_", " ").toUpperCase()}</h2>
-          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            {#each articles as article}
-              <div class="bg-greenLight rounded-lg shadow-md overflow-hidden">
-                <div class="p-4">
-                  <h3 class="text-greenDeep font-bold text-lg mb-2">Article</h3>
-                  <a
-                    href="{article}"
-                    target="_blank"
-                    class="text-greenDeep bg-greenPale px-4 py-2 text-sm rounded hover:bg-greenDeep hover:text-greenPale transition-all"
-                  >
-                    📖 {article}
-                  </a>
-                </div>
-              </div>
-            {/each}
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {#each allArticles as article}
+        <div class="bg-white rounded-lg shadow-lg overflow-hidden hover:shadow-xl transition-shadow duration-300">
+          <div class="h-48 bg-greenLight">
+            <img
+              src={article.image}
+              alt={article.title}
+              class="w-full h-full object-cover"
+            />
+          </div>
+          <div class="p-6">
+            <h3 class="text-greenDeep font-bold text-xl mb-3">{article.title}</h3>
+            <p class="text-gray-600 mb-4 line-clamp-3">{article.snippet}</p>
+            <a
+              href={article.link}
+              target="_blank"
+              rel="noopener noreferrer"
+              class="inline-block bg-greenLight text-greenDeep px-6 py-2 rounded-full 
+                     hover:bg-greenDeep hover:text-greenPale transition-colors duration-300
+                     font-semibold text-sm"
+            >
+              Read Article →
+            </a>
           </div>
         </div>
       {/each}
+      </div>
     {/if}
   </div>
 </div>
