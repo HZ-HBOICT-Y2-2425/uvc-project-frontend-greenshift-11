@@ -2,29 +2,48 @@
   import "../app.css";
   import { page } from "$app/stores";
   import { onMount } from "svelte";
-
+  import { isMusicEnabled, volumeLevel } from '$lib/stores/musicStore.js';
+  import ToastContainer from '../components/ToastContainer.svelte';
   let isAuthenticated = false;
   let activeSection = '';
+  
+  // Audio-related variables
+  let audio;
+  let currentTime = 0;
+
+  // Store the current time whenever it changes
+  function handleTimeUpdate() {
+    currentTime = audio?.currentTime || 0;
+  }
 
   onMount(() => {
     const token = localStorage.getItem("authToken");
     const currentPath = $page.url.pathname;
     const publicPages = ["/", "/login", "/signup", "/questions", "/thank-you"];
 
+    // Audio initialization
+    if (audio) {
+      audio.currentTime = currentTime;
+      audio.volume = $volumeLevel / 100;
+      
+      if ($isMusicEnabled) {
+        audio.play().catch(err => {
+          console.log('Auto-play prevented:', err);
+          isMusicEnabled.set(false);
+        });
+      }
+    }
+
     if (!token) {
-      // Redirect to login if no token exists and not on a public page
       if (!publicPages.includes(currentPath)) {
         window.location.href = "/login";
       }
     } else {
-      // Validate the token
       validateToken(token).then((valid) => {
         if (valid) {
           isAuthenticated = true;
-          // Set active section based on current path
           setActiveSection(currentPath);
         } else {
-          // Token is invalid, clear it and redirect to login
           localStorage.removeItem("authToken");
           if (!publicPages.includes(currentPath)) {
             window.location.href = "/login";
@@ -32,6 +51,14 @@
         }
       });
     }
+
+    // Cleanup on unmount
+    return () => {
+      if (audio) {
+        currentTime = audio.currentTime;
+        audio.pause();
+      }
+    };
   });
 
   const validateToken = async (token) => {
@@ -43,7 +70,6 @@
           Authorization: `Bearer ${token}`,
         },
       });
-
       return response.ok;
     } catch (error) {
       console.error("Token validation failed:", error);
@@ -76,6 +102,22 @@
     }
   };
 
+  // Audio reactive statements
+  $: if (audio && $isMusicEnabled) {
+    audio.play().catch(err => {
+      console.log('Play prevented:', err);
+      isMusicEnabled.set(false);
+    });
+  }
+  
+  $: if (audio && !$isMusicEnabled) {
+    audio.pause();
+  }
+  
+  $: if (audio) {
+    audio.volume = $volumeLevel / 100;
+  }
+
   $: setActiveSection($page.url.pathname);
 
   $: isMainPage = $page.url.pathname === "/";
@@ -84,6 +126,17 @@
   $: isQuestionPage = $page.url.pathname === "/questions";
   $: isThankYouPage = $page.url.pathname === "/thank-you";
 </script>
+
+<!-- Audio element -->
+<audio
+  bind:this={audio}
+  src="/bcmusic.mp3"
+  preload="auto"
+  loop
+  on:timeupdate={handleTimeUpdate}
+></audio>
+
+<ToastContainer />
 
 {#if isAuthenticated}
   {#if !isMainPage && !isSignupPage && !isLoginPage && !isQuestionPage && !isThankYouPage}
@@ -136,3 +189,9 @@
   <!-- The Custom layout  -->
   <slot />
 {/if}
+
+<style>
+  audio {
+    display: none;
+  }
+</style>
