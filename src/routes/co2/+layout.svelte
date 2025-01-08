@@ -15,10 +15,9 @@
         <p><a class="block text-white text-sm hover:underline" id="addapp" href="/co2/addAppliance">Add an appliance first</a></p>
       {/if}
 
-      <h1><a class="block text-white text-base font-bold mt-4 hover:underline" id="addapp" href="/co2/addAppliance">Add an appliance</a></h1>
       <!-- Show appliance links if there are appliances available -->
       <!-- In the same aside tag -->
-      <h1><a class="text-white text-lg font-bold mb-2" href="/co2/rooms">Manage rooms</a></h1>
+      <h1><a class="text-white text-lg font-bold mb-2" href="/co2/rooms">All rooms</a></h1>
       {#if rooms.length > 0}
         <ul class="list-none pl-4">
           {#each rooms as room}
@@ -30,6 +29,8 @@
       {:else}
         <p><a class="block text-white text-sm hover:underline" id="addroom" href="/co2/addRoom">Add a room first</a></p>
       {/if}
+      <h1><a class="block text-white text-base font-bold mt-4 hover:underline" id="addapp" href="/co2/addAppliance">Add an appliance</a></h1>
+      <h1><a class="block text-white text-sm hover:underline" id="addroom" href="/co2/addRoom">Add a room</a></h1>
     </nav>
   </aside>
 
@@ -41,23 +42,33 @@
 </div>
 
 <script>
-    /** @type {{ id: number; brand: string; type: string; description: string; hoursPerWeek: number }[]} */
-    let appliances = [];
-    /** @type {{ id: number; name: string; icon: string; appliances: {} }[]} */
-    let rooms = [];
+  import { onMount } from 'svelte';
+
+  /** @type {{ brand: string; type: string }[]} */
+  let appliances = [];
+  /** @type {{ icon: string; name: string }[]} */
+  let rooms = [];
+  
   const fetchData = async () => {
     try {
       const appliancesResponse = await fetch('http://localhost:3010/appliance/api/appliance-names');
-      const roomsResponse = await fetch('http://localhost:3010/appliance/api/rooms');
+      const roomsResponse = await fetch('http://localhost:3010/appliance/api/room-names');
 
       if (!appliancesResponse.ok || !roomsResponse.ok) {
         throw new Error('Failed to fetch data');
       }
 
-      appliances = await appliancesResponse.json();
-      rooms = await roomsResponse.json();
+      const appliancesData = await appliancesResponse.json();
+      // @ts-ignore
+      appliances = appliancesData.brand.map((brand, index) => ({ brand, type: appliancesData.type[index] }));
+
+      const roomsData = await roomsResponse.json();
+      // @ts-ignore
+      rooms = roomsData.name.map((name, index) => ({ name, icon: roomsData.icon[index] }));
     } catch (error) {
       console.error('Error fetching data:', error);
     }
   };
+
+  onMount(fetchData);
 </script>
