@@ -1,8 +1,10 @@
 <script>
   import { onMount } from "svelte";
   import { isMusicEnabled, volumeLevel } from '$lib/stores/musicStore.js';
-  import BackgroundMusic from "../../components/BackgroundMusic.svelte";
-
+  import { notifications } from '$lib/stores/notificationStore';
+    
+  let emailNotifications = false;
+  let pushNotifications = false;
   let activeSection = "account";
   let userName = "";
   let userEmail = "";
@@ -30,6 +32,39 @@ const handleMusicToggle = (event) => {
   console.log('Toggling music to:', newValue);
   isMusicEnabled.set(newValue);
 };
+
+function handleSubmit() {
+        // Save the settings (add your API call here)
+        notifications.add('Settings saved successfully!', 'success');
+
+        if (pushNotifications) {
+            // Demo notifications
+            setTimeout(() => {
+                notifications.add('Time to water your plants! 🌱', 'info');
+            }, 2000);
+
+            setTimeout(() => {
+                notifications.add('Check out new eco-friendly products in the shop! 🛍️', 'info');
+            }, 5000);
+        }
+    }
+
+    // Example function to trigger demo notifications
+    function triggerDemoNotification() {
+        const types = ['success', 'error', 'warning', 'info'];
+        const messages = [
+            '🌱 Remember to water your plants!',
+            '🌍 You reduced your CO2 emissions by 5kg today!',
+            '🛍️ New sustainable products in the shop!',
+            '📅 Garden maintenance scheduled for tomorrow',
+            '🌿 Your tomato plants need attention'
+        ];
+
+        const randomType = types[Math.floor(Math.random() * types.length)];
+        const randomMessage = messages[Math.floor(Math.random() * messages.length)];
+
+        notifications.add(randomMessage, randomType);
+    }
 
   const BASE_URL = "http://localhost:3010/";
 
@@ -87,11 +122,6 @@ const handleMusicToggle = (event) => {
     } catch (error) {
       console.error("Error updating user data:", error);
     }
-  };
-
-  const handleSubmit = (event) => {
-    event.preventDefault();
-    showConfirmDialog = true;
   };
 
   onMount(() => {
@@ -169,8 +199,9 @@ const handleMusicToggle = (event) => {
     </div>
   </aside>
 
-  <!-- Main Content -->
+   <!-- Main Content -->
   <main class="flex-grow ml-64 p-8">
+
     {#if activeSection === "account"}
       <h3 class="text-2xl font-bold text-greenDeep mb-4">Account Settings</h3>
       <p>Manage your account details below.</p>
@@ -276,6 +307,48 @@ const handleMusicToggle = (event) => {
         </div>
       {/if}
     {/if}
+
+    <!--Notifications-->
+    {#if activeSection === "notifications"}
+    <div class="p-6">
+        <h3 class="text-2xl font-bold text-greenDeep mb-4">Notification Settings</h3>
+        <p class="mb-6">Manage your notification settings below.</p>
+
+        <form class="space-y-6" on:submit|preventDefault={handleSubmit}>
+            <div class="flex items-center space-x-2">
+                <label for="push-notifications" class="text-lg font-semibold">
+                    Push Notifications
+                </label>
+                <input
+                    type="checkbox"
+                    id="push-notifications"
+                    bind:checked={pushNotifications}
+                    class="form-checkbox h-5 w-5 text-greenDeep rounded border-gray-300"
+                />
+            </div>
+
+            <div class="space-y-4">
+                <button
+                    type="submit"
+                    class="bg-greenDeep text-white px-6 py-2 rounded-md hover:bg-opacity-90 transition-colors"
+                >
+                    Save Settings
+                </button>
+
+                <!-- Demo button - remove in production -->
+                <button
+                    type="button"
+                    on:click={triggerDemoNotification}
+                    class="ml-4 bg-gray-200 text-gray-700 px-6 py-2 rounded-md hover:bg-gray-300 transition-colors"
+                >
+                    Test Notification
+                </button>
+            </div>
+        </form>
+    </div>
+{/if}
+
+    <!--Sound settings-->
     {#if activeSection === "sounds"}
       <h3 class="text-2xl font-bold text-greenDeep mb-4">Sound Settings</h3>
     
@@ -315,6 +388,7 @@ const handleMusicToggle = (event) => {
       </div>
     
     {/if}
+
     <!--Content preferences-->
     {#if activeSection === "content-preferences"}
       <h3 class="text-2xl font-bold text-greenDeep mb-4">
@@ -389,5 +463,6 @@ const handleMusicToggle = (event) => {
         </li>
       </ul>
     {/if}
+
   </main>
 </div>

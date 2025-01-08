@@ -3,7 +3,7 @@
   import { page } from "$app/stores";
   import { onMount } from "svelte";
   import { isMusicEnabled, volumeLevel } from '$lib/stores/musicStore.js';
-
+  import ToastContainer from '../components/ToastContainer.svelte';
   let isAuthenticated = false;
   let activeSection = '';
   
@@ -135,6 +135,8 @@
   loop
   on:timeupdate={handleTimeUpdate}
 ></audio>
+
+<ToastContainer />
 
 {#if isAuthenticated}
   {#if !isMainPage && !isSignupPage && !isLoginPage && !isQuestionPage && !isThankYouPage}
