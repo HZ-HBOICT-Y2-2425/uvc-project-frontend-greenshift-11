@@ -3,8 +3,8 @@
    import { onMount } from 'svelte';
    import { notifications } from '$lib/stores/notificationStore';
  
-   let isMusicPlaying = true;  // Whether the music is playing
-   let musicVolume = 100;      // Volume of the music
+   let isMusicPlaying = true;
+   let musicVolume = 100;
  
    const gardenStateStore = writable(1);
  
@@ -74,7 +74,7 @@
    $: gardenDetails = getGardenDetails($gardenStateStore);
  
    function randomizeTasks() {
-     console.log("Randomizing tasks..."); // Replace with your logic
+     console.log("Randomizing tasks..."); // TODO: change with our logic
    }
  
    onMount(() => {
