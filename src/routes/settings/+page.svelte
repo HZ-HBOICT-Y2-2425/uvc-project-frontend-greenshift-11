@@ -1,8 +1,8 @@
 <script>
   import { onMount } from "svelte";
   import { isMusicEnabled, volumeLevel } from '$lib/stores/musicStore.js';
-  import { notifications } from '$lib/stores/notificationStore';
-    
+  import { notifications } from '$lib/stores/notificationStore.js';
+
   let emailNotifications = false;
   let pushNotifications = false;
   let activeSection = "account";
@@ -26,70 +26,15 @@
   };
 
   // Music Toggle Handler
-
-const handleMusicToggle = (event) => {
-  const newValue = event.target.checked;
-  console.log('Toggling music to:', newValue);
-  isMusicEnabled.set(newValue);
-};
-
-function handleSubmit() {
-        // Save the settings (add your API call here)
-        notifications.add('Settings saved successfully!', 'success');
-
-        if (pushNotifications) {
-            // Demo notifications
-            setTimeout(() => {
-                notifications.add('Time to water your plants! 🌱', 'info');
-            }, 2000);
-
-            setTimeout(() => {
-                notifications.add('Check out new eco-friendly products in the shop! 🛍️', 'info');
-            }, 5000);
-        }
-    }
-
-    // Example function to trigger demo notifications
-    function triggerDemoNotification() {
-        const types = ['success', 'error', 'warning', 'info'];
-        const messages = [
-            '🌱 Remember to water your plants!',
-            '🌍 You reduced your CO2 emissions by 5kg today!',
-            '🛍️ New sustainable products in the shop!',
-            '📅 Garden maintenance scheduled for tomorrow',
-            '🌿 Your tomato plants need attention'
-        ];
-
-        const randomType = types[Math.floor(Math.random() * types.length)];
-        const randomMessage = messages[Math.floor(Math.random() * messages.length)];
-
-        notifications.add(randomMessage, randomType);
-    }
-
-  const BASE_URL = "http://localhost:3010/";
-
-  const fetchUserData = async () => {
-    try {
-      const username = localStorage.getItem("username");
-      const response = await fetch(`${BASE_URL}auth/users/${username}`, {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("authToken")}`,
-        },
-      });
-
-      if (response.ok) {
-        const userData = await response.json();
-        userName = userData.user.user;
-        userEmail = userData.user.email;
-      } else {
-        console.error("Failed to fetch user data:", await response.text());
-      }
-    } catch (error) {
-      console.error("Error fetching user data:", error);
-    }
+  const handleMusicToggle = (event) => {
+    const newValue = event.target.checked;
+    console.log('Toggling music to:', newValue);
+    isMusicEnabled.set(newValue);
   };
 
-  const updateUserData = async () => {
+  // Function to confirm account changes
+  const confirmChanges = async () => {
+    // Save the updated user details
     try {
       const response = await fetch(
         `${BASE_URL}auth/users/${localStorage.getItem("username")}`,
@@ -124,9 +69,69 @@ function handleSubmit() {
     }
   };
 
+  // Cancel the confirmation dialog
+  const cancelChanges = () => {
+    showConfirmDialog = false;
+  };
+
+  const BASE_URL = "http://localhost:3010/";
+
+  const fetchUserData = async () => {
+    try {
+      const username = localStorage.getItem("username");
+      const response = await fetch(`${BASE_URL}auth/users/${username}`, {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("authToken")}`,
+        },
+      });
+
+      if (response.ok) {
+        const userData = await response.json();
+        userName = userData.user.user;
+        userEmail = userData.user.email;
+      } else {
+        console.error("Failed to fetch user data:", await response.text());
+      }
+    } catch (error) {
+      console.error("Error fetching user data:", error);
+    }
+  };
+
   onMount(() => {
     fetchUserData();
   });
+
+  function handleSubmit(event) {
+    event.preventDefault();
+    // Show the confirmation dialog instead of notification
+    showConfirmDialog = true;
+    // Save the settings (add your API call here)
+    notifications.add('Settings saved successfully!', 'success');
+    if (pushNotifications) {
+      // Demo notifications
+      setTimeout(() => {
+        notifications.add('Time to water your plants! 🌱', 'info');
+      }, 2000);
+      setTimeout(() => {
+        notifications.add('Check out new eco-friendly products in the shop! 🛍️', 'info');
+      }, 5000);
+    }
+  }
+
+  // Example function to trigger demo notifications
+  function triggerDemoNotification() {
+    const types = ['success', 'error', 'warning', 'info'];
+    const messages = [
+      '🌱 Remember to water your plants!',
+      '🌍 You reduced your CO2 emissions by 5kg today!',
+      '🛍️ New sustainable products in the shop!',
+      '📅 Garden maintenance scheduled for tomorrow',
+      '🌿 Your tomato plants need attention'
+    ];
+    const randomType = types[Math.floor(Math.random() * types.length)];
+    const randomMessage = messages[Math.floor(Math.random() * messages.length)];
+    notifications.add(randomMessage, randomType);
+  }
 </script>
 
 <div class="flex h-full">
@@ -199,9 +204,9 @@ function handleSubmit() {
     </div>
   </aside>
 
-   <!-- Main Content -->
+  <!-- Main Content -->
   <main class="flex-grow ml-64 p-8">
-
+    <!-- Account Settings -->
     {#if activeSection === "account"}
       <h3 class="text-2xl font-bold text-greenDeep mb-4">Account Settings</h3>
       <p>Manage your account details below.</p>
@@ -216,11 +221,9 @@ function handleSubmit() {
             bind:value={userName}
           />
         </div>
-
+      
         <div>
-          <label for="email" class="block text-lg font-semibold"
-            >Email Address</label
-          >
+          <label for="email" class="block text-lg font-semibold">Email Address</label>
           <input
             type="email"
             id="email"
@@ -229,79 +232,48 @@ function handleSubmit() {
             bind:value={userEmail}
           />
         </div>
-
-        <button
-          type="submit"
-          class="bg-greenDeep text-white px-4 py-2 rounded-md"
-        >
+      
+        <button type="submit" class="bg-greenDeep text-white px-4 py-2 rounded-md">
           Save Changes
         </button>
       </form>
 
       {#if showConfirmDialog}
-        <div
-          class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
-        >
+        <div class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
           <div class="bg-white rounded-lg p-8 max-w-md w-11/12 mx-4">
-            <h3 class="text-xl font-bold mb-4">Confirm Changes</h3>
-
+            <h3 class="text-xl font-bold mb-4">
+              Confirm Changes
+            </h3>
+            
             <div class="space-y-4 mb-6">
               <p>Are you sure you want to update your account information?</p>
               <div class="bg-gray-50 p-4 rounded-md">
                 <p class="mb-2">
-                  <span class="font-semibold">New Name:</span>
-                  {userName}
+                  <span class="font-semibold">New Name:</span> {userName}
                 </p>
                 <p>
-                  <span class="font-semibold">New Email:</span>
-                  {userEmail}
+                  <span class="font-semibold">New Email:</span> {userEmail}
                 </p>
               </div>
             </div>
-
+            
             <div class="flex justify-end space-x-4">
-              <button
-                class="px-4 py-2 rounded-md border border-gray-300 hover:bg-gray-100 transition-colors"
-                on:click={() => (showConfirmDialog = false)}
-              >
-                Cancel
-              </button>
-              <button
-                class="px-4 py-2 rounded-md bg-greenDeep text-white hover:bg-opacity-90 transition-colors"
-                on:click={updateUserData}
-              >
-                Confirm
-              </button>
+              <button on:click={cancelChanges} class="text-gray-500">Cancel</button>
+              <button on:click={confirmChanges} class="bg-greenDeep text-white px-4 py-2 rounded-md">Confirm</button>
             </div>
           </div>
         </div>
       {/if}
 
       {#if showSuccessDialog}
-        <div
-          class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
-        >
+        <div class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
           <div class="bg-white rounded-lg p-8 max-w-md w-11/12 mx-4">
-            <div class="text-center">
-              <div class="mb-4">
-                <svg
-                  class="mx-auto h-12 w-12 text-green-500"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    stroke-width="2"
-                    d="M5 13l4 4L19 7"
-                  ></path>
-                </svg>
-              </div>
-              <h3 class="text-xl font-bold mb-4 text-gray-900">
-                Account Updated Successfully!
-              </h3>
-              <p>Your account information has been updated.</p>
+            <h3 class="text-xl font-bold mb-4">
+              Success!
+            </h3>
+            <p>Your changes have been saved successfully.</p>
+            <div class="flex justify-end mt-6">
+              <button on:click={() => showSuccessDialog = false} class="text-gray-500">Close</button>
             </div>
           </div>
         </div>
@@ -313,7 +285,6 @@ function handleSubmit() {
     <div class="p-6">
         <h3 class="text-2xl font-bold text-greenDeep mb-4">Notification Settings</h3>
         <p class="mb-6">Manage your notification settings below.</p>
-
         <form class="space-y-6" on:submit|preventDefault={handleSubmit}>
             <div class="flex items-center space-x-2">
                 <label for="push-notifications" class="text-lg font-semibold">
@@ -326,7 +297,6 @@ function handleSubmit() {
                     class="form-checkbox h-5 w-5 text-greenDeep rounded border-gray-300"
                 />
             </div>
-
             <div class="space-y-4">
                 <button
                     type="submit"
@@ -334,7 +304,6 @@ function handleSubmit() {
                 >
                     Save Settings
                 </button>
-
                 <!-- Demo button - remove in production -->
                 <button
                     type="button"
@@ -346,7 +315,7 @@ function handleSubmit() {
             </div>
         </form>
     </div>
-{/if}
+    {/if}
 
     <!--Sound settings-->
     {#if activeSection === "sounds"}
