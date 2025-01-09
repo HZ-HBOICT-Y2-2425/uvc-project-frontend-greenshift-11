@@ -1,6 +1,17 @@
 <script lang="ts">
   import { writable, derived } from "svelte/store";
   import { onMount } from "svelte";
+  import "../../app.css";
+  import { notifications } from "../../lib/stores/notificationStore.js";
+
+  let isMusicPlaying = true;
+  let musicVolume = 100;
+  let tasks = [];
+  let randomTasks = [];
+  let completedTasks = [];
+  const TASK_REFRESH_INTERVAL = 0; // 24 hours in milliseconds
+  let username = localStorage.getItem("username");
+  let allTasksCompleted = false;
 
   const BASE_URL = "http://localhost:3010/auth";
   const GARDEN_IMAGE = "/images/garden/level1.jpg";
@@ -231,9 +242,146 @@
 
   onMount(() => {
     fetchInventoryAndItems();
-  });
+    setTimeout(() => {
+       notifications.add("Welcome to your GreenShift Garden! 🌿", 'success');
+     }, 2000);
+ 
+     // Additional test notifications with different types
+     setTimeout(() => {
+       notifications.add("Don't forget to water your plants today! 💧", 'info');
+     }, 4000);
+ 
+     setTimeout(() => {
+       notifications.add("New eco-friendly products available in the shop! 🛍", 'info');
+     }, 6000);
+
+     fetchAllTasks();
+    const savedCompletedTasks = JSON.parse(localStorage.getItem("completedTasks")) || {};
+    completedTasks = savedCompletedTasks[username] || [];
+
+   });
+
+   // Store for tasks
+  const tasksStore = writable([]);
+
+// Function to fetch tasks from backend
+async function fetchAllTasks() {
+  try {
+    const response = await fetch("http://localhost:3011/api/tasks");
+    if (response.ok) {
+      const data = await response.json();
+      tasks = data.tasks;
+      handleDailyTasks();
+    } else {
+      console.error("Failed to fetch tasks:", response.status);
+    }
+  } catch (error) {
+    console.error("Error fetching tasks:", error);
+  }
+}
+
+async function refreshTask(task) {
+    try {
+      const response = await fetch(
+        `http://localhost:3011/api/tasks/alternative/${task.category}?currentTask=${encodeURIComponent(task.text)}`
+      );
+      if (response.ok) {
+        const data = await response.json();
+        const newTask = data.task;
+        
+        // Remove the old task from completedTasks if it was completed
+        completedTasks = completedTasks.filter(t => t.text !== task.text);
+        // Replace the refreshed task in randomTasks
+        const taskIndex = randomTasks.findIndex((t) => t.text === task.text);
+        if (taskIndex !== -1) {
+          randomTasks[taskIndex] = newTask;
+          randomTasks = [...randomTasks]; // Trigger Svelte reactivity
+          // Update localStorage with the new task list
+          localStorage.setItem(
+            "dailyTasks",
+            JSON.stringify({ timestamp: Date.now(), tasks: randomTasks })
+          );
+        }
+      } else {
+        console.error("Failed to refresh task:", response.status);
+      }
+    } catch (error) {
+      console.error("Error refreshing task:", error);
+    }
+  }
+
+
+  function isTaskCompleted(task) {
+    return completedTasks.includes(task.text);
+  }
+
+  function handleDailyTasks() {
+    const storedTasks = JSON.parse(localStorage.getItem("dailyTasks")) || {};
+    const now = Date.now();
+
+    if (!storedTasks.timestamp || now - storedTasks.timestamp > TASK_REFRESH_INTERVAL) {
+      selectRandomTasks();
+      localStorage.setItem(
+        "dailyTasks",
+        JSON.stringify({ timestamp: now, tasks: randomTasks })
+      );
+    } else {
+      randomTasks = storedTasks.tasks || [];
+    }
+  }
+
+  function selectRandomTasks() {
+    const shuffled = [...tasks].sort(() => 0.5 - Math.random());
+    randomTasks = shuffled.slice(0, 3);
+  }
+
+  async function markTaskAsCompleted(task) {
+    // Remove the task from randomTasks
+    randomTasks = randomTasks.filter((t) => t.text !== task.text);
+
+    // Add the task to completedTasks
+    completedTasks.push(task.text);
+
+    // Update localStorage for immediate UI sync
+    const savedCompletedTasks = JSON.parse(localStorage.getItem("completedTasks")) || {};
+    savedCompletedTasks[username] = completedTasks;
+    localStorage.setItem("completedTasks", JSON.stringify(savedCompletedTasks));
+
+    // Send the completed task to the backend
+    try {
+      const response = await fetch("http://localhost:3010/auth/completed-tasks", {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          user: username,
+          task: task.text, // Send only the task text
+          action: "complete",
+        }),
+      });
+
+      if (!response.ok) {
+        console.error("Failed to update completed tasks in the backend");
+      }
+    } catch (err) {
+      console.error("Error updating completed tasks in backend:", err);
+    }
+
+    // Update localStorage with updated tasks
+    localStorage.setItem(
+      "dailyTasks",
+      JSON.stringify({ timestamp: Date.now(), tasks: randomTasks })
+    );
+  }
 
   $: gardenDetails = getGardenDetails($gardenState);
+  $: allTasksCompleted = randomTasks.every((task) => isTaskCompleted(task));
+
+  function randomizeTasks() {
+    console.log("Randomizing tasks..."); // Replace with your logic
+  }
+
 </script>
 
 <div class="w-full p-4">
@@ -348,6 +496,37 @@
   </div>
 </div>
 
+<!-- Tasks Section -->
+<section class="text-left px-6 py-4 bg-green-100 rounded-md shadow-md mx-4 sm:mx-auto max-w-3xl">
+  <h2 class="text-xl font-bold mb-4 text-green-800">Today's Tasks</h2>
+  {#if randomTasks.length === 0}
+    <p class="text-green-800 font-bold">All tasks completed. Check in tomorrow for new ones!</p>
+  {:else}
+    <ul class="space-y-4">
+      {#each randomTasks as task}
+        <li class="flex items-start space-x-3">
+          <input 
+            type="checkbox" 
+            class="h-5 w-5 mt-1 text-green-600" 
+            on:change={() => markTaskAsCompleted(task)}
+          />
+          <div>
+            <p class="font-bold text-gray-800">{task.text}</p>
+            {#if task.isRefreshable}
+              <button
+                on:click={() => refreshTask(task)}
+                class="ml-2 text-blue-500 hover:underline"
+              >
+                Refresh
+              </button>
+            {/if}
+          </div>
+        </li>
+      {/each}
+    </ul>
+  {/if}
+</section>
+
 {#if $showInventoryModal}
   <div
     class="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50"
@@ -454,6 +633,8 @@
     </div>
   </div>
 {/if}
+
+
 
 <style>
   .animal-walk {
