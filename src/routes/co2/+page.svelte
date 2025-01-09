@@ -17,6 +17,7 @@
   ];
 
   // Default chart options
+  // @ts-ignore
   let options = {
     chart: {
       id: "appliance-usage-chart",
@@ -71,7 +72,9 @@
 
       if (chartType === "bar") {
         chartOptions = {
+          // @ts-ignore
           series: data.series.map((item) => ({
+            // @ts-ignore
             data: item.data.map((val) => parseFloat(val)),
           })),
           xaxis: {
@@ -84,13 +87,16 @@
         };
       } else if (chartType === "pie") {
         // Aggregate data for pie chart using "labels" and "data"
+        // @ts-ignore
         const pieData = data.labels.map((label, index) => ({
           name: label,
           value: parseFloat(data.series[0].data[index]),
         }));
 
         chartOptions = {
+          // @ts-ignore
           series: pieData.map((item) => item.value), // Data values
+          // @ts-ignore
           labels: pieData.map((item) => item.name), // Corresponding labels
           chart: {
             type: chartType,

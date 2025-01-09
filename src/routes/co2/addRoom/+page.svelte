@@ -1,4 +1,6 @@
 <script>
+// @ts-nocheck
+
   // Functional setup for the component
   let name = "";
   let icon = "";
