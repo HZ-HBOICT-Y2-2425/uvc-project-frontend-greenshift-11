@@ -22,7 +22,7 @@
      // Add notification when garden state changes
      const stateMessages = {
        1: "Oh no! Your garden's CO2 levels are high! 🚨",
-       2: "Your garden is maintaining balance. Keep it up! ⚖️",
+       2: "Your garden is maintaining balance. Keep it up! ⚖",
        3: "Amazing! Your garden is thriving with low CO2! 🌱"
      };
      
@@ -33,7 +33,7 @@
     switch (state) {
       case 1:
         return {
-          topMessage: "Carbon Chaos: Our Garden's Climate Kickback Zone! 🌡️🚨",
+          topMessage: "Carbon Chaos: Our Garden's Climate Kickback Zone! 🌡🚨",
           description: "High CO2 Footprint",
           bgColor: "bg-red-100",
           borderColor: "border-red-300",
@@ -44,13 +44,13 @@
         };
       case 2:
         return {
-          topMessage: "Green Balance: Cultivating Our Carbon Compromise 🌿⚖️",
+          topMessage: "Green Balance: Cultivating Our Carbon Compromise 🌿⚖",
           description: "Moderate CO2 Footprint",
           bgColor: "bg-yellow-100",
           borderColor: "border-yellow-300",
           textColor: "text-yellow-600",
           status: "Neutral State - Balanced Carbon",
-          emoji: "⚖️",
+          emoji: "⚖",
           image: "/level2.jpg",
         };
       case 3:
@@ -97,7 +97,7 @@
      }, 4000);
  
      setTimeout(() => {
-       notifications.add("New eco-friendly products available in the shop! 🛍️", 'info');
+       notifications.add("New eco-friendly products available in the shop! 🛍", 'info');
      }, 6000);
    });
 
@@ -107,7 +107,7 @@
   // Function to fetch tasks from backend
   async function fetchAllTasks() {
     try {
-      const response = await fetch(`http://localhost:3011/api/tasks`);
+      const response = await fetch("http://localhost:3011/api/tasks");
       if (response.ok) {
         const data = await response.json();
         tasks = data.tasks;
@@ -145,13 +145,13 @@
   }
 
   async function markTaskAsCompleted(task) {
-    // Remove the task from `randomTasks`
+    // Remove the task from randomTasks
     randomTasks = randomTasks.filter((t) => t.text !== task.text);
 
-    // Add the task to `completedTasks`
+    // Add the task to completedTasks
     completedTasks.push(task.text);
 
-    // Update `localStorage` for immediate UI sync
+    // Update localStorage for immediate UI sync
     const savedCompletedTasks = JSON.parse(localStorage.getItem("completedTasks")) || {};
     savedCompletedTasks[username] = completedTasks;
     localStorage.setItem("completedTasks", JSON.stringify(savedCompletedTasks));
@@ -177,7 +177,7 @@
       console.error("Error updating completed tasks in backend:", err);
     }
 
-    // Update `localStorage` with updated tasks
+    // Update localStorage with updated tasks
     localStorage.setItem(
       "dailyTasks",
       JSON.stringify({ timestamp: Date.now(), tasks: randomTasks })
@@ -193,7 +193,7 @@
 
 
 <!-- Garden section -->
-<section class={`flex flex-col sm:flex-row justify-center items-center ${gardenDetails.bgColor} py-8 rounded-md shadow-md mx-4 sm:mx-0 border-2 ${gardenDetails.borderColor} relative`}>
+<section class="flex flex-col sm:flex-row justify-center items-center {gardenDetails.bgColor} py-8 rounded-md shadow-md mx-4 sm:mx-0 border-2 {gardenDetails.borderColor} relative">
   <div class="absolute inset-0 overflow-hidden">
     <img 
       src={gardenDetails.image} 
@@ -206,7 +206,7 @@
       {gardenDetails.topMessage}
     </h2>
     <div class="mb-4">
-      <p class={`${gardenDetails.textColor}`}>{gardenDetails.status}</p>
+      <p class={gardenDetails.textColor}>{gardenDetails.status}</p>
     </div>
     <div class="w-48 h-48 mb-4 rounded-lg border-2 flex items-center justify-center ${gardenDetails.borderColor} relative">
       <div class={`text-6xl ${gardenDetails.textColor} z-10 relative`}>
