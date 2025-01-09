@@ -57,7 +57,10 @@
             "Content-Type": "application/json",
             Authorization: `Bearer ${localStorage.getItem("authToken")}`,
           },
-          body: JSON.stringify({ name: userName, email: userEmail }),
+          body: JSON.stringify({
+            name: userName, 
+            email: userEmail,
+          }),
         }
       );
       if (response.ok) {
@@ -89,6 +92,7 @@
       if (response.ok) {
         const userData = await response.json();
         userName = userData.user.user;
+        console.log("User data:", userData);
         userEmail = userData.user.email;
       } else {
         console.error("Failed to fetch user data:", await response.text());
@@ -146,6 +150,35 @@
   const cancelLogout = () => {
     showLogoutConfirmDialog = false;
   };
+
+  // Sidebar state
+
+  // Content type dropdown state
+  let contentType = "all";
+  $: taskSelected = contentType === "tasks";
+
+  // get all task gategories
+   // Task categories
+  let taskCategories = [];
+  async function getTaskCategories() {
+    try {
+      const response = await fetch("http://localhost:3011/api/tasks");
+      if (response.ok) {
+        const data = await response.json();
+        return data.categories;
+      } else {
+        console.error("Failed to fetch task categories.");
+        return [];
+      }
+    } catch (error) {
+      console.error("Error fetching task categories:", error);
+      return [];
+    }
+  }
+  onMount(async () => {
+    taskCategories = await getTaskCategories();
+  });
+
 </script>
 
 <div class="flex h-full">
@@ -463,8 +496,8 @@
       <p>Set your content preferences here.</p>
 
       <form class="space-y-6">
-        <!-- Content Type -->
-        <!-- <div>
+        <!-- Content Type
+        <div>
           <label for="contentType" class="block text-lg font-semibold">Preferred Content Type</label>
           <select id="contentType" bind:value={contentType} class="w-full p-3 border rounded-md">
             <option value="all">All</option>
