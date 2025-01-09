@@ -47,7 +47,7 @@
 
   const fetchData = async () => {
     try {
-      const response = await fetch('http://localhost:3010/appliance/api/appliance-names');
+      const response = await fetch('http://localhost:3012/appliance/api/appliance-names');
       if (!response.ok) {
         throw new Error('Failed to fetch data');
       }
@@ -61,7 +61,7 @@
     fetchData();
   });
 
-  const BASE_URL = "http://localhost:3010/room/";
+  const BASE_URL = "http://localhost:3012/room/";
 
   const handleSubmit = async () => {
     try {
@@ -116,12 +116,14 @@
         <span class="text-gray-700 font-medium">Appliances</span>
         <select bind:value={appliances} class="w-full border rounded p-2 mt-1" multiple>
           {#if appliances.length > 0}
-            {#each appliances as appliance}
-              <option value={appliance.type}>{appliance.brand} {appliance.type}</option> 
+            {#each applianceTypes as appliance}
+            <option value={appliance.id}>
+              {appliance.brand} {appliance.type}
+            </option>  
             {/each}
           {:else}
             <!-- svelte-ignore node_invalid_placement_ssr -->
-            <option value={"Add an appliance first"}>Add an appliance first</option>
+            <option disabled>Add an appliance first</option>
           {/if}
         </select>
       </label>

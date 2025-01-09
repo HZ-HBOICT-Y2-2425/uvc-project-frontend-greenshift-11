@@ -1,4 +1,3 @@
-<!-- src/routes/co2/room/[id]/+page.svelte -->
 <script lang="ts">
   import { goto } from '$app/navigation';
   
@@ -9,8 +8,8 @@
 
   const handleDeleteRoom = async () => {
     try {
-      const res = await fetch(`http://localhost:3010/appliance/room/${room.id}`, {
-        method: 'DELETE'
+      const res = await fetch(`http://localhost:3012/room/${room.id}`, {
+        method: 'DELETE',
       });
 
       if (res.ok) {
@@ -40,7 +39,7 @@
   <div class="flex flex-col gap-4 w-full">
     <div class="flex items-center gap-2">
       <span class="text-gray-700 font-medium">Icon: </span>
-      <span class="text-3xl">{room.icon}</span> <!-- Display emoji here -->
+      <span class="text-3xl">{room.icon}</span>
     </div>
     
     <div>

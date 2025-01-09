@@ -1,48 +1,46 @@
 <script>
   import { onMount } from 'svelte';
 
-  /* @type {{ id: number; brand: string; type: string }[]} */
-  /**
-     * @type {string | any[]}
-     */
+  // State variables to hold appliances and rooms data
   let appliances = [];
-  /* @type {{ id: number; icon: string; name: string }[]} */
-  /**
-     * @type {string | any[]}
-     */
   let rooms = [];
 
+  // Fetch appliances and rooms data from the backend
   const fetchData = async () => {
-  try {
-    const appliancesResponse = await fetch('http://localhost:3010/appliance/api/appliance-names');
-    const roomsResponse = await fetch('http://localhost:3010/appliance/api/room-names');
+    try {
+      // Fetch appliances data
+      const appliancesResponse = await fetch('http://localhost:3012/appliance/api/appliance-names');
+      if (!appliancesResponse.ok) {
+        throw new Error(`Failed to fetch appliances: ${appliancesResponse.statusText}`);
+      }
 
-    if (!appliancesResponse.ok || !roomsResponse.ok) {
-      throw new Error('Failed to fetch data');
+      const appliancesData = await appliancesResponse.json();
+      // Build appliances array
+      appliances = appliancesData.brands.map((brand, index) => ({
+        id: appliancesData.ids[index],
+        brand,
+        type: appliancesData.types[index],
+      }));
+
+      // Fetch rooms data
+      const roomsResponse = await fetch('http://localhost:3012/api/room-names'); // Updated endpoint
+      if (!roomsResponse.ok) {
+        throw new Error(`Failed to fetch rooms: ${roomsResponse.statusText}`);
+      }
+
+      const roomsData = await roomsResponse.json();
+      // Build rooms array
+      rooms = roomsData.names.map((name, index) => ({
+        id: roomsData.ids[index],
+        name,
+        icon: roomsData.icons[index],
+      }));
+    } catch (error) {
+      console.error('Error fetching data:', error);
     }
+  };
 
-    const appliancesData = await appliancesResponse.json();
-    // Build the appliances array from the API response
-    // @ts-ignore
-    appliances = appliancesData.brands.map((brand, index) => ({
-      id: appliancesData.ids[index],
-      brand,
-      type: appliancesData.types[index],
-    }));
-
-    const roomsData = await roomsResponse.json();
-    // Build the rooms array from the API response
-    // @ts-ignore
-    rooms = roomsData.names.map((name, index) => ({
-      id: roomsData.ids[index],
-      name,
-      icon: roomsData.icons[index],
-    }));
-  } catch (error) {
-    console.error('Error fetching data:', error);
-  }
-};
-
+  // Fetch data on component mount
   onMount(fetchData);
 </script>
 
@@ -54,7 +52,7 @@
       <h1 class="text-white text-lg font-bold mb-2">Manage appliances</h1>
       <h2 class="block text-white text-base font-bold mt-4 hover:underline">All appliances</h2>
 
-      <!-- Show appliance links if there are appliances available -->
+      <!-- Show appliance links if available -->
       {#if appliances.length > 0}
         {#each appliances as appliance}
           <p>
@@ -79,7 +77,7 @@
       {/if}
 
       <!-- Rooms Section -->
-      <h1><a class="text-white text-lg font-bold mb-2">All rooms</a></h1>
+      <h1 class="text-white text-lg font-bold mt-6">All rooms</h1>
       {#if rooms.length > 0}
         {#each rooms as room}
           <p class="block text-white text-sm hover:underline pl-4">
@@ -98,7 +96,7 @@
         </p>
       {/if}
 
-      <!-- Links to add appliances or rooms -->
+      <!-- Add Appliance and Room Links -->
       <h1>
         <a 
           class="block text-white text-base font-bold mt-4 hover:underline" 

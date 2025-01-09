@@ -19,18 +19,24 @@
 
   // Function to fetch appliance data based on ID
   async function fetchAppliance(id: string) {
-    const response = await fetch(`http://localhost:3010/appliance/appliance/${id}`);
-    if (response.ok) {
-      appliance = await response.json();
-      // Initialize temporary values for editing
-      if (appliance) {
-        tempBrand = appliance.brand;
-        tempType = appliance.type;
-        tempDescription = appliance.description;
-        tempHoursPerWeek = appliance.hoursPerWeek;
+    try {
+      const response = await fetch(`http://localhost:3012/appliance/${id}`); // Updated endpoint
+      if (response.ok) {
+        appliance = await response.json();
+        // Initialize temporary values for editing
+        if (appliance) {
+          tempBrand = appliance.brand;
+          tempType = appliance.type;
+          tempDescription = appliance.description;
+          tempHoursPerWeek = appliance.hoursPerWeek;
+        }
+      } else {
+        console.error('Failed to fetch appliance data:', response.statusText);
+        appliance = undefined; // Clear the appliance state if fetch fails
       }
-    } else {
-      console.error('Failed to fetch appliance data:', response.statusText);
+    } catch (error) {
+      console.error('Error fetching appliance data:', error);
+      appliance = undefined; // Clear the appliance state on error
     }
   }
 
@@ -49,14 +55,41 @@
   };
 
   // Save changes
-  const saveChanges = () => {
-    console.log('Saving changes:', {
-      brand: tempBrand,
-      type: tempType,
-      description: tempDescription,
-      hoursPerWeek: tempHoursPerWeek,
-    });
-    isEditing = false; // Optionally reset editing state
+  const saveChanges = async () => {
+    if (!appliance) return;
+
+    try {
+      const response = await fetch(`http://localhost:3012/appliance/${appliance.id}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          brand: tempBrand,
+          type: tempType,
+          description: tempDescription,
+          hoursPerWeek: tempHoursPerWeek,
+        }),
+      });
+
+      if (response.ok) {
+        const updatedAppliance = await response.json();
+        console.log('Appliance updated successfully:', updatedAppliance);
+
+        // Update the appliance state with the new data
+        appliance.brand = tempBrand;
+        appliance.type = tempType;
+        appliance.description = tempDescription;
+        appliance.hoursPerWeek = tempHoursPerWeek;
+
+        isEditing = false; // Exit editing mode
+      } else {
+        const errorData = await response.json();
+        console.error('Failed to update appliance:', errorData.message);
+      }
+    } catch (error) {
+      console.error('Error updating appliance:', error);
+    }
   };
 
   // Fetch the initial appliance data on mount
