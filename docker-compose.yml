@@ -1,0 +1,13 @@
+version: '3.8'
+
+services:
+  frontend:
+    build:
+      context: .
+      dockerfile: Dockerfile  # Specify your Dockerfile if not named 'Dockerfile'
+    volumes:
+      - ./src:/app/src  # This volume allows your local 'src' directory to sync with the container
+      - /app/node_modules  # This ensures that node_modules inside the container are not overwritten
+    ports:
+      - "5173:5173"  # Change according to your Vite config
+    command: npm run dev  # Start the Vite dev server which supports HMR

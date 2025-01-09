@@ -26,8 +26,11 @@
         if (response.ok) {
           const data = await response.json();
           console.log("Note saved successfully:", data);
+          // @ts-ignore
           notes[selectedDate] = data.notes
+            // @ts-ignore
             .filter((n) => n.date === selectedDate)
+            // @ts-ignore
             .map((n) => n.note);
           alert(`Note saved for ${selectedDate}`);
           note = ""; // Clear note input
@@ -53,8 +56,11 @@
           const data = await response.json();
           console.log("Loaded notes:", data);
 
+          // @ts-ignore
           notes[selectedDate] = data.notes
+            // @ts-ignore
             .filter((n) => n.date === selectedDate)
+            // @ts-ignore
             .map((n) => n.note);
         }
       } catch (err) {
