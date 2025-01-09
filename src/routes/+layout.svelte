@@ -1,6 +1,5 @@
 <script>
   import "../app.css";
-  // @ts-ignore
   import { page } from "$app/stores";
   import { onMount } from "svelte";
   import { isMusicEnabled, volumeLevel, selectedTrack } from '$lib/stores/musicStore.js'; // Changed selectedMusic to selectedTrack
@@ -65,7 +64,6 @@
     };
   });
 
-  // @ts-ignore
   const validateToken = async (token) => {
     try {
       const response = await fetch("http://localhost:3010/auth/validate-token", {
@@ -82,7 +80,6 @@
     }
   };
 
-  // @ts-ignore
   const setActiveSection = (path) => {
     switch(path) {
       case '/home':
@@ -169,12 +166,12 @@
       <footer class="bg-greenDeep text-white py-4 z-50">
         <div class="flex justify-center items-center gap-4 sm:gap-6">
           {#each [
-            { href: "/home", src: "/home.png", alt: "Home" },
-            { href: "/articles", src: "/articles.png", alt: "Articles" },
-            { href: "/co2", src: "/CO2.png", alt: "CO2 Info" },
-            { href: "/shop", src: "/shop.png", alt: "Shop" },
-            { href: "/calendar", src: "/calendar.png", alt: "Calendar" },
-            { href: "/settings", src: "/profile.png", alt: "Settings" }
+            { href: "/home", src: "home.png", alt: "Home" },
+            { href: "/articles", src: "articles.png", alt: "Articles" },
+            { href: "/co2", src: "CO2.png", alt: "CO2 Info" },
+            { href: "/shop", src: "shop.png", alt: "Shop" },
+            { href: "/calendar", src: "calendar.png", alt: "Calendar" },
+            { href: "/settings", src: "profile.png", alt: "Settings" }
           ] as item}
             <a 
               href={item.href} 
@@ -195,7 +192,7 @@
 
 {#if isMainPage || isSignupPage || isLoginPage || isQuestionPage || isThankYouPage}
   <!-- The Custom layout  -->
-  <slot />  
+  <slot />
 {/if}
 
 <style>

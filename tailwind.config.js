@@ -30,7 +30,9 @@ export default {
         brownWarm: "#9A6735",
         greenPale: "#E6F0DC",
         greenDeep: "#55883B",
-        sideBarGreen: "#A1BE96"
+        customGreen: '#95D78E',
+        customerWhite: '#82AA72',
+        customerWhiteContrast: '#AA728A',
       },
     },
   },
