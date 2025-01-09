@@ -4,6 +4,7 @@
   import { onMount } from "svelte";
   import { isMusicEnabled, volumeLevel, selectedTrack } from '$lib/stores/musicStore.js'; // Changed selectedMusic to selectedTrack
   import ToastContainer from '../components/ToastContainer.svelte';
+  import BackgroundMusic from "../components/BackgroundMusic.svelte";
 
   let isAuthenticated = false;
   let activeSection = '';
@@ -128,14 +129,25 @@
   $: isLoginPage = $page.url.pathname === "/login";
   $: isQuestionPage = $page.url.pathname === "/questions";
   $: isThankYouPage = $page.url.pathname === "/thank-you";
+
+  $: if (audio && $selectedTrack) {
+    audio.src = $selectedTrack; // Dynamically set the music source from settings
+    if ($isMusicEnabled) {
+      audio.play().catch(err => {
+        console.log('Play prevented:', err);
+        isMusicEnabled.set(false);
+      });
+    }
+  }
 </script>
 
+<BackgroundMusic />
+
 <!-- Audio element -->
-<audio
-  bind:this={audio}
-  preload="auto"
+<audio 
+  bind:this={audio} 
+  preload="auto" 
   loop
-  on:timeupdate={handleTimeUpdate}
 ></audio>
 
 <ToastContainer />

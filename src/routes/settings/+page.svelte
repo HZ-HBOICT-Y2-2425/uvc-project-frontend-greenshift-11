@@ -2,6 +2,17 @@
   import { onMount } from "svelte";
   import { isMusicEnabled, volumeLevel } from "$lib/stores/musicStore.js";
   import { notifications } from "$lib/stores/notificationStore.js";
+  import { selectedTrack } from "$lib/stores/musicStore.js";
+
+  const tracks = [
+    { name: "Track 1", src: "/afro-chill.mp3" },
+    { name: "Track 2", src: "/calm-acoustic.mp3" },
+    { name: "Track 3", src: "/calm-jazz.mp3" },
+    { name: "Track 2", src: "/chill-background.mp3" },
+    { name: "Track 3", src: "/uptempo-background.mp3" },
+    { name: "piano", src: "/piano.mp3" },
+  ];
+  let currentTrack;
   let emailNotifications = false;
   let pushNotifications = false;
   let activeSection = "account";
@@ -11,12 +22,12 @@
   let showSuccessDialog = false;
   // Local volume state that syncs with the store
   let volume;
+
+  $: currentTrack = $selectedTrack;
   // Subscribe to the volume store to keep local state in sync
   volumeLevel.subscribe((value) => {
     volume = value;
   });
-
-  
   // Volume Change Handler
   const handleVolumeChange = (event) => {
     volume = parseInt(event.target.value);
@@ -124,14 +135,6 @@
     const randomMessage = messages[Math.floor(Math.random() * messages.length)];
     notifications.add(randomMessage, randomType);
   }
-  // Logout handler
-  const handleLogout = () => {
-    // Clear the session data
-    localStorage.removeItem("authToken");
-    localStorage.removeItem("username");
-    // Redirect to the login page
-    window.location.href = "/"; // Redirect to the login page
-  };
 </script>
 
 <div class="flex h-full">
@@ -221,6 +224,7 @@
             bind:value={userName}
           />
         </div>
+
         <div>
           <label for="email" class="block text-lg font-semibold"
             >Email Address</label
@@ -233,6 +237,7 @@
             bind:value={userEmail}
           />
         </div>
+
         <button
           type="submit"
           class="bg-greenDeep text-white px-4 py-2 rounded-md"
@@ -247,6 +252,7 @@
         >
           <div class="bg-white rounded-lg p-8 max-w-md w-11/12 mx-4">
             <h3 class="text-xl font-bold mb-4">Confirm Changes</h3>
+
             <div class="space-y-4 mb-6">
               <p>Are you sure you want to update your account information?</p>
               <div class="bg-gray-50 p-4 rounded-md">
@@ -260,13 +266,16 @@
                 </p>
               </div>
             </div>
+
             <div class="flex justify-end space-x-4">
               <button on:click={cancelChanges} class="text-gray-500"
                 >Cancel</button
               >
-              <button on:click={confirmChanges} class="bg-greenDeep rounded-md p-4 text-white"
+              <button
+                on:click={confirmChanges}
+                class="bg-greenDeep text-white px-4 py-2 rounded-md"
                 >Confirm</button
-                >
+              >
             </div>
           </div>
         </div>
@@ -288,15 +297,6 @@
           </div>
         </div>
       {/if}
-      <!-- Logout Button inside the Account Section -->
-      <div class="fixed bottom-8 right-4 pb-16">
-        <button
-          on:click={handleLogout}
-          class="bg-red-500 text-white px-6 py-2 rounded-md"
-        >
-          Logout
-        </button>
-      </div>
     {/if}
 
     <!--Notifications-->
@@ -341,6 +341,7 @@
     <!--Sound settings-->
     {#if activeSection === "sounds"}
       <h3 class="text-2xl font-bold text-greenDeep mb-4">Sound Settings</h3>
+
       <div class="space-y-6">
         <div>
           <label for="volume" class="block text-lg font-semibold mb-2"
@@ -358,6 +359,7 @@
           />
           <p class="mt-2">Volume: {volume}%</p>
         </div>
+
         <div class="flex items-center space-x-2">
           <label for="music-toggle" class="text-lg font-semibold"
             >Enable Music</label
@@ -373,6 +375,15 @@
             class="form-checkbox h-5 w-5"
           />
         </div>
+        <h2>Select Background Music</h2>
+        <select
+          bind:value={currentTrack}
+          on:change={() => selectedTrack.set(currentTrack)}
+        >
+          {#each tracks as { name, src }}
+            <option value={src} selected={currentTrack === src}>{name}</option>
+          {/each}
+        </select>
         <p class="text-sm text-gray-600">
           Current music state: {$isMusicEnabled ? "Enabled" : "Disabled"}
         </p>
