@@ -2,7 +2,12 @@
 import { error } from '@sveltejs/kit';
 import type { PageLoad } from './$types';
 
+interface RouteParams {
+  id: string; // Capture the dynamic ID
+}
+
 export const load = (async ({ params }) => {
+  const { id } = params as RouteParams; // Use type assertion for better TypeScript support
   try {
     // Fetch room data
     const roomRes = await fetch(`http://localhost:3010/appliance/room/${params.id}`);
@@ -15,7 +20,7 @@ export const load = (async ({ params }) => {
     
     // Fetch appliance details for each appliance ID
     const appliancePromises = room.appliances.map(async (applianceId: number) => {
-      const appRes = await fetch(`http://localhost:3010/appliance/api/appliance/${applianceId}`);
+      const appRes = await fetch(`http://localhost:3010/appliance/appliance/${applianceId}`);
       if (!appRes.ok) {
         return null;
       }

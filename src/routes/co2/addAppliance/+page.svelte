@@ -5,9 +5,12 @@
     brand: '',
     type: '',
     description: '',
-    hoursPerWeek: 0
+    hoursPerWeek: 0,
+    emoji: ''
   };
-  
+
+  let showEmojiPicker = false;
+
   const fetchData = async () => {
     try {
       const response = await fetch(`http://localhost:3010/appliance/appliance`);
@@ -16,68 +19,81 @@
         throw new Error('Failed to fetch data');
       }
 
-      const appliance = await response.json();
+      const applianceData = await response.json();
+      // Uncomment if you want to populate appliance state with fetched data
+      // appliance = applianceData;  
     } catch (error) {
       console.error('Error fetching data:', error);
     }
   };
 
   onMount(fetchData);
-  // List of possible home appliance types
+
   const applianceTypes = [
-    "Refrigerator",
-    "Washing Machine",
-    "Dishwasher",
-    "Microwave Oven",
-    "Oven",
-    "Stove",
-    "Dryer",
-    "Air Conditioner",
-    "Heater",
-    "Vacuum Cleaner",
-    "Blender",
-    "Toaster",
-    "Coffee Maker",
-    "Slow Cooker",
-    "Rice Cooker",
-    "Food Processor",
-    "Induction Cooktop",
-    "Electric Kettle",
-    "Deep Fryer",
+    "Refrigerator", "Washing Machine", "Dishwasher", 
+    "Microwave Oven", "Oven", "Stove", "Dryer",
+    "Air Conditioner", "Heater", "Vacuum Cleaner",
+    "Blender", "Toaster", "Coffee Maker", 
+    "Slow Cooker", "Rice Cooker", "Food Processor",
+    "Induction Cooktop", "Electric Kettle", "Deep Fryer", 
     "Electric Grill"
   ];
 
-   const BASE_URL = "http://localhost:3010/appliance/appliance";
+  const emojiOptions = [
+    { emoji: '😊', label: 'Smile' }, 
+    { emoji: '🔧', label: 'Tool' }, 
+    { emoji: '💡', label: 'Lightbulb' }, 
+    { emoji: '🛋️', label: 'Couch' }, 
+    { emoji: '🚿', label: 'Shower' }, 
+    { emoji: '🍽️', label: 'Dining' }, 
+    { emoji: '🧺', label: 'Basket' }, 
+    { emoji: '🖥️', label: 'Computer' }, 
+    { emoji: '📺', label: 'TV' }, 
+    { emoji: '📡', label: 'Antenna' }, 
+    { emoji: '☕', label: 'Coffee' }, 
+    { emoji: '🍳', label: 'Cooking' }, 
+    { emoji: '⚙️', label: 'Gear' }, 
+    { emoji: '💻', label: 'Laptop' }, 
+    { emoji: '📱', label: 'Phone' }, 
+    { emoji: '🔌', label: 'Plug' }, 
+    { emoji: '🎛️', label: 'Control' }, 
+    { emoji: '🌀', label: 'Swirl' }, 
+    { emoji: '💨', label: 'Wind' }, 
+    { emoji: '🧊', label: 'Ice' }
+  ];
+
+  const BASE_URL = "http://localhost:3010/appliance/appliance";
 
   const handleSubmit = async () => {
     try {
-        const url = new URL(`${BASE_URL}`);
-        url.searchParams.append('brand', appliance.brand);
-        url.searchParams.append('type', appliance.type);
-        url.searchParams.append('description', appliance.description);
-        url.searchParams.append('hoursPerWeek', appliance.hoursPerWeek.toString());
-        const response = await fetch(url, {
-            method: "POST",
-        });
+      const url = new URL(`${BASE_URL}`);
+      url.searchParams.append('brand', appliance.brand);
+      url.searchParams.append('type', appliance.type);
+      url.searchParams.append('description', appliance.description);
+      url.searchParams.append('hoursPerWeek', appliance.hoursPerWeek.toString());
+      url.searchParams.append('emoji', appliance.emoji);
+      
+      const response = await fetch(url, {
+        method: "POST",
+      });
 
-        if (response.ok) {
-            const data = await response.json();
-            console.log(data);
-            window.location.href = "/co2"; // Redirect to app's home page
-        } else {
-            const errorData = await response.json();
-            console.error(errorData.message);
-        }
+      if (response.ok) {
+        const data = await response.json();
+        console.log(data);
+        window.location.href = "/co2"; 
+      } else {
+        const errorData = await response.json();
+        console.error(errorData.message);
+      }
     } catch (error) {
-        console.error("Error:", error);
+      console.error("Error:", error);
     }
-};
+  };
 </script>
 
 <!-- Main Content Area -->
 <div class="flex-grow p-4">
   <div class="flex justify-between items-start">
-    <!-- Form Section -->
     <form class="flex flex-col gap-4 w-2/3" method="POST" on:submit|preventDefault={handleSubmit}>
       <label class="block">
         <span class="text-gray-700 font-medium">Brand</span>
@@ -104,11 +120,33 @@
         Add an appliance
       </button>
     </form>
-
-    <!-- Photo Section -->
-    <div class="ml-4">
-      <!-- Replace "appliance" with a valid path to upload photo -->
-      <p class="text-center text-gray-700 mt-2">Upload a photo</p>
+    <div class="ml-4 relative">
+      <button
+        type="button"
+        class="w-40 h-40 border rounded flex items-center justify-center text-6xl cursor-pointer"
+        on:click={() => showEmojiPicker = !showEmojiPicker}
+        aria-label="Select appliance emoji"
+      >
+        {appliance.emoji || "🛋️"}
+      </button>
+      
+      {#if showEmojiPicker}
+        <div class="absolute bg-white border rounded mt-2 p-2 grid grid-cols-4 gap-2">
+          {#each emojiOptions as option}
+            <button
+              type="button"
+              class="cursor-pointer"
+              on:click={() => {
+                appliance.emoji = option.emoji;
+                showEmojiPicker = false;
+              }} 
+              aria-label={option.label}
+            >
+              {option.emoji}
+            </button>
+          {/each}
+        </div>
+      {/if}
     </div>
   </div>
 </div>

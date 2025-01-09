@@ -146,7 +146,3 @@
     </div>
   {/if}
 </div>
-
-<div class="ml-4">
-  <p class="text-center text-gray-700 mt-2">Upload a photo</p>
-</div>

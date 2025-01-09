@@ -1,4 +1,3 @@
-<!-- src/routes/co2/room/[id]/+page.svelte -->
 <script lang="ts">
   import { goto } from '$app/navigation';
   
@@ -26,29 +25,47 @@
       alert('Failed to delete room');
     }
   };
+
+  const handleEditRoom = () => {
+    // Navigate to the edit room page
+    goto(`/co2/room/edit/${room.id}`);
+  };
+
+  const navigateToAppliance = (appliance) => {
+    // You might want to route to a detailed appliance page
+    goto(`/co2/appliance/${appliance.id}`); // Adjust this route as necessary
+  };
 </script>
 
 <div class="flex-grow p-4">
   {#if showPopup}
-    <div class="fixed top-0 left-0 right-0 bg-green-500 text-white text-center py-2">
+    <div class="fixed top-0 left-0 right-0 bg-green-500 text-white text-center py-2 z-50">
       Room deleted successfully!
     </div>
   {/if}
+
+  <div class="flex items-center justify-between mb-4">
+    <h2 class="text-2xl font-bold">{room.name}</h2>
+    <span class="w-40 h-40 border border-gray-300 rounded-full flex items-center justify-center text-8xl bg-gray-100 cursor-pointer">
+      {room.icon}
+    </span> <!-- Enlarged emoji here with a background -->
+  </div>
   
-  <h2 class="text-2xl font-bold mb-4">{room.name}</h2>
-  
-  <div class="flex flex-col gap-4 w-full">
-    <div class="flex items-center gap-2">
-      <span class="text-gray-700 font-medium">Icon: </span>
-      <span class="text-3xl">{room.icon}</span> <!-- Display emoji here -->
-    </div>
-    
+  <div class="flex flex-col gap-6 w-full">
     <div>
-      <span class="text-gray-700 font-medium">Appliances: </span>
+      <span class="text-gray-700 font-medium">Appliances:</span>
       {#if room.applianceDetails && room.applianceDetails.length > 0}
         <ul class="list-disc ml-6 mt-2">
           {#each room.applianceDetails as appliance}
-            <li>{appliance.brand} {appliance.type}</li>
+            <li>
+              <a 
+                href="#" 
+                on:click={() => navigateToAppliance(appliance)} 
+                class="text-blue-600 hover:underline"
+              >
+                {appliance.brand} {appliance.type}
+              </a>
+            </li>
           {/each}
         </ul>
       {:else}
@@ -56,15 +73,15 @@
       {/if}
     </div>
     
-    <div class="flex gap-4 mt-4">
-      <a 
-        href="/co2/room" 
-        class="bg-gray-500 text-white font-semibold py-2 px-4 rounded hover:bg-gray-600"
-      >
-        Back to Rooms
-      </a>
+    <div class="flex gap-2 mt-4">
       <button 
-        class="bg-red-600 text-white font-semibold py-2 px-4 rounded hover:bg-red-700" 
+        class="bg-blue-600 text-white font-semibold py-1.5 px-3 rounded hover:bg-blue-700" 
+        on:click={handleEditRoom}
+      >
+        Edit Room
+      </button>
+      <button 
+        class="bg-red-600 text-white font-semibold py-1.5 px-3 rounded hover:bg-red-700" 
         on:click={handleDeleteRoom}
       >
         Delete Room
