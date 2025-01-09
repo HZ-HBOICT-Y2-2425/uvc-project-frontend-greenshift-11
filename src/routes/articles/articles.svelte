@@ -1,68 +1,108 @@
 <script>
   import "../../app.css";
+  import { onMount } from "svelte";
+
+  // State management for articles
+  let allArticles = [];
+  let error = null;
+  let loading = true;
+
+  // Fetch all categories and their articles, then flatten into a single array
+  async function fetchAllArticles() {
+  try {
+    // Fetch all articles from the backend
+    const response = await fetch("http://localhost:3011/api/articles");
+    if (!response.ok) {
+      throw new Error("Failed to fetch articles");
+    }
+    const categoriesData = await response.json();
+    const categories = categoriesData.categories || [];
+
+    // Fetch and combine all articles into a single array
+    const articlesPromises = categories.map(async (category) => {
+      const categoryResponse = await fetch(`http://localhost:3011/api/articles/${category}`);
+      if (categoryResponse.ok) {
+        const data = await categoryResponse.json();
+        return data.articles.map((article) => ({
+          ...article,
+          category,
+        }));
+      }
+      return [];
+    });
+
+    const articlesByCategory = await Promise.all(articlesPromises);
+
+    // Flatten and sort articles by title
+    allArticles = articlesByCategory
+      .flat()
+      .sort((a, b) => a.title.localeCompare(b.title));
+  } catch (err) {
+    console.error("Error fetching articles:", err);
+    error = "An error occurred while fetching articles.";
+  } finally {
+    loading = false;
+  }
+}
+  // Format category name for display (used as a tag)
+  function formatCategoryName(category) {
+    return category.split('_').map(word => 
+      word.charAt(0).toUpperCase() + word.slice(1)
+    ).join(' ');
+  }
+
+  // Initialize data on component mount
+  onMount(fetchAllArticles);
 </script>
 
-<!-- Page-Specific Content -->
 <div class="bg-greenPale min-h-screen">
+  <!-- Header Section -->
+  <div class="bg-greenDeep text-greenPale py-8">
+    <div class="container mx-auto px-4">
+      <h1 class="text-3xl font-bold">Sustainable Living Articles</h1>
+      <p class="mt-2 text-lg">Explore our comprehensive collection of sustainability resources</p>
+    </div>
+  </div>
+
   <!-- Articles Section -->
   <div class="container mx-auto px-4 py-8">
-    <div class="grid grid-cols-1 gap-8">
-      <!-- Top Row of 4 Articles -->
-      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-        {#each [1, 2, 3, 4] as i}
-          <div class="bg-greenLight rounded-lg shadow-md overflow-hidden">
-            <!-- <img
-              src={/path-to-image-placeholder-${i}.png}
-              class="w-full h-40 object-cover"
-            /> -->
-            <div class="p-4">
-              <h2 class="text-greenDeep font-bold text-lg mb-2">
-                {i % 2 === 0 ? "Fast fashion" : "Deforestation"}
-              </h2>
-              <p class="text-greenDeep text-sm mb-4">
-                {i % 2 === 0
-                  ? "Fast fashion is the business model of replicating recent catwalk trends and high-fashion designs, mass-producing them at a low cost, and bringing them to retail quickly while demand is at its highest."
-                  : "Deforestation or forest clearance is the removal and destruction of a forest or stand of trees from land that is then converted to non-forest use. Deforestation can involve conversion of forest land to farms, ranches, or urban use."}
-              </p>
-              <a
-                href="#"
-                class="text-greenDeep bg-greenPale px-4 py-2 text-sm rounded hover:bg-greenDeep hover:text-greenPale transition-all"
-              >
-                📖 Click here to find out more
-              </a>
-            </div>
-          </div>
-        {/each}
+    {#if error}
+      <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative" role="alert">
+        <p class="font-bold">Error</p>
+        <p>{error}</p>
       </div>
-
-      <!-- Bottom Row of 4 Articles -->
-      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-        {#each [5, 6, 7, 8] as i}
-          <div class="bg-greenLight rounded-lg shadow-md overflow-hidden">
-            <!-- <img
-              src={/path-to-image-placeholder-${i}.png}
-              alt="Article Image"
-              class="w-full h-40 object-cover"
-            /> -->
-            <div class="p-4">
-              <h2 class="text-greenDeep font-bold text-lg mb-2">
-                {i % 2 === 0 ? "Fast fashion" : "Deforestation"}
-              </h2>
-              <p class="text-greenDeep text-sm mb-4">
-                {i % 2 === 0
-                  ? "Fast fashion is the business model of replicating recent catwalk trends and high-fashion designs, mass-producing them at a low cost, and bringing them to retail quickly while demand is at its highest."
-                  : "Deforestation or forest clearance is the removal and destruction of a forest or stand of trees from land that is then converted to non-forest use. Deforestation can involve conversion of forest land to farms, ranches, or urban use."}
-              </p>
-              <a
-                href="https://www.googleadservices.com/pagead/aclk?sa=L&ai=DChcSEwirps2D1YyKAxWuqIMHHcTLOaUYABAAGgJlZg&ae=2&aspm=1&co=1&ase=2&gclid=CjwKCAiA9bq6BhAKEiwAH6bqoD1LH98ddTJ91ylah804TVaBb_3tljEI6ciNvN7rA6xXdRKG2wPAdxoCVysQAvD_BwE&ohost=www.google.com&cid=CAESVeD2JCcjLsqxLhghD3MYGU0fhIVKYb9mBjlw8XWwCB5aIsoaCzoGAW3XZdEAywSTNikasFYMQ9f0XtvIxSMK2uIl1cXPMMuX4eQ2B4ECaopVVzQgiDQ&sig=AOD64_03YqKMuuiOkXDdW89FUjxmcqx6Rg&q&nis=4&adurl&ved=2ahUKEwjGiMWD1YyKAxVY9bsIHV8LJu8Q0Qx6BAgNEAE"
-                class="text-greenDeep bg-greenPale px-4 py-2 text-sm rounded hover:bg-greenDeep hover:text-greenPale transition-all"
-              >
-                📖 Click here to find out more
-              </a>
-            </div>
-          </div>
-        {/each}
+    {:else if loading}
+      <div class="flex justify-center items-center h-32">
+        <p class="text-greenDeep text-lg">Loading articles...</p>
       </div>
-    </div>
+    {:else}
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {#each allArticles as article}
+        <div class="bg-white rounded-lg shadow-lg overflow-hidden hover:shadow-xl transition-shadow duration-300">
+          <div class="h-48 bg-greenLight">
+            <img
+              src={article.image}
+              alt={article.title}
+              class="w-full h-full object-cover"
+            />
+          </div>
+          <div class="p-6">
+            <h3 class="text-greenDeep font-bold text-xl mb-3">{article.title}</h3>
+            <p class="text-gray-600 mb-4 line-clamp-3">{article.snippet}</p>
+            <a
+              href={article.link}
+              target="_blank"
+              rel="noopener noreferrer"
+              class="inline-block bg-greenLight text-greenDeep px-6 py-2 rounded-full 
+                     hover:bg-greenDeep hover:text-greenPale transition-colors duration-300
+                     font-semibold text-sm"
+            >
+              Read Article →
+            </a>
+          </div>
+        </div>
+      {/each}
+      </div>
+    {/if}
   </div>
 </div>

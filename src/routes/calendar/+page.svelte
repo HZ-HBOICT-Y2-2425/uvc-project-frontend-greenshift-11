@@ -1,29 +1,13 @@
 <script>
   import "../../app.css";
-  import flatpickr from "flatpickr"; // Import Flatpickr
-  import "flatpickr/dist/flatpickr.min.css"; // Import Flatpickr CSS
   import { onMount } from "svelte";
 
-  let selectedDate = ""; // Holds the selected date
-  let note = ""; // Holds the current note being written
-  let notes = {}; // Stores notes locally for display
+  let selectedDate = "";
+  let note = "";
+  let notes = {};
   let username = localStorage.getItem("username");
-  // @ts-ignore
-  let dateInput; // Reference for the Flatpickr calendar
+  let completedTasks = []; // Will now be populated from backend
 
-  // Initialize Flatpickr
-  onMount(() => {
-    // @ts-ignore
-    flatpickr(dateInput, {
-      inline: true, // Always visible calendar
-      dateFormat: "Y-m-d", // Date format Year-Month-Day
-      onChange: (selectedDates) => {
-        selectedDate = selectedDates[0].toISOString().split("T")[0]; // Update selectedDate
-      },
-    });
-  });
-
-  // Save the note by sending it to the backend
   async function saveNote() {
     if (selectedDate && note) {
       try {
@@ -64,7 +48,6 @@
     }
   }
 
-  // Load notes when the date changes
   async function loadNotes() {
     if (selectedDate) {
       try {
@@ -86,36 +69,61 @@
     }
   }
 
- // @ts-ignore
-   $: if (selectedDate) {
+  // New function to load completed tasks from backend
+  async function loadCompletedTasks() {
+    try {
+      const response = await fetch(`http://localhost:3010/auth/users/${username}`);
+      if (response.ok) {
+        const data = await response.json();
+        completedTasks = data.user.completedTasks || [];
+      } else {
+        console.error("Failed to load completed tasks");
+      }
+    } catch (err) {
+      console.error("Error loading completed tasks:", err);
+    }
+  }
+
+  $: if (selectedDate) {
     loadNotes();
   }
+
+  onMount(() => {
+    if (!username) {
+      alert("No user logged in. Redirecting to login page...");
+      window.location.href = "/login";
+    } else {
+      loadCompletedTasks();
+    }
+  });
 </script>
 
-<div class="flex flex-col md:flex-row gap-6 p-4 w-full">
-  <!-- Calendar Section (Full Left Side) -->
-  <div class="w-full md:w-1/3 p-4 bg-white rounded-lg shadow-lg">
-    <label for="calendar" class="block mb-2 text-gray-700 font-semibold text-center">Select a Date</label>
-    <div id="calendar" bind:this={dateInput} class="w-full"></div>
+<div class="container mx-auto p-6">
+  <!-- Search Bar -->
+  <div class="mb-6 flex justify-center">
+    <input type="date" bind:value={selectedDate} placeholder="Search for a date" class="w-full p-2 border border-gray-300 rounded-lg shadow-sm focus:ring focus:ring-green-300"/> 
+    <p>Search for a date</p>
   </div>
 
-  <!-- Notes Section (Right Side) -->
-  <div class="w-full md:w-2/3 flex flex-col gap-4">
-    <!-- Notes -->
-    <div class="bg-green-300 p-6 rounded-lg shadow-lg w-full">
-      <h2 class="text-lg font-semibold mb-4">Notes</h2>
-      <textarea
-        bind:value={note}
+  <!-- Notes Section -->
+  <div class="flex justify-between gap-6">
+    <!-- Notes Section -->
+    <div class="relative pgNote p-6 rounded-lg shadow-lg w-full max-w-lg">
+      <!-- Notebook Spine -->
+      <div class="absolute top-0 bottom-0 left-4 w-1 bg-green-500 rounded-full"></div>
+      <h2 class="text-lg font-semibold mb-4 relative">Notes</h2>
+      <textarea 
+        bind:value={note} 
         placeholder="Write your notes here..."
-        class="w-full h-32 p-4 border border-gray-300 rounded-lg focus:ring focus:ring-green-300"
+        class="relative w-full h-40 p-4 bg-transparent border border-gray-300 rounded-lg resize-none focus:ring focus:ring-green-300 font-mono text-sm"
       ></textarea>
-      <button
-        class="mt-4 px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition"
+      <button 
+        class="mt-4 px-4 py-1 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition" 
         on:click={saveNote}
       >
         Save Note
       </button>
-      <!-- Display saved notes -->
+
       {#if selectedDate && notes[selectedDate]?.length > 0}
         <ul class="mt-4">
           {#each notes[selectedDate] as savedNote, index}
@@ -127,15 +135,48 @@
       {/if}
     </div>
 
+<!-- Center Widget -->
+<div class="bg-gradient-to-br from-green-50 to-green-100 p-6 rounded-lg shadow-lg w-full max-w-sm text-center border border-green-200">
+    <h2 class="text-2xl font-bold text-gray-800 mb-4">User Summary</h2>
+    <p class="text-base text-green-700 font-medium mt-2">
+        <span class="font-semibold">Tasks Completed:</span> {completedTasks.length}
+    </p>
+    <p class="text-base text-blue-700 font-medium mt-2">
+        <span class="font-semibold">Notes Today:</span> {notes[selectedDate]?.length || 0}
+    </p>
+    <p class="text-base text-gray-600 font-medium mt-2">
+        <span class="font-semibold">Date:</span> {selectedDate || "Select a date"}
+    </p>
+</div>
+
     <!-- Completed Tasks Section -->
-    <div class="bg-green-100 p-4 rounded-lg shadow-lg w-full">
-      <h2 class="text-lg font-semibold mb-4">Completed Tasks</h2>
-      <ul>
-        <li class="mb-2">Task 1</li>
-        <li class="mb-2">Task 2</li>
-        <li>Task 3</li>
-      </ul>
+    <div class="bg-gradient-to-br from-green-50 to-green-100 p-6 rounded-lg shadow-lg w-full max-w-lg border border-green-200">
+      <div class="flex items-center gap-2 mb-6">
+        <h2 class="text-xl font-semibold text-green-800">Completed Tasks</h2>
+        <span class="bg-green-500 text-white text-sm px-2 py-1 rounded-full">
+          {completedTasks.length}
+        </span>
+      </div>
+
+      {#if completedTasks.length > 0}
+        <ul class="space-y-3">
+          {#each completedTasks as task, index}
+            <li class="flex items-center gap-3 bg-white p-3 rounded-lg shadow-sm border border-green-100 hover:shadow-md transition-shadow">
+              <span class="flex-shrink-0 w-8 h-8 bg-green-500 text-white rounded-full flex items-center justify-center font-semibold">
+                {index + 1}
+              </span>
+              <span class="font-medium text-gray-700">{task}</span>
+            </li>
+          {/each}
+        </ul>
+      {:else}
+        <div class="text-center py-8 text-gray-500">
+          <p class="text-lg mb-2">No tasks completed yet</p>
+          <p class="text-sm">Complete tasks in the home page to see them here!</p>
+        </div>
+      {/if}
     </div>
   </div>
 </div>
+
 

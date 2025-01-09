@@ -1,3 +1,4 @@
+
 <script>
   import "../../app.css";
   let name = '';
@@ -29,6 +30,9 @@
         const data = await response.json();
         successMessage = "User registered successfully!";
         console.log("Response from server:", data);
+
+         // Save the username to localStorage
+        localStorage.setItem("username", name);
 
         // Redirect the user to the questions page
         window.location.href = "/questions";
