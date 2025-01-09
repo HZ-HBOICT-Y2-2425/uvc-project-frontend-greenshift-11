@@ -2,6 +2,10 @@
   import "../../app.css";
   import { writable } from 'svelte/store';
   import { onMount } from 'svelte';
+  import { notifications } from '$lib/stores/notificationStore';
+
+  let isMusicPlaying = true;
+  let musicVolume = 100;
 
   const gardenStateStore = writable(1);
   let tasks = [];
@@ -11,8 +15,18 @@
   let username = localStorage.getItem("username");
 
   function randomizeGardenHealth() {
-    gardenStateStore.set(Math.floor(Math.random() * 3) + 1);
-  }
+     const newState = Math.floor(Math.random() * 3) + 1;
+     gardenStateStore.set(newState);
+     
+     // Add notification when garden state changes
+     const stateMessages = {
+       1: "Oh no! Your garden's CO2 levels are high! 🚨",
+       2: "Your garden is maintaining balance. Keep it up! ⚖️",
+       3: "Amazing! Your garden is thriving with low CO2! 🌱"
+     };
+     
+     notifications.add(stateMessages[newState], newState === 3 ? 'success' : newState === 2 ? 'info' : 'warning');
+   }
 
   function getGardenDetails(state) {
     switch (state) {
@@ -64,7 +78,38 @@
   }
 
   $: gardenDetails = getGardenDetails($gardenStateStore);
+  $: allTasksCompleted = randomTasks.every((task) => isTaskCompleted(task));
 
+  function randomizeTasks() {
+    console.log("Randomizing tasks..."); // Replace with your logic
+  }
+
+  onMount(() => {
+     randomizeGardenHealth();
+     fetchTasks();
+     loadCompletedTasks();
+    window.addEventListener('beforeunload', () => {
+      saveCompletedTasks();
+    });
+ 
+     setTimeout(() => {
+       notifications.add("Welcome to your GreenShift Garden! 🌿", 'success');
+     }, 2000);
+ 
+     // Additional test notifications with different types
+     setTimeout(() => {
+       notifications.add("Don't forget to water your plants today! 💧", 'info');
+     }, 4000);
+ 
+     setTimeout(() => {
+       notifications.add("New eco-friendly products available in the shop! 🛍️", 'info');
+     }, 6000);
+   });
+
+  // Store for tasks
+  const tasksStore = writable([]);
+
+  // Function to fetch tasks from backend
   async function fetchAllTasks() {
     try {
       const response = await fetch(`http://localhost:3011/api/tasks`);
@@ -146,6 +191,7 @@
     completedTasks = savedCompletedTasks[username] || [];
   });
 </script>
+
 
 <!-- Garden section -->
 <section class={`flex flex-col sm:flex-row justify-center items-center ${gardenDetails.bgColor} py-8 rounded-md shadow-md mx-4 sm:mx-0 border-2 ${gardenDetails.borderColor} relative`}>

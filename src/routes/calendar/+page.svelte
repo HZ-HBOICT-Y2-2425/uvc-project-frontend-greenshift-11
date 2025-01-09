@@ -1,9 +1,9 @@
 <script>
   import "../../app.css";
-  import { onMount } from 'svelte';
+  import { onMount } from "svelte";
 
-  let selectedDate = '';
-  let note = '';
+  let selectedDate = "";
+  let note = "";
   let notes = {};
   let username = localStorage.getItem("username");
   let completedTasks = []; // Will now be populated from backend
@@ -11,10 +11,11 @@
   async function saveNote() {
     if (selectedDate && note) {
       try {
-        const response = await fetch('http://localhost:3010/auth/notes', {
-          method: 'POST',
+        console.log("Sending note to backend:", { user: username, note, date: selectedDate });
+        const response = await fetch("http://localhost:3010/auth/notes", {
+          method: "POST",
           headers: {
-            'Content-Type': 'application/json',
+            "Content-Type": "application/json",
           },
           body: JSON.stringify({
             user: username,
@@ -24,19 +25,20 @@
         });
         if (response.ok) {
           const data = await response.json();
+          console.log("Note saved successfully:", data);
           notes[selectedDate] = data.notes
             .filter((n) => n.date === selectedDate)
             .map((n) => n.note);
           alert(`Note saved for ${selectedDate}`);
-          note = '';
+          note = ""; // Clear note input
         } else {
           const error = await response.json();
-          console.error('Error response from server:', error);
+          console.error("Error response from server:", error);
           alert(`Error: ${error.message}`);
         }
       } catch (err) {
-        console.error('Failed to save the note:', err);
-        alert('Failed to save the note. Please try again later.');
+        console.error("Failed to save the note:", err);
+        alert("Failed to save the note. Please try again later.");
       }
     } else {
       alert("Please select a date and write a note before saving.");
@@ -49,12 +51,14 @@
         const response = await fetch(`http://localhost:3010/auth/notes/${username}`);
         if (response.ok) {
           const data = await response.json();
+          console.log("Loaded notes:", data);
+
           notes[selectedDate] = data.notes
             .filter((n) => n.date === selectedDate)
             .map((n) => n.note);
         }
       } catch (err) {
-        console.error('Failed to load notes:', err);
+        console.error("Failed to load notes:", err);
       }
     }
   }
