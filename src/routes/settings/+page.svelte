@@ -1,8 +1,27 @@
 <script>
   import { onMount } from "svelte";
-  import { isMusicEnabled, volumeLevel } from "$lib/stores/musicStore.js";
+  import {
+    isMusicEnabled,
+    volumeLevel,
+    selectedTrack,
+  } from "$lib/stores/musicStore.js";
   import { notifications } from "$lib/stores/notificationStore.js";
+  import { get } from "svelte/store";
 
+  // Add a state variable to manage the logout confirmation dialog
+  let showLogoutConfirmDialog = false;
+
+  const tracks = [
+    { name: "Afro Chill", src: "/afro-chill.mp3" },
+    { name: "Calm Acoustic", src: "/calm-acoustic.mp3" },
+    { name: "Calm Jazz", src: "/calm-jazz.mp3" },
+    { name: "Chill Background", src: "/chill-background.mp3" },
+    { name: "Uptempo Background", src: "/uptempo-background.mp3" },
+    { name: "Piano", src: "/piano.mp3" },
+  ];
+
+  let isEditing = false;
+  let currentTrack;
   let emailNotifications = false;
   let pushNotifications = false;
   let activeSection = "account";
@@ -10,13 +29,11 @@
   let userEmail = "";
   let showConfirmDialog = false;
   let showSuccessDialog = false;
-
   let volume;
-  let isEditable = false; // Flag to track edit mode
 
-  volumeLevel.subscribe((value) => {
-    volume = value;
-  });
+  $: currentTrack = $selectedTrack;
+  volumeLevel.subscribe((value) => (volume = value));
+  selectedTrack.subscribe((track) => (currentTrack = track));
 
   const handleVolumeChange = (event) => {
     volume = parseInt(event.target.value);
@@ -28,6 +45,8 @@
     isMusicEnabled.set(newValue);
   };
 
+  const BASE_URL = "http://localhost:3010/";
+
   const confirmChanges = async () => {
     try {
       const response = await fetch(
@@ -38,23 +57,15 @@
             "Content-Type": "application/json",
             Authorization: `Bearer ${localStorage.getItem("authToken")}`,
           },
-          body: JSON.stringify({
-            name: userName,
-            email: userEmail,
-          }),
+          body: JSON.stringify({ name: userName, email: userEmail }),
         }
       );
-
       if (response.ok) {
         const result = await response.json();
-        if (result.user.user !== localStorage.getItem("username")) {
-          localStorage.setItem("username", result.user.user);
-        }
+        localStorage.setItem("username", result.user.user);
         showConfirmDialog = false;
         showSuccessDialog = true;
-        setTimeout(() => {
-          showSuccessDialog = false;
-        }, 3000);
+        setTimeout(() => (showSuccessDialog = false), 3000);
       } else {
         console.error("Error updating user data:", await response.json());
       }
@@ -67,8 +78,6 @@
     showConfirmDialog = false;
   };
 
-  const BASE_URL = "http://localhost:3010/";
-
   const fetchUserData = async () => {
     try {
       const username = localStorage.getItem("username");
@@ -77,7 +86,6 @@
           Authorization: `Bearer ${localStorage.getItem("authToken")}`,
         },
       });
-
       if (response.ok) {
         const userData = await response.json();
         userName = userData.user.user;
@@ -97,16 +105,20 @@
   const handleSubmit = (event) => {
     event.preventDefault();
     showConfirmDialog = true;
+    notifications.add("Settings saved successfully!", "success");
     if (pushNotifications) {
-      setTimeout(() => {
-        notifications.add("Time to water your plants! 🌱", "info");
-      }, 2000);
-      setTimeout(() => {
-        notifications.add(
-          "Check out new eco-friendly products in the shop! 🛍️",
-          "info"
-        );
-      }, 5000);
+      setTimeout(
+        () => notifications.add("Time to water your plants! 🌱", "info"),
+        2000
+      );
+      setTimeout(
+        () =>
+          notifications.add(
+            "Check out new eco-friendly products in the shop! 🛍️",
+            "info"
+          ),
+        5000
+      );
     }
   };
 
@@ -124,15 +136,15 @@
     notifications.add(randomMessage, randomType);
   }
 
+  // Handle logout
   const handleLogout = () => {
     localStorage.removeItem("authToken");
     localStorage.removeItem("username");
-    window.location.href = "/"; // Redirect to the login page
+    window.location.href = "/login"; // Redirect to login page
   };
 
-  // Toggle edit mode
-  const toggleEdit = () => {
-    isEditable = !isEditable;
+  const cancelLogout = () => {
+    showLogoutConfirmDialog = false;
   };
 </script>
 
@@ -207,12 +219,13 @@
   </aside>
 
   <!-- Main Content -->
-  <!-- Main Content -->
   <main class="flex-grow ml-64 p-8">
+    <!-- Account Settings -->
     {#if activeSection === "account"}
-      <!-- Account Settings Section -->
       <h3 class="text-2xl font-bold text-greenDeep mb-4">Account Settings</h3>
       <p>Manage your account details below.</p>
+
+      <!-- Account Edit Form -->
       <form class="space-y-6" on:submit={handleSubmit}>
         <div>
           <label for="fullName" class="block text-lg font-semibold">Name</label>
@@ -222,7 +235,7 @@
             class="w-full p-3 border rounded-md"
             placeholder="Enter your full name"
             bind:value={userName}
-            readonly={!isEditable}
+            disabled={!isEditing}
           />
         </div>
 
@@ -236,32 +249,42 @@
             class="w-full p-3 border rounded-md"
             placeholder="Enter your email address"
             bind:value={userEmail}
-            readonly={!isEditable}
+            disabled={!isEditing}
           />
         </div>
 
-        <div class="flex space-x-4">
-          <!-- Edit Button -->
-          <button
-            type="button"
-            on:click={toggleEdit}
-            class="bg-blue-500 text-white px-4 py-2 rounded-md"
-          >
-            {isEditable ? "Cancel" : "Edit Details"}
-          </button>
-
-          <!-- Save Changes Button (Only visible in edit mode) -->
-          {#if isEditable}
+        <!-- Conditional rendering of buttons when in edit mode -->
+        {#if isEditing}
+          <div class="flex justify-between mt-4 space-x-4">
+            <!-- Save Changes button -->
             <button
               type="submit"
               class="bg-greenDeep text-white px-4 py-2 rounded-md"
             >
               Save Changes
             </button>
-          {/if}
-        </div>
+
+            <!-- Cancel Edit button -->
+            <button
+              type="button"
+              on:click={() => (isEditing = !isEditing)}
+              class="bg-gray-500 text-white px-4 py-2 rounded-md"
+            >
+              Cancel Edit
+            </button>
+          </div>
+        {:else}
+          <!-- Edit Account button when not in edit mode -->
+          <button
+            on:click={() => (isEditing = !isEditing)}
+            class="bg-greenDeep text-white px-4 py-2 rounded-md mb-4"
+          >
+            Edit Account
+          </button>
+        {/if}
       </form>
 
+      <!-- Confirmation Dialog for changes -->
       {#if showConfirmDialog}
         <div
           class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
@@ -275,28 +298,24 @@
                   <span class="font-semibold">New Name:</span>
                   {userName}
                 </p>
-                <p>
-                  <span class="font-semibold">New Email:</span>
-                  {userEmail}
-                </p>
+                <p><span class="font-semibold">New Email:</span> {userEmail}</p>
               </div>
             </div>
-
             <div class="flex justify-end space-x-4">
               <button on:click={cancelChanges} class="text-gray-500"
                 >Cancel</button
               >
               <button
                 on:click={confirmChanges}
-                class="bg-greenDeep text-white px-6 py-2 rounded-md"
+                class="bg-greenDeep text-white px-4 py-2 rounded-md"
+                >Confirm</button
               >
-                Confirm
-              </button>
             </div>
           </div>
         </div>
       {/if}
 
+      <!-- Success Dialog for saving changes -->
       {#if showSuccessDialog}
         <div
           class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
@@ -313,15 +332,37 @@
           </div>
         </div>
       {/if}
-      <!-- Logout Button inside the Account Section -->
-      <div class="fixed bottom-8 right-4 pb-16">
-        <button
-          on:click={handleLogout}
-          class="bg-red-500 text-white px-6 py-2 rounded-md"
+
+      <!-- Logout Button -->
+      <button
+        on:click={() => (showLogoutConfirmDialog = true)}
+        class="bottom-20 right-4 bg-red-600 text-white px-4 py-2 rounded-md shadow-lg"
+      >
+        Logout
+      </button>
+
+      <!-- Logout Confirmation Dialog -->
+      {#if showLogoutConfirmDialog}
+        <div
+          class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
         >
-          Logout
-        </button>
-      </div>
+          <div class="bg-white rounded-lg p-8 max-w-md w-11/12 mx-4">
+            <h3 class="text-xl font-bold mb-4">
+              Are you sure you want to log out?
+            </h3>
+            <div class="flex justify-end space-x-4">
+              <button on:click={cancelLogout} class="text-gray-500"
+                >Cancel</button
+              >
+              <button
+                on:click={handleLogout}
+                class="bg-red-600 text-white px-4 py-2 rounded-md"
+                >Logout</button
+              >
+            </div>
+          </div>
+        </div>
+      {/if}
     {/if}
 
     <!--Notifications-->
@@ -378,9 +419,8 @@
             min="0"
             max="100"
             step="1"
-            bind:value={volume}
+            bind:value={$volumeLevel}
             on:input={handleVolumeChange}
-            class="w-full"
           />
           <p class="mt-2">Volume: {volume}%</p>
         </div>
@@ -400,7 +440,15 @@
             class="form-checkbox h-5 w-5"
           />
         </div>
-
+        <h2>Select Background Music</h2>
+        <select
+          bind:value={currentTrack}
+          on:change={() => selectedTrack.set(currentTrack)}
+        >
+          {#each tracks as { name, src }}
+            <option value={src} selected={currentTrack === src}>{name}</option>
+          {/each}
+        </select>
         <p class="text-sm text-gray-600">
           Current music state: {$isMusicEnabled ? "Enabled" : "Disabled"}
         </p>

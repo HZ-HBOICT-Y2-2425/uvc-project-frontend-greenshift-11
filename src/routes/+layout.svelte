@@ -2,8 +2,10 @@
   import "../app.css";
   import { page } from "$app/stores";
   import { onMount } from "svelte";
-  import { isMusicEnabled, volumeLevel } from '$lib/stores/musicStore.js';
+  import { isMusicEnabled, volumeLevel, selectedTrack } from '$lib/stores/musicStore.js'; // Changed selectedMusic to selectedTrack
   import ToastContainer from '../components/ToastContainer.svelte';
+  import BackgroundMusic from "../components/BackgroundMusic.svelte";
+
   let isAuthenticated = false;
   let activeSection = '';
   
@@ -25,8 +27,9 @@
     if (audio) {
       audio.currentTime = currentTime;
       audio.volume = $volumeLevel / 100;
-      
-      if ($isMusicEnabled) {
+
+      if ($isMusicEnabled && $selectedTrack) {
+        audio.src = $selectedTrack;  // Update the audio source based on selected track
         audio.play().catch(err => {
           console.log('Auto-play prevented:', err);
           isMusicEnabled.set(false);
@@ -103,17 +106,18 @@
   };
 
   // Audio reactive statements
-  $: if (audio && $isMusicEnabled) {
+  $: if (audio && $isMusicEnabled && $selectedTrack) {
+    audio.src = $selectedTrack;  // Dynamically set the music source from settings
     audio.play().catch(err => {
       console.log('Play prevented:', err);
       isMusicEnabled.set(false);
     });
   }
-  
+
   $: if (audio && !$isMusicEnabled) {
     audio.pause();
   }
-  
+
   $: if (audio) {
     audio.volume = $volumeLevel / 100;
   }
@@ -127,17 +131,17 @@
   $: isThankYouPage = $page.url.pathname === "/thank-you";
 </script>
 
+<BackgroundMusic />
+
 <!-- Audio element -->
 <audio
   bind:this={audio}
-  src="/bcmusic.mp3"
   preload="auto"
   loop
   on:timeupdate={handleTimeUpdate}
 ></audio>
 
 <ToastContainer />
-
 
 {#if isAuthenticated}
   {#if !isMainPage && !isSignupPage && !isLoginPage && !isQuestionPage && !isThankYouPage}
