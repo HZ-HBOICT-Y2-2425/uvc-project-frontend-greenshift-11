@@ -1,4 +1,4 @@
-<!-- src/routes/co2/rooms/[id]/+page.svelte -->
+<!-- src/routes/co2/room/[id]/+page.svelte -->
 <script lang="ts">
   import { goto } from '$app/navigation';
   
@@ -16,7 +16,7 @@
       if (res.ok) {
         showPopup = true;
         setTimeout(() => {
-          goto('/co2/rooms');
+          goto('/co2/room');
         }, 1500);
       } else {
         throw new Error('Failed to delete room');
@@ -40,7 +40,7 @@
   <div class="flex flex-col gap-4 w-full">
     <div class="flex items-center gap-2">
       <span class="text-gray-700 font-medium">Icon: </span>
-      <img src={room.icon} alt={room.name} class="w-8 h-8" />
+      <span class="text-3xl">{room.icon}</span> <!-- Display emoji here -->
     </div>
     
     <div>
@@ -58,7 +58,7 @@
     
     <div class="flex gap-4 mt-4">
       <a 
-        href="/co2/rooms" 
+        href="/co2/room" 
         class="bg-gray-500 text-white font-semibold py-2 px-4 rounded hover:bg-gray-600"
       >
         Back to Rooms

@@ -1,4 +1,4 @@
-// src/routes/co2/rooms/[id]/+page.ts
+// src/routes/co2/room/[id]/+page.ts
 import { error } from '@sveltejs/kit';
 import type { PageLoad } from './$types';
 

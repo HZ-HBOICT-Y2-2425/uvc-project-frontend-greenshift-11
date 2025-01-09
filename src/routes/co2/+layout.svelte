@@ -59,7 +59,7 @@
         {#each appliances as appliance}
           <p>
             <a 
-              class="block text-white text-sm hover:underline" 
+              class="block text-white text-sm hover:underline pl-4" 
               href={`/co2/appliance/${appliance.id}`}
             >
               {appliance.brand} {appliance.type}
@@ -79,15 +79,13 @@
       {/if}
 
       <!-- Rooms Section -->
-      <h1><a class="text-white text-lg font-bold mb-2" href="/co2/rooms">All rooms</a></h1>
+      <h1><a class="text-white text-lg font-bold mb-2">All rooms</a></h1>
       {#if rooms.length > 0}
-        <ul class="list-none pl-4">
-          {#each rooms as room}
-            <li class="block text-white text-sm hover:underline">
-              <a href={`/co2/room/${room.id}`}>{room.name}</a>
-            </li>
-          {/each}
-        </ul>
+        {#each rooms as room}
+          <p class="block text-white text-sm hover:underline pl-4">
+            <a href={`/co2/room/${room.id}`}>{room.name}</a>
+          </p>
+        {/each}
       {:else}
         <p>
           <a 
@@ -111,7 +109,7 @@
       </h1>
       <h1>
         <a 
-          class="block text-white text-sm hover:underline" 
+          class="block text-white text-base font-bold mt-4 hover:underline" 
           href="/co2/addRoom"
         >
           Add a room
