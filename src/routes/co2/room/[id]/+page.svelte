@@ -1,6 +1,4 @@
 <script lang="ts">
-  import { goto } from '$app/navigation';
-  
   export let data;
   const { room } = data;
 
@@ -15,7 +13,7 @@
       if (res.ok) {
         showPopup = true;
         setTimeout(() => {
-          goto('/co2/room');
+          window.location.href = '/co2/room';
         }, 1500);
       } else {
         throw new Error('Failed to delete room');
@@ -27,13 +25,11 @@
   };
 
   const handleEditRoom = () => {
-    // Navigate to the edit room page
-    goto(`/co2/room/edit/${room.id}`);
+    window.location.href = `/co2/room/edit/${room.id}`;
   };
 
-  const navigateToAppliance = (appliance) => {
-    // You might want to route to a detailed appliance page
-    goto(`/co2/appliance/${appliance.id}`); // Adjust this route as necessary
+  const navigateToAppliance = (appliance: { id: any; }) => {
+    window.location.href = `/co2/appliance/${appliance.id}`;
   };
 </script>
 
@@ -48,7 +44,7 @@
     <h2 class="text-2xl font-bold">{room.name}</h2>
     <span class="w-40 h-40 border border-gray-300 rounded-full flex items-center justify-center text-8xl bg-gray-100 cursor-pointer">
       {room.icon}
-    </span> <!-- Enlarged emoji here with a background -->
+    </span>
   </div>
   
   <div class="flex flex-col gap-6 w-full">
@@ -58,13 +54,12 @@
         <ul class="list-disc ml-6 mt-2">
           {#each room.applianceDetails as appliance}
             <li>
-              <a 
-                href="#" 
-                on:click={() => navigateToAppliance(appliance)} 
-                class="text-blue-600 hover:underline"
+              <button 
+                on:click={() => navigateToAppliance(appliance)}
+                class="text-blue-600 hover:underline text-left"
               >
                 {appliance.brand} {appliance.type}
-              </a>
+              </button>
             </li>
           {/each}
         </ul>

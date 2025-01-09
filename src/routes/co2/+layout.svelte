@@ -52,7 +52,7 @@
   <aside class="w-1/4 bg-aside p-3 shadow-lg transition-all h-100%">
     <nav class="text-xl">
       <h1 class="text-white text-lg font-bold mb-2">Manage appliances</h1>
-      <h2 class="block text-white text-base font-bold mt-4 hover:underline">All appliances</h2>
+      <h2 class="block text-white text-base font-bold mt-4 hover:underline"><a href={`/co2/appliance`}>All appliances</a></h2>
 
       <!-- Show appliance links if there are appliances available -->
       {#if appliances.length > 0}
@@ -79,7 +79,7 @@
       {/if}
 
       <!-- Rooms Section -->
-      <h1><a class="text-white text-lg font-bold mb-2">All rooms</a></h1>
+      <h1><a class="text-white text-lg font-bold mb-2" href = {`/co2/room`}>All rooms</a></h1>
       {#if rooms.length > 0}
         {#each rooms as room}
           <p class="block text-white text-sm hover:underline pl-4">

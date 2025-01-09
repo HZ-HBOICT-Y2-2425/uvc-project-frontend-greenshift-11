@@ -1,8 +1,6 @@
 <script lang="ts">
   import { onMount } from 'svelte';
-  import { page } from '$app/stores'; // For SvelteKit
 
-  // Initialize the appliance object and editing state
   let appliance: {
     id: number;
     brand: string;
@@ -17,27 +15,27 @@
   let tempDescription = '';
   let tempHoursPerWeek = 0;
 
-  // Function to fetch appliance data based on ID
-  async function fetchAppliance(id: string) {
-    const response = await fetch(`http://localhost:3010/appliance/appliance/${id}`);
-    if (response.ok) {
-      appliance = await response.json();
-      // Initialize temporary values for editing
-      if (appliance) {
-        tempBrand = appliance.brand;
-        tempType = appliance.type;
-        tempDescription = appliance.description;
-        tempHoursPerWeek = appliance.hoursPerWeek;
+  async function fetchAppliance() {
+    const urlParams = new URLSearchParams(window.location.search);
+    const id = urlParams.get('id');
+    if (!id) return;
+
+    try {
+      const response = await fetch(`http://localhost:3010/appliance/appliance/${id}`);
+      if (response.ok) {
+        appliance = await response.json();
+        if (appliance) {
+          tempBrand = appliance.brand;
+          tempType = appliance.type;
+          tempDescription = appliance.description;
+          tempHoursPerWeek = appliance.hoursPerWeek;
+        }
       }
-    } else {
-      console.error('Failed to fetch appliance data:', response.statusText);
+    } catch (error) {
+      console.error('Failed to fetch appliance:', error);
     }
   }
 
-  // Trigger fetching data on mount and when ID changes
-  $: $page.params.id, fetchAppliance($page.params.id);
-
-  // Start editing mode
   const startEditing = () => {
     if (appliance) {
       tempBrand = appliance.brand;
@@ -48,22 +46,31 @@
     isEditing = true;
   };
 
-  // Save changes
-  const saveChanges = () => {
-    console.log('Saving changes:', {
-      brand: tempBrand,
-      type: tempType,
-      description: tempDescription,
-      hoursPerWeek: tempHoursPerWeek,
-    });
-    isEditing = false; // Optionally reset editing state
+  const saveChanges = async () => {
+    if (!appliance) return;
+    
+    try {
+      const response = await fetch(`http://localhost:3010/appliance/appliance/${appliance.id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          brand: tempBrand,
+          type: tempType,
+          description: tempDescription,
+          hoursPerWeek: tempHoursPerWeek,
+        })
+      });
+
+      if (response.ok) {
+        appliance = await response.json();
+        isEditing = false;
+      }
+    } catch (error) {
+      console.error('Failed to save changes:', error);
+    }
   };
 
-  // Fetch the initial appliance data on mount
-  onMount(() => {
-    const id = $page.params.id; // Get the appliance ID from the URL
-    fetchAppliance(id);
-  });
+  onMount(fetchAppliance);
 </script>
 
 <div class="flex-grow p-4">

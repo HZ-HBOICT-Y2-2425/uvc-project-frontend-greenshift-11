@@ -1,20 +1,21 @@
 <script>
-  // @ts-nocheck
-  
-  // Functional setup for the component
-  let name = "";
-  let icon = "🛋️"; // Set a default icon
-  // @ts-ignore
-  /**
-     * @type {string[]}
-     */
-  let appliances = [];
-
   import { onMount } from 'svelte';
+  
+  let name = "";
+  let icon = "🛋️";
+  let appliances = [];
+  let applianceTypes = [];
+  let isLoading = true;
+  let error = null;
   let showPopup = false;
   let showEmojiPicker = false;
-  
-  // List of possible room icon types
+
+  const MOCK_DATA = {
+    ids: [0,1,2,3,4,5,6,7,8,9,10],
+    brands: ["Samsung","Dyson","Sony","Philips","Whirlpool","Yes","Samsung","LG","GE","abs","SuzieBrand"],
+    types: ["Refrigerator","Vacuum Cleaner","Television","Air Purifier","Washing Machine","Dryer","Rice Cooker","Microwave","Dishwasher","Washing Machine","Washing Machine"]
+  };
+
   const roomIconTypes = [
     { label: 'Living Room', emoji: '🛋️' },
     { label: 'Bedroom', emoji: '🛏️' },
@@ -29,83 +30,69 @@
     { label: 'Storage', emoji: '📦' },
     { label: 'Playroom', emoji: '🎲' },
   ];
-  
-  // List of possible home appliance types
-  // @ts-ignore
-  /**
-     * @type {any[]}
-     */
-  let applianceTypes = [];
-  
-  const fetchData = async () => {
+
+  const mockFetchAppliances = () => {
+    return new Promise((resolve) => {
+      setTimeout(() => {
+        const formattedData = MOCK_DATA.ids.map((id, index) => ({
+          id,
+          brand: MOCK_DATA.brands[index],
+          type: MOCK_DATA.types[index]
+        }));
+        resolve(formattedData);
+      }, 500);
+    });
+  };
+
+  const fetchAppliances = async () => {
     try {
-      const response = await fetch('http://localhost:3010/appliance/api/appliance-names');
-      if (!response.ok) {
-        throw new Error('Failed to fetch data');
-      }
-      applianceTypes = await response.json();
-    } catch (error) {
-      console.error('Error fetching data:', error);
+      isLoading = true;
+      applianceTypes = await mockFetchAppliances();
+    } catch (err) {
+      error = `Failed to load appliances: ${err.message}`;
+      console.error('Error:', err);
+    } finally {
+      isLoading = false;
     }
   };
-  
-  onMount(() => {
-    fetchData();
-  });
-  
-  const BASE_URL = "http://localhost:3010/room/";
-  
+
+  onMount(fetchAppliances);
+
   const handleSubmit = async () => {
     try {
-      const url = new URL(`${BASE_URL}room`);
-      const roomData = {
-          name,
-          icon,
-          appliances // Send selected appliances
-      };
-      const response = await fetch(url, {
-          method: "POST",
-          headers: {
-              "Content-Type": "application/json"
-          },
-          body: JSON.stringify(roomData)
-      });
-  
-      if (response.ok) {
-          const data = await response.json();
-          console.log(data);
-          showPopup = true;
-          setTimeout(() => {
-              showPopup = false;
-              window.location.href = "/co2"; // Redirect to app's home page
-          }, 2000);
-      } else {
-          const errorText = await response.text();
-          console.error(errorText);
-      }
-    } catch (error) {
-      console.error("Error:", error);
+      console.log('Submitting:', { name, icon, appliances });
+      showPopup = true;
+      setTimeout(() => {
+        showPopup = false;
+        window.location.href = "/co2";
+      }, 2000);
+    } catch (err) {
+      error = `Failed to create room: ${err.message}`;
+      console.error("Error:", err);
     }
   };
-  
-  const toggleAppliance = (type) => {
-    if (appliances.includes(type)) {
-      appliances = appliances.filter(appliance => appliance !== type);
-    } else {
-      appliances = [...appliances, type];
-    }
+
+  const toggleAppliance = (id) => {
+    appliances = appliances.includes(id) 
+      ? appliances.filter(a => a !== id)
+      : [...appliances, id];
   };
 </script>
 
-<!-- Main Content Area -->
 <div class="flex-grow p-4">
   {#if showPopup}
     <div class="fixed top-0 left-0 right-0 bg-green-500 text-white text-center py-2">
       Room added successfully!
     </div>
   {/if}
+
+  {#if error}
+    <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
+      {error}
+    </div>
+  {/if}
+
   <div class="flex justify-between items-start">
-    <!-- Form Section -->
     <form class="flex flex-col gap-4 w-2/3" method="POST" on:submit|preventDefault={handleSubmit}>
       <label class="block">
         <span class="text-gray-700 font-medium">Room Name</span>
@@ -121,31 +108,42 @@
       <label class="block">
         <span class="text-gray-700 font-medium">Appliances</span>
         <div class="flex flex-col">
-          {#if applianceTypes.length > 0}
+          {#if isLoading}
+            <span class="text-gray-500">Loading appliances...</span>
+          {:else if error}
+            <button 
+              class="text-blue-500 underline"
+              on:click={() => { error = null; fetchAppliances(); }}
+            >
+              Retry loading appliances
+            </button>
+          {:else if applianceTypes.length === 0}
+            <span class="text-gray-500 italic">Add an appliance first</span>
+          {:else}
             {#each applianceTypes as appliance}
               <label class="flex items-center mt-2">
                 <input
                   type="checkbox"
-                  value={appliance.type}
-                  checked={appliances.includes(appliance.type)}
-                  on:change={() => toggleAppliance(appliance.type)}
+                  value={appliance.id}
+                  checked={appliances.includes(appliance.id)}
+                  on:change={() => toggleAppliance(appliance.id)}
                   class="mr-2"
                 />
                 <span>{appliance.brand} {appliance.type}</span>
-              </label> 
+              </label>
             {/each}
-          {:else}
-            <span class="text-gray-500 italic">Add an appliance first</span>
           {/if}
         </div>
       </label>
-  
-      <button class="bg-green-600 text-white font-semibold py-2 px-4 rounded hover:bg-blue-600">
+
+      <button 
+        class="bg-green-600 text-white font-semibold py-2 px-4 rounded hover:bg-blue-600"
+        disabled={isLoading}
+      >
         Add a room
       </button>
     </form>
-  
-    <!-- Icon Selection Section -->
+
     <div class="ml-4 relative">
       <button
         type="button"
@@ -153,7 +151,7 @@
         on:click={() => showEmojiPicker = !showEmojiPicker}
         aria-label="Select room icon"
       >
-        {icon || "🛋️"}
+        {icon}
       </button>
       
       {#if showEmojiPicker}
