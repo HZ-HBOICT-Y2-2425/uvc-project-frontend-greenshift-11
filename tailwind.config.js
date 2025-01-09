@@ -33,6 +33,7 @@ export default {
         customGreen: '#95D78E',
         customerWhite: '#82AA72',
         customerWhiteContrast: '#AA728A',
+        aside: '#5a734f'
       },
     },
   },

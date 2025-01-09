@@ -10,7 +10,7 @@
   
   const fetchData = async () => {
     try {
-      const response = await fetch(`http://localhost:3010/appliance/appliance/{$JSON.stringify(appliance.id)}`);
+      const response = await fetch(`http://localhost:3010/appliance/appliance`);
       
       if (!response.ok) {
         throw new Error('Failed to fetch data');
@@ -47,7 +47,7 @@
     "Electric Grill"
   ];
 
-   const BASE_URL = "http://localhost:3010/appliance/appliance/${appliance.id}";
+   const BASE_URL = "http://localhost:3010/appliance/appliance";
 
   const handleSubmit = async () => {
     try {

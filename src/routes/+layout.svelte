@@ -166,12 +166,12 @@
       <footer class="bg-greenDeep text-white py-4 z-50">
         <div class="flex justify-center items-center gap-4 sm:gap-6">
           {#each [
-            { href: "/home", src: "home.png", alt: "Home" },
-            { href: "/articles", src: "articles.png", alt: "Articles" },
-            { href: "/co2", src: "CO2.png", alt: "CO2 Info" },
-            { href: "/shop", src: "shop.png", alt: "Shop" },
-            { href: "/calendar", src: "calendar.png", alt: "Calendar" },
-            { href: "/settings", src: "profile.png", alt: "Settings" }
+            { href: "/home", src: "/home.png", alt: "Home" },
+            { href: "/articles", src: "/articles.png", alt: "Articles" },
+            { href: "/co2", src: "/CO2.png", alt: "CO2 Info" },
+            { href: "/shop", src: "/shop.png", alt: "Shop" },
+            { href: "/calendar", src: "/calendar.png", alt: "Calendar" },
+            { href: "/settings", src: "/profile.png", alt: "Settings" }
           ] as item}
             <a 
               href={item.href} 

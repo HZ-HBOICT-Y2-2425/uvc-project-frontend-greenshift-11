@@ -49,7 +49,7 @@
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 
 <div class="flex h-screen mx-0 my-0 p-0">
-  <aside class="w-1/4 bg-sideBarGreen p-3 shadow-lg transition-all h-100%">
+  <aside class="w-1/4 bg-aside p-3 shadow-lg transition-all h-100%">
     <nav class="text-xl">
       <h1 class="text-white text-lg font-bold mb-2">Manage appliances</h1>
       <h2 class="block text-white text-base font-bold mt-4 hover:underline">All appliances</h2>
