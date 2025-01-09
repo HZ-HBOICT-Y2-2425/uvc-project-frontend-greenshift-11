@@ -39,7 +39,7 @@
             Authorization: `Bearer ${localStorage.getItem("authToken")}`,
           },
           body: JSON.stringify({
-            name: userName,
+            name: userName, 
             email: userEmail,
           }),
         }
@@ -81,6 +81,7 @@
       if (response.ok) {
         const userData = await response.json();
         userName = userData.user.user;
+        console.log("User data:", userData);
         userEmail = userData.user.email;
       } else {
         console.error("Failed to fetch user data:", await response.text());
@@ -134,11 +135,8 @@
   const toggleEdit = () => {
     isEditable = !isEditable;
   };
-  import { onMount } from 'svelte';
-    import { on } from 'svelte/events';
 
   // Sidebar state
-  let activeSection = "account"; // Default active section
 
   // Content type dropdown state
   let contentType = "all";
