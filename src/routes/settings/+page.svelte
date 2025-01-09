@@ -4,8 +4,8 @@
     isMusicEnabled,
     volumeLevel,
     selectedTrack,
-  } from "$lib/stores/musicStore.js";
-  import { notifications } from "$lib/stores/notificationStore.js";
+  } from "../../lib/stores/musicStore.js";
+  import { notifications } from "../../lib/stores/notificationStore.js";
   import { get } from "svelte/store";
 
   // Add a state variable to manage the logout confirmation dialog
@@ -29,7 +29,7 @@
   let userEmail = "";
   let showConfirmDialog = false;
   let showSuccessDialog = false;
-  let volume;
+  let volume = 50; // Initialize with a default value
 
   $: currentTrack = $selectedTrack;
   volumeLevel.subscribe((value) => (volume = value));
