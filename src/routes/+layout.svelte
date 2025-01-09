@@ -2,7 +2,7 @@
   import "../app.css";
   import { page } from "$app/stores";
   import { onMount } from "svelte";
-  import { isMusicEnabled, volumeLevel, selectedTrack } from '$lib/stores/musicStore.js'; // Changed selectedMusic to selectedTrack
+  import { isMusicEnabled, volumeLevel, selectedTrack } from '../lib/stores/musicStore.js'; // Changed selectedMusic to selectedTrack
   import ToastContainer from '../components/ToastContainer.svelte';
   import BackgroundMusic from "../components/BackgroundMusic.svelte";
 
