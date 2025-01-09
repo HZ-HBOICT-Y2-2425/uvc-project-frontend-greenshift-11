@@ -1,37 +1,66 @@
-<script>
+<script lang="ts">
   import { onMount } from 'svelte';
 
-  let appliance = {
-    id: null, // Ensure this is dynamically populated or passed as a prop
+  // Define a union type for the appliance types
+  type ApplianceType = 
+    | "Refrigerator"
+    | "Washing Machine"
+    | "Dishwasher"
+    | "Microwave Oven"
+    | "Oven"
+    | "Stove"
+    | "Dryer"
+    | "Air Conditioner"
+    | "Heater"
+    | "Vacuum Cleaner"
+    | "Blender"
+    | "Toaster"
+    | "Coffee Maker"
+    | "Slow Cooker"
+    | "Rice Cooker"
+    | "Food Processor"
+    | "Induction Cooktop"
+    | "Electric Kettle"
+    | "Deep Fryer"
+    | "Electric Grill";
+
+  let appliance: {
+    id: number | null;
+    brand: string;
+    type: ApplianceType | ''; // This can be an empty string initially
+    description: string;
+    hoursPerWeek: number;
+  } = {
+    id: null,
     brand: '',
     type: '',
     description: '',
     hoursPerWeek: 0,
   };
 
-  // List of possible home appliance types
-  const applianceTypes = [
-    "Refrigerator",
-    "Washing Machine",
-    "Dishwasher",
-    "Microwave Oven",
-    "Oven",
-    "Stove",
-    "Dryer",
-    "Air Conditioner",
-    "Heater",
-    "Vacuum Cleaner",
-    "Blender",
-    "Toaster",
-    "Coffee Maker",
-    "Slow Cooker",
-    "Rice Cooker",
-    "Food Processor",
-    "Induction Cooktop",
-    "Electric Kettle",
-    "Deep Fryer",
-    "Electric Grill",
-  ];
+  // List of possible home appliance types and their corresponding emojis
+  const applianceTypes: Record<ApplianceType, string> = {
+    "Refrigerator": "🧊",
+    "Washing Machine": "🌀",
+    "Dishwasher": "🍽️",
+    "Microwave Oven": "🍕",
+    "Oven": "🔥",
+    "Stove": "🍳",
+    "Dryer": "🧺",
+    "Air Conditioner": "❄️",
+    "Heater": "🌡️",
+    "Vacuum Cleaner": "🧹",
+    "Blender": "🍹",
+    "Toaster": "🍞",
+    "Coffee Maker": "☕",
+    "Slow Cooker": "🍲",
+    "Rice Cooker": "🍚",
+    "Food Processor": "🍽️",
+    "Induction Cooktop": "🍳",
+    "Electric Kettle": " kettle_emoji", // Adjust if you have an emoji
+    "Deep Fryer": "🍟",
+    "Electric Grill": "🔥",
+  };
 
   // Fetch appliance data for editing (if `appliance.id` exists)
   const fetchData = async () => {
@@ -103,13 +132,9 @@
       <!-- Type -->
       <label class="block">
         <span class="text-gray-700 font-medium">Type</span>
-        <select
-          bind:value={appliance.type}
-          class="w-full border rounded p-2 mt-1"
-          required
-        >
+        <select bind:value={appliance.type} class="w-full border rounded p-2 mt-1" required>
           <option value="" disabled>Select an appliance type</option>
-          {#each applianceTypes as type}
+          {#each Object.keys(applianceTypes) as type}
             <option value={type}>{type}</option>
           {/each}
         </select>
@@ -148,12 +173,12 @@
       </button>
     </form>
 
-    <!-- Photo Upload Placeholder -->
-    <div class="ml-4">
-      <div class="w-40 h-40 border rounded flex items-center justify-center bg-gray-100">
-        <span class="text-gray-500">Photo Placeholder</span>
+    <!-- Emoji Placeholder for Appliance -->
+    <div class="ml-4 flex flex-col items-center">
+      <div class="text-6xl">
+        {appliance.type in applianceTypes ? applianceTypes[appliance.type as ApplianceType] : "❓"} <!-- Show emoji based on type -->
       </div>
-      <p class="text-center text-gray-700 mt-2">Photo upload coming soon!</p>
+      <p class="text-center text-gray-700 mt-2">Appliance emoji representation</p>
     </div>
   </div>
 </div>

@@ -14,29 +14,7 @@
   let showEmojiPicker = false;
 
   // List of possible room icon types
-  const roomIconTypes = [
-    { emoji: "🛋️", label: "Living room or furniture" },
-    { emoji: "🛏️", label: "Bedroom" },
-    { emoji: "🚿", label: "Bathroom" },
-    { emoji: "🚽", label: "Restroom" },
-    { emoji: "🚰", label: "Kitchen or bathroom sink" },
-    { emoji: "📺", label: "Television or entertainment" },
-    { emoji: "💡", label: "Lighting in any room" },
-    { emoji: "🚪", label: "Door for entry/exit" },
-    { emoji: "🪟", label: "Windows in a house" },
-    { emoji: "🧹", label: "Cleaning tools" },
-    { emoji: "🪑", label: "Furniture in a room" },
-    { emoji: "🍽️", label: "Dining or general table" },
-    { emoji: "🍴", label: "Kitchen or dining" },
-    { emoji: "🌀", label: "Cooling or air circulation" },
-    { emoji: "🔥", label: "Fireplace or heating" },
-    { emoji: "💧", label: "Plumbing or water access" },
-    { emoji: "🏠", label: "General house icon" },
-    { emoji: "🔑", label: "Door or room security" },
-    { emoji: "📦", label: "Storage or organization" },
-    { emoji: "🌡️", label: "Temperature control" },
-    { emoji: "💨", label: "Ventilation or air flow" },
-  ];
+ 
 
   // List of possible home appliance types
   // @ts-ignore
