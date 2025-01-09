@@ -1,17 +1,18 @@
 <script>
   import { onMount } from "svelte";
-  import { isMusicEnabled, volumeLevel } from "$lib/stores/musicStore.js";
+  import { isMusicEnabled, volumeLevel, selectedTrack } from "$lib/stores/musicStore.js";
   import { notifications } from "$lib/stores/notificationStore.js";
-  import { selectedTrack } from "$lib/stores/musicStore.js";
+  import { get } from "svelte/store";
 
   const tracks = [
-    { name: "Track 1", src: "/afro-chill.mp3" },
-    { name: "Track 2", src: "/calm-acoustic.mp3" },
-    { name: "Track 3", src: "/calm-jazz.mp3" },
-    { name: "Track 2", src: "/chill-background.mp3" },
-    { name: "Track 3", src: "/uptempo-background.mp3" },
-    { name: "piano", src: "/piano.mp3" },
+    { name: "Afro Chill", src: "/afro-chill.mp3" },
+    { name: "Calm Acoustic", src: "/calm-acoustic.mp3" },
+    { name: "Calm Jazz", src: "/calm-jazz.mp3" },
+    { name: "Chill Background", src: "/chill-background.mp3" },
+    { name: "Uptempo Background", src: "/uptempo-background.mp3" },
+    { name: "Piano", src: "/piano.mp3" },
   ];
+
   let currentTrack;
   let emailNotifications = false;
   let pushNotifications = false;
@@ -20,29 +21,25 @@
   let userEmail = "";
   let showConfirmDialog = false;
   let showSuccessDialog = false;
-  // Local volume state that syncs with the store
   let volume;
 
   $: currentTrack = $selectedTrack;
-  // Subscribe to the volume store to keep local state in sync
-  volumeLevel.subscribe((value) => {
-    volume = value;
-  });
-  // Volume Change Handler
+  volumeLevel.subscribe((value) => (volume = value));
+  selectedTrack.subscribe((track) => (currentTrack = track));
+
   const handleVolumeChange = (event) => {
     volume = parseInt(event.target.value);
     volumeLevel.set(volume);
   };
 
-  // Music Toggle Handler
   const handleMusicToggle = (event) => {
     const newValue = event.target.checked;
-    console.log("Toggling music to:", newValue);
     isMusicEnabled.set(newValue);
   };
-  // Function to confirm account changes
+
+  const BASE_URL = "http://localhost:3010/";
+
   const confirmChanges = async () => {
-    // Save the updated user details
     try {
       const response = await fetch(
         `${BASE_URL}auth/users/${localStorage.getItem("username")}`,
@@ -52,22 +49,15 @@
             "Content-Type": "application/json",
             Authorization: `Bearer ${localStorage.getItem("authToken")}`,
           },
-          body: JSON.stringify({
-            name: userName,
-            email: userEmail,
-          }),
+          body: JSON.stringify({ name: userName, email: userEmail }),
         }
       );
       if (response.ok) {
         const result = await response.json();
-        if (result.user.user !== localStorage.getItem("username")) {
-          localStorage.setItem("username", result.user.user);
-        }
+        localStorage.setItem("username", result.user.user);
         showConfirmDialog = false;
         showSuccessDialog = true;
-        setTimeout(() => {
-          showSuccessDialog = false;
-        }, 3000);
+        setTimeout(() => (showSuccessDialog = false), 3000);
       } else {
         console.error("Error updating user data:", await response.json());
       }
@@ -75,18 +65,16 @@
       console.error("Error updating user data:", error);
     }
   };
-  // Cancel the confirmation dialog
+
   const cancelChanges = () => {
     showConfirmDialog = false;
   };
-  const BASE_URL = "http://localhost:3010/";
+
   const fetchUserData = async () => {
     try {
       const username = localStorage.getItem("username");
       const response = await fetch(`${BASE_URL}auth/users/${username}`, {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("authToken")}`,
-        },
+        headers: { Authorization: `Bearer ${localStorage.getItem("authToken")}` },
       });
       if (response.ok) {
         const userData = await response.json();
@@ -99,29 +87,21 @@
       console.error("Error fetching user data:", error);
     }
   };
+
   onMount(() => {
     fetchUserData();
   });
+
   function handleSubmit(event) {
     event.preventDefault();
-    // Show the confirmation dialog instead of notification
     showConfirmDialog = true;
-    // Save the settings (add your API call here)
     notifications.add("Settings saved successfully!", "success");
     if (pushNotifications) {
-      // Demo notifications
-      setTimeout(() => {
-        notifications.add("Time to water your plants! 🌱", "info");
-      }, 2000);
-      setTimeout(() => {
-        notifications.add(
-          "Check out new eco-friendly products in the shop! 🛍️",
-          "info"
-        );
-      }, 5000);
+      setTimeout(() => notifications.add("Time to water your plants! 🌱", "info"), 2000);
+      setTimeout(() => notifications.add("Check out new eco-friendly products in the shop! 🛍️", "info"), 5000);
     }
   }
-  // Example function to trigger demo notifications
+
   function triggerDemoNotification() {
     const types = ["success", "error", "warning", "info"];
     const messages = [
@@ -348,15 +328,14 @@
             >Volume</label
           >
           <input
-            type="range"
-            id="volume"
-            min="0"
-            max="100"
-            step="1"
-            bind:value={volume}
-            on:input={handleVolumeChange}
-            class="w-full"
-          />
+          type="range"
+          id="volume"
+          min="0"
+          max="100"
+          step="1"
+          bind:value={$volumeLevel}
+          on:input={handleVolumeChange}
+        />
           <p class="mt-2">Volume: {volume}%</p>
         </div>
 
