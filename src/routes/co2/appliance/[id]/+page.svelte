@@ -21,7 +21,7 @@
     if (!id) return;
 
     try {
-      const response = await fetch(`http://localhost:3010/appliance/appliance/${id}`);
+      const response = await fetch(`http://localhost:3012/appliance/${id}`);
       if (response.ok) {
         appliance = await response.json();
         if (appliance) {
@@ -50,7 +50,7 @@
     if (!appliance) return;
     
     try {
-      const response = await fetch(`http://localhost:3010/appliance/appliance/${appliance.id}`, {
+      const response = await fetch(`http://localhost:3012/appliance/${appliance.id}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

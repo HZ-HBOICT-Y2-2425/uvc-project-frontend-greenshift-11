@@ -13,8 +13,7 @@
 
   const fetchData = async () => {
     try {
-      const response = await fetch(`http://localhost:3010/appliance/appliance`);
-      
+      const response = await fetch(`http://localhost:3012/appliance/${appliance.id}`);
       if (!response.ok) {
         throw new Error('Failed to fetch data');
       }
@@ -65,30 +64,33 @@
   const BASE_URL = "http://localhost:3010/appliance/appliance";
 
   const handleSubmit = async () => {
-    try {
-      const url = new URL(`${BASE_URL}`);
-      url.searchParams.append('brand', appliance.brand);
-      url.searchParams.append('type', appliance.type);
-      url.searchParams.append('description', appliance.description);
-      url.searchParams.append('hoursPerWeek', appliance.hoursPerWeek.toString());
-      url.searchParams.append('emoji', appliance.emoji);
-      
-      const response = await fetch(url, {
-        method: "POST",
-      });
+  try {
+    const url = appliance.id ?  `http://localhost:3012/appliance/${appliance.id}` : `http://localhost:3012/appliance/`;
 
-      if (response.ok) {
-        const data = await response.json();
-        console.log(data);
-        window.location.href = "/co2"; 
-      } else {
-        const errorData = await response.json();
-        console.error(errorData.message);
-      }
-    } catch (error) {
-      console.error("Error:", error);
+    const method = appliance.id ? 'PUT' : 'POST';
+
+    const response = await fetch(url, {
+      method,
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(appliance), // Ensure the data matches what the backend expects
+    });
+
+    if (response.ok) {
+      const data = await response.json();
+      console.log('Success:', data);
+      window.location.href = "/co2";
+    } else {
+      const errorData = await response.json();
+      console.error('Error:', errorData.message);
     }
-  };
+  } catch (error) {
+    console.error('Error:', error);
+  }
+};
+
+  onMount(fetchData);
 </script>
 
 <!-- Main Content Area -->

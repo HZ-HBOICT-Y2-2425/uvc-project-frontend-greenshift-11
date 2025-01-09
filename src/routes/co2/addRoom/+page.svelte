@@ -17,45 +17,53 @@
   };
 
   const roomIconTypes = [
-    { label: 'Living Room', emoji: '🛋️' },
-    { label: 'Bedroom', emoji: '🛏️' },
-    { label: 'Kitchen', emoji: '🍳' },
-    { label: 'Bathroom', emoji: '🚽' },
-    { label: 'Office', emoji: '💻' },
-    { label: 'Dining Room', emoji: '🍽️' },
-    { label: 'Garage', emoji: '🚗' },
-    { label: 'Garden', emoji: '🌳' },
-    { label: 'Hallway', emoji: '🚪' },
-    { label: 'Gym', emoji: '🏋️' },
-    { label: 'Storage', emoji: '📦' },
-    { label: 'Playroom', emoji: '🎲' },
+    { emoji: "🛋️", label: "Living room or furniture" },
+    { emoji: "🛏️", label: "Bedroom" },
+    { emoji: "🚿", label: "Bathroom" },
+    { emoji: "🚽", label: "Restroom" },
+    { emoji: "🚰", label: "Kitchen or bathroom sink" },
+    { emoji: "📺", label: "Television or entertainment" },
+    { emoji: "💡", label: "Lighting in any room" },
+    { emoji: "🚪", label: "Door for entry/exit" },
+    { emoji: "🪟", label: "Windows in a house" },
+    { emoji: "🧹", label: "Cleaning tools" },
+    { emoji: "🪑", label: "Furniture in a room" },
+    { emoji: "🍽️", label: "Dining or general table" },
+    { emoji: "🍴", label: "Kitchen or dining" },
+    { emoji: "🌀", label: "Cooling or air circulation" },
+    { emoji: "🔥", label: "Fireplace or heating" },
+    { emoji: "💧", label: "Plumbing or water access" },
+    { emoji: "🏠", label: "General house icon" },
+    { emoji: "🔑", label: "Door or room security" },
+    { emoji: "📦", label: "Storage or organization" },
+    { emoji: "🌡️", label: "Temperature control" },
+    { emoji: "💨", label: "Ventilation or air flow" },
   ];
 
-  const mockFetchAppliances = () => {
-    return new Promise((resolve) => {
-      setTimeout(() => {
-        const formattedData = MOCK_DATA.ids.map((id, index) => ({
-          id,
-          brand: MOCK_DATA.brands[index],
-          type: MOCK_DATA.types[index]
-        }));
-        resolve(formattedData);
-      }, 500);
-    });
-  };
+  // List of possible home appliance types
+  // @ts-ignore
+  /**
+     * @type {any[]}
+     */
+  let applianceTypes = [];
 
-  const fetchAppliances = async () => {
+  const fetchData = async () => {
     try {
-      isLoading = true;
-      applianceTypes = await mockFetchAppliances();
-    } catch (err) {
-      error = `Failed to load appliances: ${err.message}`;
-      console.error('Error:', err);
-    } finally {
-      isLoading = false;
+      const response = await fetch('http://localhost:3012/appliance/api/appliance-names');
+      if (!response.ok) {
+        throw new Error('Failed to fetch data');
+      }
+      applianceTypes = await response.json();
+    } catch (error) {
+      console.error('Error fetching data:', error);
     }
   };
 
+  onMount(() => {
+    fetchData();
+  });
+
+  const BASE_URL = "http://localhost:3012/room/";
   onMount(fetchAppliances);
 
   const handleSubmit = async () => {
@@ -107,31 +115,16 @@
       
       <label class="block">
         <span class="text-gray-700 font-medium">Appliances</span>
-        <div class="flex flex-col">
-          {#if isLoading}
-            <span class="text-gray-500">Loading appliances...</span>
-          {:else if error}
-            <button 
-              class="text-blue-500 underline"
-              on:click={() => { error = null; fetchAppliances(); }}
-            >
-              Retry loading appliances
-            </button>
-          {:else if applianceTypes.length === 0}
-            <span class="text-gray-500 italic">Add an appliance first</span>
-          {:else}
+        <select bind:value={appliances} class="w-full border rounded p-2 mt-1" multiple>
+          {#if appliances.length > 0}
             {#each applianceTypes as appliance}
-              <label class="flex items-center mt-2">
-                <input
-                  type="checkbox"
-                  value={appliance.id}
-                  checked={appliances.includes(appliance.id)}
-                  on:change={() => toggleAppliance(appliance.id)}
-                  class="mr-2"
-                />
-                <span>{appliance.brand} {appliance.type}</span>
-              </label>
+            <option value={appliance.id}>
+              {appliance.brand} {appliance.type}
+            </option>  
             {/each}
+          {:else}
+            <!-- svelte-ignore node_invalid_placement_ssr -->
+            <option disabled>Add an appliance first</option>
           {/if}
         </div>
       </label>

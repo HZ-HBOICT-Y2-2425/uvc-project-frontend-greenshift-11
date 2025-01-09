@@ -6,8 +6,8 @@
 
   const handleDeleteRoom = async () => {
     try {
-      const res = await fetch(`http://localhost:3010/appliance/room/${room.id}`, {
-        method: 'DELETE'
+      const res = await fetch(`http://localhost:3012/room/${room.id}`, {
+        method: 'DELETE',
       });
 
       if (res.ok) {

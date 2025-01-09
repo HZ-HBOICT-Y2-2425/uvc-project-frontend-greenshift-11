@@ -14,7 +14,7 @@
     "#20B2AA", // Light Sea Green
     "#2E8B57", // Forest Green
     "#556B2F", // Dark Olive Green
-  ];
+  ];  
 
   // Default chart options
   // @ts-ignore
@@ -63,7 +63,7 @@
 
   const fetchData = async () => {
     try {
-      const response = await fetch("http://localhost:3010/appliance/api/appliance-usage");
+      const response = await fetch("http://localhost:3012/appliance/api/appliance-usage");
       if (!response.ok) {
         throw new Error("Network response was not ok");
       }
