@@ -2,37 +2,33 @@
   import "../../app.css";
   import { onMount } from 'svelte';
 
-  let selectedDate = ''; // Holds the selected date
-  let note = ''; // Holds the current note being written
-  let notes = {}; // Stores notes locally for display
+  let selectedDate = '';
+  let note = '';
+  let notes = {};
   let username = localStorage.getItem("username");
-  let completedTasks = []; // Tracks completed tasks
+  let completedTasks = []; // Will now be populated from backend
 
-  // Save the note by sending it to the backend
   async function saveNote() {
     if (selectedDate && note) {
       try {
-        console.log('Sending note to backend:', { user: username, note, date: selectedDate });
         const response = await fetch('http://localhost:3010/auth/notes', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
           },
           body: JSON.stringify({
-            user: username, // Username from frontend
-            note: note, // The note content
-            date: selectedDate, // The selected date
+            user: username,
+            note: note,
+            date: selectedDate,
           }),
         });
         if (response.ok) {
           const data = await response.json();
-          console.log('Note saved successfully:', data);
-          // Update the local `notes` object with the updated notes array
           notes[selectedDate] = data.notes
             .filter((n) => n.date === selectedDate)
             .map((n) => n.note);
           alert(`Note saved for ${selectedDate}`);
-          note = ''; // Clear the textarea after saving
+          note = '';
         } else {
           const error = await response.json();
           console.error('Error response from server:', error);
@@ -47,16 +43,12 @@
     }
   }
 
-  // Load notes when the date changes
   async function loadNotes() {
     if (selectedDate) {
       try {
         const response = await fetch(`http://localhost:3010/auth/notes/${username}`);
         if (response.ok) {
           const data = await response.json();
-          console.log('Loaded notes:', data);
-
-          // Filter and map notes for the selected date
           notes[selectedDate] = data.notes
             .filter((n) => n.date === selectedDate)
             .map((n) => n.note);
@@ -67,23 +59,32 @@
     }
   }
 
-  //fucntion to load completed tasks a user has completed
-  function loadCompletedTasks() {
-  const username = localStorage.getItem("username"); // Get the current username
-  if (!username) return;
-
-  // Load completed tasks for the current user
-  const allCompletedTasks = JSON.parse(localStorage.getItem("completedTasksByUser")) || {};
-  completedTasks = allCompletedTasks[username] || [];
-}
-
+  // New function to load completed tasks from backend
+  async function loadCompletedTasks() {
+    try {
+      const response = await fetch(`http://localhost:3010/auth/users/${username}`);
+      if (response.ok) {
+        const data = await response.json();
+        completedTasks = data.user.completedTasks || [];
+      } else {
+        console.error("Failed to load completed tasks");
+      }
+    } catch (err) {
+      console.error("Error loading completed tasks:", err);
+    }
+  }
 
   $: if (selectedDate) {
     loadNotes();
   }
 
   onMount(() => {
-    loadCompletedTasks();
+    if (!username) {
+      alert("No user logged in. Redirecting to login page...");
+      window.location.href = "/login";
+    } else {
+      loadCompletedTasks();
+    }
   });
 </script>
 
@@ -107,7 +108,6 @@
         Save Note
       </button>
 
-      <!-- Display saved notes for the selected date -->
       {#if selectedDate && notes[selectedDate]?.length > 0}
         <ul class="mt-4">
           {#each notes[selectedDate] as savedNote, index}
@@ -119,7 +119,7 @@
       {/if}
     </div>
 
-    <!-- Completed Tasks Section with improved styling -->
+    <!-- Completed Tasks Section -->
     <div class="bg-gradient-to-br from-green-50 to-green-100 p-6 rounded-lg shadow-lg w-full sm:w-1/2 border border-green-200">
       <div class="flex items-center gap-2 mb-6">
         <h2 class="text-xl font-semibold text-green-800">Completed Tasks</h2>
@@ -135,7 +135,7 @@
               <span class="flex-shrink-0 w-8 h-8 bg-green-500 text-white rounded-full flex items-center justify-center font-semibold">
                 {index + 1}
               </span>
-              <span class="font-medium text-gray-700">{task.text}</span>
+              <span class="font-medium text-gray-700">{task}</span>
             </li>
           {/each}
         </ul>

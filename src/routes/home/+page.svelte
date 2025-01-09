@@ -6,26 +6,9 @@
   const gardenStateStore = writable(1);
   let tasks = [];
   let randomTasks = [];
-  let completedTasks = []; // Tracks completed tasks
+  let completedTasks = [];
   const TASK_REFRESH_INTERVAL = 24 * 60 * 60 * 1000; // 24 hours in milliseconds
-  
-  // Initialize completedTasks from localStorage
-  function loadCompletedTasks() {
-    const username = localStorage.getItem("username"); // Assuming username is stored in localStorage
-    if (!username) return;
-
-    const allCompletedTasks = JSON.parse(localStorage.getItem("completedTasksByUser")) || {};
-    completedTasks = allCompletedTasks[username] || [];
-  }
-
-  function saveCompletedTasks() {
-    const username = localStorage.getItem("username");
-    if (!username) return;
-
-    const allCompletedTasks = JSON.parse(localStorage.getItem("completedTasksByUser")) || {};
-    allCompletedTasks[username] = completedTasks;
-    localStorage.setItem("completedTasksByUser", JSON.stringify(allCompletedTasks));
-  }
+  let username = localStorage.getItem("username");
 
   function randomizeGardenHealth() {
     gardenStateStore.set(Math.floor(Math.random() * 3) + 1);
@@ -81,18 +64,6 @@
   }
 
   $: gardenDetails = getGardenDetails($gardenStateStore);
-  $: allTasksCompleted = randomTasks.every((task) => isTaskCompleted(task));
-
-  onMount(() => {
-    randomizeGardenHealth();
-    loadCompletedTasks();
-    fetchAllTasks(); // Fetch all tasks using the new endpoint
-    window.addEventListener('beforeunload', () => {
-      saveCompletedTasks();
-    });
-  });
-
-  
 
   async function fetchAllTasks() {
     try {
@@ -100,46 +71,12 @@
       if (response.ok) {
         const data = await response.json();
         tasks = data.tasks;
-        console.log("Fetched all tasks:", tasks);
         handleDailyTasks();
       } else {
         console.error("Failed to fetch tasks:", response.status);
       }
     } catch (error) {
       console.error("Error fetching tasks:", error);
-    }
-  }
-
-  async function refreshTask(task) {
-    try {
-      const response = await fetch(
-        `http://localhost:3011/api/tasks/alternative/${task.category}?currentTask=${encodeURIComponent(task.text)}`
-      );
-      if (response.ok) {
-        const data = await response.json();
-        const newTask = data.task;
-        
-        // Remove the old task from completedTasks if it was completed
-        completedTasks = completedTasks.filter(t => t.text !== task.text);
-        saveCompletedTasks();
-
-        // Replace the refreshed task in randomTasks
-        const taskIndex = randomTasks.findIndex((t) => t.text === task.text);
-        if (taskIndex !== -1) {
-          randomTasks[taskIndex] = newTask;
-          randomTasks = [...randomTasks]; // Trigger Svelte reactivity
-
-          // Update localStorage with the new task list
-          localStorage.setItem(
-            "dailyTasks",
-            JSON.stringify({ timestamp: Date.now(), tasks: randomTasks })
-          );
-        }
-      } else {
-        console.error("Failed to refresh task:", response.status);
-      }
-    } catch (error) {
-      console.error("Error refreshing task:", error);
     }
   }
 
@@ -153,41 +90,65 @@
         "dailyTasks",
         JSON.stringify({ timestamp: now, tasks: randomTasks })
       );
-      console.log("New tasks selected:", randomTasks);
     } else {
       randomTasks = storedTasks.tasks || [];
-      console.log("Using stored tasks:", randomTasks);
     }
   }
-
 
   function selectRandomTasks() {
     const shuffled = [...tasks].sort(() => 0.5 - Math.random());
     randomTasks = shuffled.slice(0, 3);
   }
 
-  function markTaskAsCompleted(task) {
-    const taskIndex = completedTasks.findIndex((t) => t.text === task.text);
+  async function markTaskAsCompleted(task) {
+    // Remove the task from `randomTasks`
+    randomTasks = randomTasks.filter((t) => t.text !== task.text);
 
-    if (taskIndex === -1) {
-      completedTasks.push(task);
-    } else {
-      completedTasks.splice(taskIndex, 1);
+    // Add the task to `completedTasks`
+    completedTasks.push(task.text);
+
+    // Update `localStorage` for immediate UI sync
+    const savedCompletedTasks = JSON.parse(localStorage.getItem("completedTasks")) || {};
+    savedCompletedTasks[username] = completedTasks;
+    localStorage.setItem("completedTasks", JSON.stringify(savedCompletedTasks));
+
+    // Send the completed task to the backend
+    try {
+      const response = await fetch("http://localhost:3010/auth/completed-tasks", {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          user: username,
+          task: task.text, // Send only the task text
+          action: "complete",
+        }),
+      });
+
+      if (!response.ok) {
+        console.error("Failed to update completed tasks in the backend");
+      }
+    } catch (err) {
+      console.error("Error updating completed tasks in backend:", err);
     }
 
-    saveCompletedTasks(); // Save updated completed tasks
-    randomTasks = [...randomTasks]; // Trigger Svelte reactivity
+    // Update `localStorage` with updated tasks
+    localStorage.setItem(
+      "dailyTasks",
+      JSON.stringify({ timestamp: Date.now(), tasks: randomTasks })
+    );
   }
 
-
-function isTaskCompleted(task) {
-    return completedTasks.some((t) => t.text === task.text);
-  }
+  onMount(() => {
+    fetchAllTasks();
+    const savedCompletedTasks = JSON.parse(localStorage.getItem("completedTasks")) || {};
+    completedTasks = savedCompletedTasks[username] || [];
+  });
 </script>
 
 <!-- Garden section -->
 <section class={`flex flex-col sm:flex-row justify-center items-center ${gardenDetails.bgColor} py-8 rounded-md shadow-md mx-4 sm:mx-0 border-2 ${gardenDetails.borderColor} relative`}>
-  <!-- Faded Background Image -->
   <div class="absolute inset-0 overflow-hidden">
     <img 
       src={gardenDetails.image} 
@@ -195,24 +156,18 @@ function isTaskCompleted(task) {
       class="w-full h-full object-cover opacity-20"
     />
   </div>
-
-  <!-- Content Container -->
   <div class="flex flex-col items-center text-center z-10 relative">
     <h2 class={`text-xl font-bold mb-4 ${gardenDetails.textColor}`}>
       {gardenDetails.topMessage}
     </h2>
-    
     <div class="mb-4">
       <p class={`${gardenDetails.textColor}`}>{gardenDetails.status}</p>
     </div>
-
-    <!-- Garden Visual Representation -->
     <div class="w-48 h-48 mb-4 rounded-lg border-2 flex items-center justify-center ${gardenDetails.borderColor} relative">
       <div class={`text-6xl ${gardenDetails.textColor} z-10 relative`}>
         {gardenDetails.emoji}
       </div>
     </div>
-
     <button 
       on:click={randomizeGardenHealth} 
       class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded z-10 relative"
@@ -222,16 +177,10 @@ function isTaskCompleted(task) {
   </div>
 </section>
 
-<!-- Daily Tasks Section -->
-<section class="text-center px-4 py-6">
-  <p class="text-lg font-medium">Do your Daily tasks.</p>
-  <p class="text-greenDeep font-bold">to keep your garden nice! 👀</p>
-</section>
-
 <!-- Tasks Section -->
 <section class="text-left px-6 py-4 bg-green-100 rounded-md shadow-md mx-4 sm:mx-auto max-w-3xl">
   <h2 class="text-xl font-bold mb-4 text-green-800">Today's Tasks</h2>
-  {#if allTasksCompleted}
+  {#if randomTasks.length === 0}
     <p class="text-green-800 font-bold">All tasks completed. Check in tomorrow for new ones!</p>
   {:else}
     <ul class="space-y-4">
@@ -240,7 +189,6 @@ function isTaskCompleted(task) {
           <input 
             type="checkbox" 
             class="h-5 w-5 mt-1 text-green-600" 
-            checked={isTaskCompleted(task)}
             on:change={() => markTaskAsCompleted(task)}
           />
           <div>
