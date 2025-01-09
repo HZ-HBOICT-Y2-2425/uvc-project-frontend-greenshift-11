@@ -1,12 +1,7 @@
 import { error } from '@sveltejs/kit';
 import type { PageLoad } from './$types';
 
-interface RouteParams {
-  id: string; // Capture the dynamic ID
-}
-
 export const load = (async ({ params }) => {
-  const { id } = params as RouteParams; // Use type assertion for better TypeScript support
   try {
     // Fetch room data from correct endpoint
     const roomRes = await fetch(`http://localhost:3012/room/${params.id}`);

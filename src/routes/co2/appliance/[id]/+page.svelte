@@ -1,6 +1,8 @@
 <script lang="ts">
   import { onMount } from 'svelte';
+  import { page } from '$app/stores'; // For SvelteKit
 
+  // Initialize the appliance object and editing state
   let appliance: {
     id: number;
     brand: string;
@@ -15,27 +17,33 @@
   let tempDescription = '';
   let tempHoursPerWeek = 0;
 
-  async function fetchAppliance() {
-    const urlParams = new URLSearchParams(window.location.search);
-    const id = urlParams.get('id');
-    if (!id) return;
-
+  // Function to fetch appliance data based on ID
+  async function fetchAppliance(id: string) {
     try {
-      const response = await fetch(`http://localhost:3012/appliance/${id}`);
+      const response = await fetch(`http://localhost:3012/appliance/${id}`); // Updated endpoint
       if (response.ok) {
         appliance = await response.json();
+        // Initialize temporary values for editing
         if (appliance) {
           tempBrand = appliance.brand;
           tempType = appliance.type;
           tempDescription = appliance.description;
           tempHoursPerWeek = appliance.hoursPerWeek;
         }
+      } else {
+        console.error('Failed to fetch appliance data:', response.statusText);
+        appliance = undefined; // Clear the appliance state if fetch fails
       }
     } catch (error) {
-      console.error('Failed to fetch appliance:', error);
+      console.error('Error fetching appliance data:', error);
+      appliance = undefined; // Clear the appliance state on error
     }
   }
 
+  // Trigger fetching data on mount and when ID changes
+  $: $page.params.id, fetchAppliance($page.params.id);
+
+  // Start editing mode
   const startEditing = () => {
     if (appliance) {
       tempBrand = appliance.brand;
@@ -46,31 +54,49 @@
     isEditing = true;
   };
 
+  // Save changes
   const saveChanges = async () => {
     if (!appliance) return;
-    
+
     try {
       const response = await fetch(`http://localhost:3012/appliance/${appliance.id}`, {
         method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+        },
         body: JSON.stringify({
           brand: tempBrand,
           type: tempType,
           description: tempDescription,
           hoursPerWeek: tempHoursPerWeek,
-        })
+        }),
       });
 
       if (response.ok) {
-        appliance = await response.json();
-        isEditing = false;
+        const updatedAppliance = await response.json();
+        console.log('Appliance updated successfully:', updatedAppliance);
+
+        // Update the appliance state with the new data
+        appliance.brand = tempBrand;
+        appliance.type = tempType;
+        appliance.description = tempDescription;
+        appliance.hoursPerWeek = tempHoursPerWeek;
+
+        isEditing = false; // Exit editing mode
+      } else {
+        const errorData = await response.json();
+        console.error('Failed to update appliance:', errorData.message);
       }
     } catch (error) {
-      console.error('Failed to save changes:', error);
+      console.error('Error updating appliance:', error);
     }
   };
 
-  onMount(fetchAppliance);
+  // Fetch the initial appliance data on mount
+  onMount(() => {
+    const id = $page.params.id; // Get the appliance ID from the URL
+    fetchAppliance(id);
+  });
 </script>
 
 <div class="flex-grow p-4">
@@ -152,4 +178,8 @@
       <p class="text-red-500">Appliance not found.</p>
     </div>
   {/if}
+</div>
+
+<div class="ml-4">
+  <p class="text-center text-gray-700 mt-2">Upload a photo</p>
 </div>

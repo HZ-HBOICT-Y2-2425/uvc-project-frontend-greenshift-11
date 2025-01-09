@@ -20,7 +20,7 @@
   const fetchData = async () => {
     try {
       isLoading = true; // Set loading state
-      const roomsResponse = await fetch('http://localhost:3010/appliance/api/room-names');
+      const roomsResponse = await fetch('http://localhost:3012/appliance/api/room-names');
       if (!roomsResponse.ok) {
         throw new Error('Failed to fetch rooms');
       }
@@ -38,7 +38,7 @@
         };
       });
 
-      const appliancesResponse = await fetch('http://localhost:3010/appliance/api/appliance-names');
+      const appliancesResponse = await fetch('http://localhost:3012/appliance/api/appliance-names');
       if (!appliancesResponse.ok) {
         throw new Error('Failed to fetch appliances');
       }
@@ -67,14 +67,12 @@
   const deleteRoom = async (id) => {
     try {
       rooms = rooms.filter(room => room.id !== id); // Update local state
-      // Optionally make an API call to delete the room from the server
-      // await fetch(`http://localhost:3010/appliance/api/rooms/${id}`, { method: 'DELETE' });
     } catch (err) {
       error = `Failed to delete room: ${err.message}`;
     }
   };
 
-  onMount(fetchData); // Fetch data on component mount
+  onMount(fetchData); 
 </script>
 
 <div class="p-6">

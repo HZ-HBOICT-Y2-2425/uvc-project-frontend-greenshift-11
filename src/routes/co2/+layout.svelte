@@ -1,9 +1,13 @@
 <script>
   import { onMount } from 'svelte';
+  import { page } from '$app/stores';
 
   // State variables to hold appliances and rooms data
   let appliances = [];
   let rooms = [];
+  let currentRoomId;
+
+  $: currentRoomId = $page.params.id;
 
   // Fetch appliances and rooms data from the backend
   const fetchData = async () => {
@@ -23,7 +27,7 @@
       }));
 
       // Fetch rooms data
-      const roomsResponse = await fetch('http://localhost:3012/api/room-names'); // Updated endpoint
+      const roomsResponse = await fetch('http://localhost:3012/api/room-names');
       if (!roomsResponse.ok) {
         throw new Error(`Failed to fetch rooms: ${roomsResponse.statusText}`);
       }
@@ -38,6 +42,10 @@
     } catch (error) {
       console.error('Error fetching data:', error);
     }
+  };
+
+  const navigateToRoom = (roomId) => {
+    window.location.href = `/co2/room/${roomId}`;
   };
 
   // Fetch data on component mount
@@ -77,12 +85,17 @@
       {/if}
 
       <!-- Rooms Section -->
-      <h1><a class="text-white text-lg font-bold mb-2" href = {`/co2/room`}>All rooms</a></h1>
+      <h1>
+        <a class="text-white text-lg font-bold mb-2" href="/co2/room">All rooms</a>
+      </h1>
       {#if rooms.length > 0}
         {#each rooms as room}
-          <p class="block text-white text-sm hover:underline pl-4">
-            <a href={`/co2/room/${room.id}`}>{room.name}</a>
-          </p>
+          <button 
+            class="block text-white text-sm hover:underline pl-4 w-full text-left {currentRoomId === room.id ? 'font-bold' : ''}"
+            on:click={() => navigateToRoom(room.id)}
+          >
+            {room.name}
+          </button>
         {/each}
       {:else}
         <p>
