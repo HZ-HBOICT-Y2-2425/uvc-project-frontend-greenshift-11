@@ -463,7 +463,7 @@
       <p>Set your content preferences here.</p>
 
       <form class="space-y-6">
-        <!-- Content Type -->
+        <!-- Content Type
         <div>
           <label for="contentType" class="block text-lg font-semibold">Preferred Content Type</label>
           <select id="contentType" bind:value={contentType} class="w-full p-3 border rounded-md">
@@ -472,7 +472,7 @@
             <option value="videos">Videos</option>
             <option value="news">News</option>
           </select>
-        </div>
+        </div> -->
 
         <!-- Content Filter -->
         <div>

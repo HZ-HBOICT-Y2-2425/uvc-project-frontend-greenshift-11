@@ -11,8 +11,9 @@
   let tasks = [];
   let randomTasks = [];
   let completedTasks = [];
-  const TASK_REFRESH_INTERVAL = 24 * 60 * 60 * 1000; // 24 hours in milliseconds
+  const TASK_REFRESH_INTERVAL = 24*60*60*1000; // 24 hours in milliseconds
   let username = localStorage.getItem("username");
+  let allTasksCompleted = false;
 
   function randomizeGardenHealth() {
      const newState = Math.floor(Math.random() * 3) + 1;
@@ -86,12 +87,6 @@
 
   onMount(() => {
      randomizeGardenHealth();
-     fetchTasks();
-     loadCompletedTasks();
-    window.addEventListener('beforeunload', () => {
-      saveCompletedTasks();
-    });
- 
      setTimeout(() => {
        notifications.add("Welcome to your GreenShift Garden! 🌿", 'success');
      }, 2000);
