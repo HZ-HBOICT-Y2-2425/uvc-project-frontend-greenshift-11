@@ -11,7 +11,7 @@ const config = {
     adapter: adapter()
   },
   preprocess: vitePreprocess(),
->>>>>>>>> Temporary merge branch 2
+
 };
 
 export default config;
