@@ -1,5 +1,6 @@
 <script lang="ts">
   import { writable, derived } from "svelte/store";
+  import { fade } from "svelte/transition";
   import { onMount } from "svelte";
   import "../../app.css";
   import { notifications } from "../../lib/stores/notificationStore.js";
@@ -9,9 +10,11 @@
   let tasks = [];
   let randomTasks = [];
   let completedTasks = [];
-  const TASK_REFRESH_INTERVAL = 0; // 24 hours in milliseconds
+  const TASK_REFRESH_INTERVAL = 24 * 60 * 60 * 1000; // 24 hours in milliseconds
   let username = localStorage.getItem("username");
   let allTasksCompleted = false;
+  let showTaskPopup = false;
+  let taskPopupMessage = "";
 
   const BASE_URL = "http://localhost:3010/auth";
   const GARDEN_IMAGE = "/images/garden/level1.jpg";
@@ -342,6 +345,13 @@ async function refreshTask(task) {
     // Add the task to completedTasks
     completedTasks.push(task.text);
 
+      // Show the popup
+    taskPopupMessage = "Congratulations !!! Perform more tasks to earn more points 🥳";
+    showTaskPopup = true;
+    setTimeout(() => {
+       showTaskPopup = false;
+    }, 3000); // Hide the popup after 3 second
+
     // Update localStorage for immediate UI sync
     const savedCompletedTasks = JSON.parse(localStorage.getItem("completedTasks")) || {};
     savedCompletedTasks[username] = completedTasks;
@@ -634,6 +644,15 @@ async function refreshTask(task) {
   </div>
 {/if}
 
+{#if showTaskPopup}
+  <div class="fixed inset-0 flex items-center justify-center modal-bg" in:fade>
+    <div class="bg-white p-6 rounded-lg shadow-lg max-w-sm w-full text-center">
+      <div class="text-green-600 font-semibold text-lg">
+        {taskPopupMessage}
+      </div>
+    </div>
+  </div>
+{/if}
 
 
 <style>
