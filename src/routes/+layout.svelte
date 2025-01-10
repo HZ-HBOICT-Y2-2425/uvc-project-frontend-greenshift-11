@@ -100,6 +100,9 @@
       case '/calendar':
         activeSection = 'Calendar';
         break;
+      case '/leaderboard':
+        activeSection = 'Leaderboard';
+        break;
       default:
         activeSection = 'GreenShift';
     }
@@ -171,7 +174,8 @@
             { href: "/co2", src: "/CO2.png", alt: "CO2 Info" },
             { href: "/shop", src: "/shop.png", alt: "Shop" },
             { href: "/calendar", src: "/calendar.png", alt: "Calendar" },
-            { href: "/settings", src: "/profile.png", alt: "Settings" }
+            { href: "/settings", src: "/profile.png", alt: "Settings" },
+            {href: "/leaderboard", src: "/leaderboard.png", alt: "Leaderboard"}
           ] as item}
             <a 
               href={item.href} 
