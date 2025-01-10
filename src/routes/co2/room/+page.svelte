@@ -67,6 +67,17 @@
   const deleteRoom = async (id) => {
     try {
       rooms = rooms.filter(room => room.id !== id); // Update local state
+      const res = await fetch(`http://localhost:3012/room/${id}`, {
+        method: 'DELETE',
+      });
+
+      if (res.ok) {        
+        setTimeout(() => {
+          window.location.href = '/co2/room';
+        }, 1500);
+      } else {
+        throw new Error('Failed to delete room');
+      }
     } catch (err) {
       error = `Failed to delete room: ${err.message}`;
     }
