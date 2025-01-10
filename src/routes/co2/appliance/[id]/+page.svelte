@@ -1,14 +1,14 @@
 <script lang="ts">
   import { onMount } from 'svelte';
-  import { page } from '$app/stores'; // For SvelteKit
+  import { page } from '$app/stores';
 
-  // Initialize the appliance object and editing state
   let appliance: {
     id: number;
     brand: string;
     type: string;
     description: string;
     hoursPerWeek: number;
+    emoji: string;
   } | undefined;
 
   let isEditing = false;
@@ -16,85 +16,71 @@
   let tempType = '';
   let tempDescription = '';
   let tempHoursPerWeek = 0;
+  let tempEmoji = ''; // Temporary emoji value
+  let showEmojiPicker = false;
 
-  // Function to fetch appliance data based on ID
+  // Curated list of emojis relevant to appliances
+  const emojiOptions = [
+    '😊', '🔧', '💡', '🛋️', '🚿', '🍽️', '🧺', '🖥️', 
+    '📺', '📡', '☕', '🍳', '🍴', '🗄️', '📦', '🎛️', 
+    '🍕', '⚙️', '💻', '📱', '🔌', '🌀', '💨', '🧊'
+  ];
+
   async function fetchAppliance(id: string) {
-    try {
-      const response = await fetch(`http://localhost:3012/appliance/${id}`); // Updated endpoint
-      if (response.ok) {
-        appliance = await response.json();
-        // Initialize temporary values for editing
-        if (appliance) {
-          tempBrand = appliance.brand;
-          tempType = appliance.type;
-          tempDescription = appliance.description;
-          tempHoursPerWeek = appliance.hoursPerWeek;
-        }
-      } else {
-        console.error('Failed to fetch appliance data:', response.statusText);
-        appliance = undefined; // Clear the appliance state if fetch fails
+    const response = await fetch(`http://localhost:3012/appliance/${id}`);
+    if (response.ok) {
+      appliance = await response.json();
+
+      if (appliance) {
+        tempBrand = appliance.brand;
+        tempType = appliance.type;
+        tempDescription = appliance.description;
+        tempHoursPerWeek = appliance.hoursPerWeek;
+        tempEmoji = appliance.emoji; // Initialize emoji for editing
       }
-    } catch (error) {
-      console.error('Error fetching appliance data:', error);
-      appliance = undefined; // Clear the appliance state on error
+    } else {
+      console.error('Failed to fetch appliance data:', response.statusText);
     }
   }
 
-  // Trigger fetching data on mount and when ID changes
+  // Automatically fetch appliance data when ID changes
   $: $page.params.id, fetchAppliance($page.params.id);
 
-  // Start editing mode
   const startEditing = () => {
     if (appliance) {
+      // Initialize temporary variables
       tempBrand = appliance.brand;
       tempType = appliance.type;
       tempDescription = appliance.description;
       tempHoursPerWeek = appliance.hoursPerWeek;
+      tempEmoji = appliance.emoji; // Initialize emoji for editing
     }
-    isEditing = true;
+    isEditing = true; // Set editing mode on
   };
 
-  // Save changes
-  const saveChanges = async () => {
-    if (!appliance) return;
+  const saveChanges = () => {
+    console.log('Saving changes:', {
+      brand: tempBrand,
+      type: tempType,
+      description: tempDescription,
+      hoursPerWeek: tempHoursPerWeek,
+      emoji: tempEmoji,
+    });
 
-    try {
-      const response = await fetch(`http://localhost:3012/appliance/${appliance.id}`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          brand: tempBrand,
-          type: tempType,
-          description: tempDescription,
-          hoursPerWeek: tempHoursPerWeek,
-        }),
-      });
-
-      if (response.ok) {
-        const updatedAppliance = await response.json();
-        console.log('Appliance updated successfully:', updatedAppliance);
-
-        // Update the appliance state with the new data
-        appliance.brand = tempBrand;
-        appliance.type = tempType;
-        appliance.description = tempDescription;
-        appliance.hoursPerWeek = tempHoursPerWeek;
-
-        isEditing = false; // Exit editing mode
-      } else {
-        const errorData = await response.json();
-        console.error('Failed to update appliance:', errorData.message);
-      }
-    } catch (error) {
-      console.error('Error updating appliance:', error);
+    // Update the appliance data
+    if (appliance) {
+      appliance.brand = tempBrand;
+      appliance.type = tempType;
+      appliance.description = tempDescription;
+      appliance.hoursPerWeek = tempHoursPerWeek;
+      appliance.emoji = tempEmoji; // Update appliance with new emoji
     }
+
+    isEditing = false; // Exit editing mode
   };
 
-  // Fetch the initial appliance data on mount
   onMount(() => {
-    const id = $page.params.id; // Get the appliance ID from the URL
+    const id = $page.params.id;
     fetchAppliance(id);
   });
 </script>
@@ -118,6 +104,15 @@
         <div>
           <span class="text-gray-700 font-medium">Hours per week usage: </span>
           <span>{appliance.hoursPerWeek}</span>
+        </div>
+        <div class="ml-4 relative">
+          <button
+            type="button"
+            class="w-40 h-40 border rounded flex items-center justify-center text-6xl cursor-pointer"
+            aria-label="Appliance emoji"
+          >
+            {appliance.emoji || "🛋️"}
+          </button>
         </div>
         <button 
           on:click={startEditing} 
@@ -160,6 +155,36 @@
             class="w-full border rounded p-2 mt-1" 
             required />
         </label>
+        <label class="block">
+          <div class="ml-4 relative">
+            <button
+              type="button"
+              class="w-40 h-40 border rounded flex items-center justify-center text-6xl cursor-pointer"
+              on:click={() => showEmojiPicker = !showEmojiPicker}
+              aria-label="Select appliance emoji"
+            >
+              {tempEmoji || "🛋️"}
+            </button>
+            
+            {#if showEmojiPicker}
+              <div class="absolute bg-white border rounded mt-2 p-2 grid grid-cols-4 gap-2">
+                {#each emojiOptions as option}
+                  <button
+                    type="button"
+                    class="cursor-pointer"
+                    on:click={() => {
+                      tempEmoji = option; // Set temporary emoji value
+                      showEmojiPicker = false; // Hide emoji picker after selection
+                    }} 
+                    aria-label={option}
+                  >
+                    {option}
+                  </button>
+                {/each}
+              </div>
+            {/if}
+          </div>
+        </label>
         <button 
           type="submit" 
           class="bg-green-500 text-white font-semibold py-2 px-4 rounded hover:bg-green-600">
@@ -178,8 +203,4 @@
       <p class="text-red-500">Appliance not found.</p>
     </div>
   {/if}
-</div>
-
-<div class="ml-4">
-  <p class="text-center text-gray-700 mt-2">Upload a photo</p>
 </div>
