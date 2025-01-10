@@ -145,6 +145,14 @@
               </ul>
             {/if}
           </div>
+          <div class="mt-4">
+            <a 
+              href={`/co2/room/${room.id}`}
+              class="text-blue-600 hover:text-blue-800 underline"
+            >
+              View Details
+            </a>
+          </div>
         </div>
       {/each}
     </div>
