@@ -6,22 +6,13 @@
   let tasks = [];
   let randomTasks = [];
   let completedTasks = [];
-  const TASK_REFRESH_INTERVAL = 24*60*60*1000; // 24 hours in milliseconds
+  const TASK_REFRESH_INTERVAL = 0; // 24 hours in milliseconds
   let username = localStorage.getItem("username");
   let allTasksCompleted = false;
 
   function randomizeGardenHealth() {
      const newState = Math.floor(Math.random() * 3) + 1;
      gardenStateStore.set(newState);
-     
-     // Add notification when garden state changes
-     const stateMessages = {
-       1: "Oh no! Your garden's CO2 levels are high! 🚨",
-       2: "Your garden is maintaining balance. Keep it up! ⚖️",
-       3: "Amazing! Your garden is thriving with low CO2! 🌱"
-     };
-     
-     notifications.add(stateMessages[newState], newState === 3 ? 'success' : newState === 2 ? 'info' : 'warning');
    }
 
   function getGardenDetails(state) {
@@ -82,18 +73,6 @@
 
   onMount(() => {
      randomizeGardenHealth();
-     setTimeout(() => {
-       notifications.add("Welcome to your GreenShift Garden! 🌿", 'success');
-     }, 2000);
- 
-     // Additional test notifications with different types
-     setTimeout(() => {
-       notifications.add("Don't forget to water your plants today! 💧", 'info');
-     }, 4000);
- 
-     setTimeout(() => {
-       notifications.add("New eco-friendly products available in the shop! 🛍️", 'info');
-     }, 6000);
    });
 
   // Store for tasks
