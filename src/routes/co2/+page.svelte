@@ -62,7 +62,7 @@
     }
     const data = await response.json();
     
-    console.log("Fetched data:", data);  // Log the fetched data to check the structure
+    //console.log("Fetched data:", data);  // Log the fetched data to check the structure
 
     let chartOptions;
 
@@ -70,6 +70,7 @@
     if (chartType === "bar") {
       chartOptions = {
         series: [{
+          name: "Carbon Emission [kg CO₂]",
           data: data.map((appliance) => parseFloat(appliance.carbonEmission)),  // Using carbonEmission for y-axis values
         }],
         xaxis: {
@@ -92,7 +93,7 @@
       };
     }
 
-    console.log("Chart options:", chartOptions);  // Log the chart options before rendering
+    //console.log("Chart options:", chartOptions);  // Log the chart options before rendering
     await initializeChart(chartOptions);
   } catch (error) {
     console.error("Error fetching data:", error);

@@ -2,7 +2,7 @@ import { error } from '@sveltejs/kit';
 //@ts-ignore
 import type { PageLoad } from './$types';
 
-export const load = (async ({ params }) => {
+export const load = (async ({ fetch, params }) => {
   try {
     // Fetch room data from correct endpoint
     const roomRes = await fetch(`http://localhost:3012/room/${params.id}`);

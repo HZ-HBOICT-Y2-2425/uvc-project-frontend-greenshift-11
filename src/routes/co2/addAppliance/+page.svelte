@@ -15,7 +15,7 @@
 
   const fetchApplianceTypes = async () => {
     try {
-      const response = await fetch('http://localhost:3012/appliance/types');
+      const response = await fetch('http://localhost:3012/appliance/api/appliance-types');
       if (!response.ok) {
         throw new Error('Failed to fetch appliance types');
       }
@@ -29,14 +29,16 @@
 
   const fetchData = async () => {
     try {
-      const response = await fetch(`http://localhost:3012/appliance/${appliance.id}`);
-      if (!response.ok) {
-        throw new Error('Failed to fetch appliance data');
-      }
+      if(appliance && appliance.id){
+        const response = await fetch(`http://localhost:3012/appliance/${appliance.id}`);
+        if (!response.ok) {
+          throw new Error('Failed to fetch appliance data');
+        }
 
-      const applianceData = await response.json();
-      // Uncomment if you want to populate appliance state with fetched data
-      // appliance = applianceData;
+        const applianceData = await response.json();
+        // Uncomment if you want to populate appliance state with fetched data
+        // appliance = applianceData;
+      }
     } catch (error) {
       console.error('Error fetching data:', error);
     }
