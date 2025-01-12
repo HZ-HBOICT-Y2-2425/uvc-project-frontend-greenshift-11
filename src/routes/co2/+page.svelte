@@ -7,17 +7,10 @@
 
   // Eco-themed colors
   const ecoColors = [
-    "#2E8B57", // Sea Green
-    "#3CB371", // Medium Sea Green
-    "#66CDAA", // Aquamarine
-    "#8FBC8F", // Dark Sea Green
-    "#20B2AA", // Light Sea Green
-    "#2E8B57", // Forest Green
-    "#556B2F", // Dark Olive Green
+    "#2E8B57", "#3CB371", "#66CDAA", "#8FBC8F", "#20B2AA", "#2E8B57", "#556B2F",
   ];  
 
   // Default chart options
-  // @ts-ignore
   let options = {
     chart: {
       id: "appliance-usage-chart",
@@ -32,7 +25,6 @@
     colors: ecoColors,
     dataLabels: {
       enabled: true,
-      // @ts-ignore
       formatter: function (val) {
         return typeof val === 'number' ? val.toFixed(2) : val;
       }
@@ -40,7 +32,7 @@
     labels: [],
   };
 
-  // @ts-ignore
+  // Initialize chart
   const initializeChart = async (chartOptions) => {
     if (!chartOptions) {
       console.error("Chart options are undefined");
@@ -49,7 +41,7 @@
     if (typeof window !== 'undefined') {
       try {
         const ApexCharts = (await import('apexcharts')).default;
-        // @ts-ignore
+        // Destroy the existing chart if it exists
         if (chart) {
           chart.destroy();
         }
@@ -61,57 +53,54 @@
     }
   };
 
+  // Fetch data from API
   const fetchData = async () => {
-    try {
-      const response = await fetch("http://localhost:3012/appliance/api/appliance-usage");
-      if (!response.ok) {
-        throw new Error("Network response was not ok");
-      }
-      const data = await response.json();
-      let chartOptions;
-
-      if (chartType === "bar") {
-        chartOptions = {
-          // @ts-ignore
-          series: data.series.map((item) => ({
-            // @ts-ignore
-            data: item.data.map((val) => parseFloat(val)),
-          })),
-          xaxis: {
-            categories: data.categories,
-          },
-          chart: {
-            type: chartType,
-          },
-          colors: ecoColors,
-        };
-      } else if (chartType === "pie") {
-        // Aggregate data for pie chart using "labels" and "data"
-        // @ts-ignore
-        const pieData = data.labels.map((label, index) => ({
-          name: label,
-          value: parseFloat(data.series[0].data[index]),
-        }));
-
-        chartOptions = {
-          // @ts-ignore
-          series: pieData.map((item) => item.value), // Data values
-          // @ts-ignore
-          labels: pieData.map((item) => item.name), // Corresponding labels
-          chart: {
-            type: chartType,
-          },
-          colors: ecoColors,
-        };
-      }
-
-      await initializeChart(chartOptions);
-    } catch (error) {
-      console.error("Error fetching data:", error);
+  try {
+    const response = await fetch("http://localhost:3012/appliance/api/appliance-usage");
+    if (!response.ok) {
+      throw new Error("Network response was not ok");
     }
-  };
+    const data = await response.json();
+    
+    console.log("Fetched data:", data);  // Log the fetched data to check the structure
 
-  // @ts-ignore
+    let chartOptions;
+
+    // For bar chart, we'll use the appliance types as the x-axis categories and the carbon emissions as the data
+    if (chartType === "bar") {
+      chartOptions = {
+        series: [{
+          data: data.map((appliance) => parseFloat(appliance.carbonEmission)),  // Using carbonEmission for y-axis values
+        }],
+        xaxis: {
+          categories: data.map((appliance) => appliance.type),  // Using appliance types for x-axis categories
+        },
+        chart: {
+          type: chartType,
+        },
+        colors: ecoColors,
+      };
+    } else if (chartType === "pie") {
+      // For pie chart, we can show the carbon emission of each appliance as the slices
+      chartOptions = {
+        series: data.map((appliance) => parseFloat(appliance.carbonEmission)),
+        labels: data.map((appliance) => appliance.type),  // Labeling the slices with appliance types
+        chart: {
+          type: chartType,
+        },
+        colors: ecoColors,
+      };
+    }
+
+    console.log("Chart options:", chartOptions);  // Log the chart options before rendering
+    await initializeChart(chartOptions);
+  } catch (error) {
+    console.error("Error fetching data:", error);
+  }
+};
+
+
+  // Change chart type
   const changeChartType = async (newType) => {
     chartType = newType;
     await fetchData();
@@ -123,10 +112,6 @@
     }
   });
 </script>
-
-<svelte:head>
-  <!-- Remove existing styles -->
-</svelte:head>
 
 <div id="chart" class="w-3/4 h-80 mx-auto"></div>
 

@@ -22,7 +22,7 @@
       // Build appliances array
       appliances = appliancesData.brands.map((brand, index) => ({
         id: appliancesData.ids[index],
-        brand,
+        brand: appliancesData.brands[index],  
         type: appliancesData.types[index],
       }));
 

@@ -20,7 +20,7 @@
   const fetchData = async () => {
     try {
       isLoading = true; // Set loading state
-      const roomsResponse = await fetch('http://localhost:3012/appliance/api/room-names');
+      const roomsResponse = await fetch('http://localhost:3012/api/room-names');
       if (!roomsResponse.ok) {
         throw new Error('Failed to fetch rooms');
       }

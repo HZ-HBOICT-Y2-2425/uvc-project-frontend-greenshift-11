@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { onMount } from 'svelte';
+  import { onMount, afterUpdate } from 'svelte';
   import { page } from '$app/stores';
 
   let appliance: {
@@ -8,18 +8,20 @@
     type: string;
     description: string;
     hoursPerWeek: number;
+    wattage: number;
     emoji: string;
   } | undefined;
 
+  let applianceTypes: string[] = [];
   let isEditing = false;
   let tempBrand = '';
-  let tempType = '';
+  let tempType = ''; 
   let tempDescription = '';
   let tempHoursPerWeek = 0;
-  let tempEmoji = ''; // Temporary emoji value
+  let tempWattage = 0;
+  let tempEmoji = '';
   let showEmojiPicker = false;
 
-  // Curated list of emojis relevant to appliances
   const emojiOptions = [
     '😊', '🔧', '💡', '🛋️', '🚿', '🍽️', '🧺', '🖥️', 
     '📺', '📡', '☕', '🍳', '🍴', '🗄️', '📦', '🎛️', 
@@ -30,177 +32,162 @@
     const response = await fetch(`http://localhost:3012/appliance/${id}`);
     if (response.ok) {
       appliance = await response.json();
-
       if (appliance) {
         tempBrand = appliance.brand;
         tempType = appliance.type;
         tempDescription = appliance.description;
         tempHoursPerWeek = appliance.hoursPerWeek;
-        tempEmoji = appliance.emoji; // Initialize emoji for editing
+        tempWattage = appliance.wattage;
+        tempEmoji = appliance.emoji;
       }
     } else {
       console.error('Failed to fetch appliance data:', response.statusText);
     }
   }
 
-  // Automatically fetch appliance data when ID changes
+  async function fetchApplianceTypes() {
+    const response = await fetch(`http://localhost:3012/appliance/api/appliance-types`);
+    if (response.ok) {
+      applianceTypes = await response.json();
+    } else {
+      console.error('Failed to fetch appliance types:', response.statusText);
+    }
+  }
+
+  // Run fetch when the page or appliance ID changes
   $: $page.params.id, fetchAppliance($page.params.id);
+
+  // Initialize data when the component is mounted
+  onMount(() => {
+    fetchAppliance($page.params.id);
+    fetchApplianceTypes();
+  });
 
   const startEditing = () => {
     if (appliance) {
-      // Initialize temporary variables
       tempBrand = appliance.brand;
       tempType = appliance.type;
       tempDescription = appliance.description;
       tempHoursPerWeek = appliance.hoursPerWeek;
-      tempEmoji = appliance.emoji; // Initialize emoji for editing
+      tempWattage = appliance.wattage;
+      tempEmoji = appliance.emoji;
     }
-    isEditing = true; // Set editing mode on
+    isEditing = true;
   };
 
-  const saveChanges = () => {
-    console.log('Saving changes:', {
+  const saveChanges = async () => {
+    if (!appliance) return;
+
+    const updatedAppliance = {
+      ...appliance,
       brand: tempBrand,
       type: tempType,
       description: tempDescription,
       hoursPerWeek: tempHoursPerWeek,
-      emoji: tempEmoji,
-    });
+      wattage: tempWattage,
+      emoji: tempEmoji
+    };
 
-    // Update the appliance data
-    if (appliance) {
-      appliance.brand = tempBrand;
-      appliance.type = tempType;
-      appliance.description = tempDescription;
-      appliance.hoursPerWeek = tempHoursPerWeek;
-      appliance.emoji = tempEmoji; // Update appliance with new emoji
+    try {
+      const response = await fetch(`http://localhost:3012/appliance/${appliance.id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(updatedAppliance)
+      });
+
+      if (response.ok) {
+        appliance = updatedAppliance;
+        isEditing = false;
+      } else {
+        console.error('Failed to save appliance:', await response.text());
+      }
+    } catch (error) {
+      console.error('Error saving appliance:', error);
     }
-
-    isEditing = false; // Exit editing mode
   };
 
-  onMount(() => {
-    const id = $page.params.id;
-    fetchAppliance(id);
-  });
+  const cancelEditing = () => {
+    isEditing = false;
+  };
 </script>
 
 <div class="flex-grow p-4">
   {#if appliance}
     {#if !isEditing}
-      <div class="flex flex-col gap-4 w-2/3">
-        <div>
-          <span class="text-gray-700 font-medium">Brand: </span>
-          <span>{appliance.brand}</span>
-        </div>
-        <div>
-          <span class="text-gray-700 font-medium">Type: </span>
-          <span>{appliance.type}</span>
-        </div>
-        <div>
-          <span class="text-gray-700 font-medium">Description: </span>
-          <span>{appliance.description}</span>
-        </div>
-        <div>
-          <span class="text-gray-700 font-medium">Hours per week usage: </span>
-          <span>{appliance.hoursPerWeek}</span>
-        </div>
-        <div class="ml-4 relative">
-          <button
-            type="button"
-            class="w-40 h-40 border rounded flex items-center justify-center text-6xl cursor-pointer"
-            aria-label="Appliance emoji"
-          >
+      <div class="flex flex-col gap-6 w-full relative">
+        <div class="flex justify-between items-center">
+          <div class="flex items-center gap-2">
+            <span class="font-medium">Brand:</span>
+            <span>{appliance.brand}</span>
+          </div>
+
+          <button class="w-24 h-24 border rounded flex items-center justify-center text-7xl cursor-pointer mt-4 mr-4">
             {appliance.emoji || "🛋️"}
           </button>
         </div>
-        <button 
-          on:click={startEditing} 
-          class="bg-green-600 text-white font-semibold py-2 px-4 rounded hover:bg-blue-600">
-          Edit
-        </button>
+
+        <div><span class="font-medium">Type:</span> {appliance.type}</div>
+        <div><span class="font-medium">Description:</span> {appliance.description}</div>
+        <div><span class="font-medium">Hours per week usage:</span> {appliance.hoursPerWeek}</div>
+        <div><span class="font-medium">Wattage:</span> {appliance.wattage} W</div>
+
+        <button on:click={startEditing} class="bg-green-500 text-white px-4 py-2 rounded">Edit</button>
       </div>
     {:else}
-      <form class="flex flex-col gap-4 w-2/3" on:submit|preventDefault={saveChanges}>
+      <form class="flex flex-col gap-4 w-full relative" on:submit|preventDefault={saveChanges}>
         <label class="block">
-          <span class="text-gray-700 font-medium">Brand</span>
-          <input 
-            bind:value={tempBrand} 
-            type="text" 
-            class="w-full border rounded p-2 mt-1" 
-            required />
+          <span class="font-medium">Brand</span>
+          <input bind:value={tempBrand} type="text" class="w-1/2 border rounded p-2 mt-1" required />
         </label>
         <label class="block">
-          <span class="text-gray-700 font-medium">Type</span>
-          <input 
-            bind:value={tempType} 
-            type="text" 
-            class="w-full border rounded p-2 mt-1" 
-            required />
+          <span class="font-medium">Type</span>
+          <select bind:value={tempType} class="w-1/2 border rounded p-2 mt-1" required>
+            {#each applianceTypes as type}
+              <option value={type}>{type}</option>
+            {/each}
+          </select>
         </label>
         <label class="block">
-          <span class="text-gray-700 font-medium">Description</span>
-          <input 
-            bind:value={tempDescription} 
-            type="text" 
-            class="w-full border rounded p-2 mt-1" 
-            required />
+          <span class="font-medium">Description</span>
+          <input bind:value={tempDescription} type="text" class="w-1/2 border rounded p-2 mt-1" required />
         </label>
         <label class="block">
-          <span class="text-gray-700 font-medium">Hours per week usage</span>
-          <input 
-            bind:value={tempHoursPerWeek} 
-            type="number" 
-            min="0" 
-            class="w-full border rounded p-2 mt-1" 
-            required />
+          <span class="font-medium">Hours per week usage</span>
+          <input bind:value={tempHoursPerWeek} type="number" min="0" class="w-1/2 border rounded p-2 mt-1" required />
         </label>
         <label class="block">
-          <div class="ml-4 relative">
-            <button
-              type="button"
-              class="w-40 h-40 border rounded flex items-center justify-center text-6xl cursor-pointer"
-              on:click={() => showEmojiPicker = !showEmojiPicker}
-              aria-label="Select appliance emoji"
-            >
-              {tempEmoji || "🛋️"}
-            </button>
-            
-            {#if showEmojiPicker}
-              <div class="absolute bg-white border rounded mt-2 p-2 grid grid-cols-4 gap-2">
-                {#each emojiOptions as option}
-                  <button
-                    type="button"
-                    class="cursor-pointer"
-                    on:click={() => {
-                      tempEmoji = option; // Set temporary emoji value
-                      showEmojiPicker = false; // Hide emoji picker after selection
-                    }} 
-                    aria-label={option}
-                  >
-                    {option}
-                  </button>
-                {/each}
-              </div>
-            {/if}
+          <span class="font-medium">Wattage (W)</span>
+          <input bind:value={tempWattage} type="number" min="0" class="w-1/2 border rounded p-2 mt-1" required />
+        </label>
+
+        <button
+          type="button"
+          class="absolute top-0 right-0 w-24 h-24 border rounded flex items-center justify-center text-7xl cursor-pointer mt-4 mr-4"
+          on:click={() => (showEmojiPicker = !showEmojiPicker)}
+        >
+          {tempEmoji || "🛋️"}
+        </button>
+        {#if showEmojiPicker}
+          <div class="absolute bg-white border rounded p-2 grid grid-cols-4 gap-2 top-16 right-4">
+            {#each emojiOptions as emoji}
+              <button
+                type="button"
+                on:click={() => {
+                  tempEmoji = emoji;
+                  showEmojiPicker = false;
+                }}
+              >
+                {emoji}
+              </button>
+            {/each}
           </div>
-        </label>
-        <button 
-          type="submit" 
-          class="bg-green-500 text-white font-semibold py-2 px-4 rounded hover:bg-green-600">
-          Save
-        </button>
-        <button 
-          type="button" 
-          on:click={() => isEditing = false} 
-          class="bg-red-500 text-white font-semibold py-2 px-4 rounded hover:bg-red-600">
-          Cancel
-        </button>
+        {/if}
+
+        <button type="submit" class="bg-green-500 text-white px-4 py-2 rounded">Save</button>
+        <button type="button" on:click={cancelEditing} class="bg-red-500 text-white px-4 py-2 rounded">Cancel</button>
       </form>
     {/if}
   {:else}
-    <div class="flex flex-col gap-4 w-2/3">
-      <p class="text-red-500">Appliance not found.</p>
-    </div>
+    <p class="text-red-500">Appliance not found.</p>
   {/if}
 </div>
