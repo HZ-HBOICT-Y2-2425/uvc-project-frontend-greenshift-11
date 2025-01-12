@@ -1,29 +1,31 @@
-import type { PageLoad } from './$types'; // Ensure the import matches your SvelteKit setup
+import { page } from '$app/stores';
+import { goto, invalidate } from '$app/navigation'; // Use invalidate and goto for navigation and data refresh
 
-interface RouteParams {
-  id: string; // Capture the dynamic ID
+interface Appliance {
+  id: number;
+  brand: string;
+  type: string;
+  description: string;
+  hoursPerWeek: number;
+  wattage: number;
+  emoji: string;
 }
 
-export const load: PageLoad = async ({ params }) => {
-  const { id } = params as RouteParams; // Extract the `id` parameter from the URL
+export const load: PageLoad = async ({ params, fetch }) => {
+  const { id } = params; // Capture appliance ID from URL
 
   try {
-    // Fetch the appliance data from the correct backend endpoint
-    const res = await fetch(`http://localhost:3012/appliance/${id}`); // Updated endpoint to port 3012
-
-    if (res.ok) {
-      const appliance = await res.json();
+    const response = await fetch(`http://localhost:3012/appliance/${id}`);
+    if (response.ok) {
+      const appliance: Appliance = await response.json();
       return {
-        props: {
-          appliance, // Pass the fetched appliance data to the page
-        },
+        props: { appliance }, // Pass appliance data to the page
       };
     } else {
-      // If the appliance is not found or there is an error, return an appropriate error
-      return { status: res.status, error: new Error('Appliance not found') };
+      return { status: response.status, error: new Error('Appliance not found') };
     }
-  } catch (err) {
-    console.error('Error fetching appliance:', err);
+  } catch (error) {
+    console.error('Error fetching appliance:', error);
     return { status: 500, error: new Error('Failed to fetch appliance data') };
   }
 };
