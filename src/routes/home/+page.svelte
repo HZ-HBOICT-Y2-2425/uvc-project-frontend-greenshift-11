@@ -4,18 +4,34 @@
   import { onMount } from "svelte";
   import "../../app.css";
   import { notifications } from "../../lib/stores/notificationStore.js";
+  export { userCoins };
 
   let isMusicPlaying = true;
   let musicVolume = 100;
   let tasks = [];
+  let coins;
   let randomTasks = [];
   let completedTasks = [];
-  const TASK_REFRESH_INTERVAL = 0; // 24 hours in milliseconds
+  const TASK_REFRESH_INTERVAL = 24 * 60 * 60 * 1000; // 24 hours in milliseconds
   let username = localStorage.getItem("username");
   let allTasksCompleted = false;
   let showTaskPopup = false;
   let taskPopupMessage = "";
+  let showTutorial = false; // Controls tutorial visibility
+  let currentStep = 0;
+  let showHelpText = false;
+  let helpText = "Need help? Click here to view the tutorial.";
+  let tutorialText = [
+    "Welcome to GreenShift! 🌿",
+    "This is your home page where you can perform tasks to maintain your garden's health and streak! 👀",
+    "You can only have a limited number of items based on your garden health.",
+    "On completion of each task, click the checkbox to earn points, which you can use to buy items to customize your garden.",
+    "Refresh tasks if you don't like them.",
+    "Enjoy your time in the garden! 🌻",
+    "Don't forget to explore the other features of the app 🌚 by clicking on the items on the footer 😉."
+  ];
 
+     
   const BASE_URL = "http://localhost:3010/auth";
   const GARDEN_IMAGE = "/images/garden/level1.jpg";
 
@@ -244,6 +260,7 @@
   }
 
   onMount(() => {
+    fetchUserData();
     fetchInventoryAndItems();
     setTimeout(() => {
        notifications.add("Welcome to your GreenShift Garden! 🌿", 'success');
@@ -262,7 +279,29 @@
     const savedCompletedTasks = JSON.parse(localStorage.getItem("completedTasks")) || {};
     completedTasks = savedCompletedTasks[username] || [];
 
+    const tutorialSeen = localStorage.getItem("tutorialSeen");
+    if (!tutorialSeen) {
+      showTutorial = true; // Show tutorial if it's the user's first visit
+    }
+
    });
+
+    function nextTutorialStep() {
+    if (currentStep < tutorialText.length - 1) {
+      currentStep++;
+    }
+  }
+
+  // Dismiss the tutorial and mark it as seen
+  function dismissTutorial() {
+    showTutorial = false;
+    localStorage.setItem("tutorialSeen", "true"); // Save flag in local storage
+  }
+
+  function toggleHelpText() {
+    showHelpText = !showHelpText;
+    helpText = showHelpText ? "Hide help text" : "Need help? Click here to view the tutorial.";
+  }
 
    // Store for tasks
   const tasksStore = writable([]);
@@ -270,7 +309,7 @@
 // Function to fetch tasks from backend
 async function fetchAllTasks() {
   try {
-    const response = await fetch("http://localhost:3011/api/tasks");
+    const response = await fetch("http://localhost:3013/api/tasks");
     if (response.ok) {
       const data = await response.json();
       tasks = data.tasks;
@@ -286,7 +325,7 @@ async function fetchAllTasks() {
 async function refreshTask(task) {
     try {
       const response = await fetch(
-        `http://localhost:3011/api/tasks/alternative/${task.category}?currentTask=${encodeURIComponent(task.text)}`
+        `http://localhost:3013/api/tasks/alternative/${task.category}?currentTask=${encodeURIComponent(task.text)}`
       );
       if (response.ok) {
         const data = await response.json();
@@ -345,8 +384,10 @@ async function refreshTask(task) {
     // Add the task to completedTasks
     completedTasks.push(task.text);
 
+    await updateUserCoins(); // Update user coins when a task is completed
+
       // Show the popup
-    taskPopupMessage = "Congratulations !!! Perform more tasks to earn more points 🥳";
+    taskPopupMessage = "Congratulations! You earned 10 coins 🥳 Perform more tasks to earn more points";
     showTaskPopup = true;
     setTimeout(() => {
        showTaskPopup = false;
@@ -391,6 +432,70 @@ async function refreshTask(task) {
   function randomizeTasks() {
     console.log("Randomizing tasks..."); // Replace with your logic
   }
+
+  let userCoins = writable(0);
+  
+  const fetchUserData = async () => {
+  try {
+    const username = localStorage.getItem("username");
+    const response = await fetch(`http://localhost:3010/auth/users/${username}`, {
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem("authToken")}`,
+      },
+    });
+    
+    if (response.ok) {
+      const userData = await response.json();
+      // Update the store with the new value
+      userCoins.set(userData.user.currency);
+      console.log("Updated userCoins:", userData.user.currency);
+    } else {
+      console.error("Failed to fetch user data:", await response.text());
+    }
+  } catch (error) {
+    console.error("Error fetching user data:", error);
+  }
+};
+
+//function to update user coins in backend when user completes a task
+async function updateUserCoins() {
+  try {
+    const username = localStorage.getItem("username");
+
+    // Debugging logs
+    console.log("Updating coins for user:", username);
+
+    if (!username) {
+      console.error("Username is missing in localStorage.");
+      return;
+    }
+
+    const response = await fetch(`http://localhost:3010/auth/${username}/update-coins`, {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${localStorage.getItem("authToken")}`,
+      },
+      body: JSON.stringify({ user: username }), // Send only the user
+    });
+
+    if (response.ok) {
+      const data = await response.json();
+      console.log("User coins updated successfully:", data.coins);
+      userCoins.set(data.coins); // Update the Svelte store with the new value
+    } else {
+      console.error("Failed to update user coins:", await response.text());
+    }
+  } catch (error) {
+    console.error("Error updating user coins:", error);
+  }
+}
+
+userCoins.subscribe(value => {
+  coins = value;
+  console.log("Store value updated:", value);
+});
+
 
 </script>
 
@@ -508,16 +613,36 @@ async function refreshTask(task) {
 
 <!-- Tasks Section -->
 <section class="text-left px-6 py-4 bg-green-100 rounded-md shadow-md mx-4 sm:mx-auto max-w-3xl">
-  <h2 class="text-xl font-bold mb-4 text-green-800">Today's Tasks</h2>
+  <div class="flex items-center justify-between">
+    <h2 class="text-xl font-bold mb-4 text-green-800 flex items-center">
+      Today's Tasks
+      <button
+        class="ml-2 bg-green-500 text-white rounded-full shadow-lg hover:bg-green-600 transition-all p-1 w-6 h-6 flex items-center justify-center"
+        on:mouseenter={() => (showHelpText = true)}
+        on:mouseleave={() => (showHelpText = false)}
+        on:click={() => (showTutorial = true)}
+        aria-label="Help"
+      >
+        ❓
+      </button>
+    </h2>
+    {#if showHelpText}
+      <div class="absolute mt-[-4rem] bg-gray-800 text-white text-sm rounded-lg shadow-lg p-2">
+        Need help? Click here to view the tutorial.
+      </div>
+    {/if}
+  </div>
   {#if randomTasks.length === 0}
-    <p class="text-green-800 font-bold">All tasks completed. Check in tomorrow for new ones!</p>
+    <p class="text-green-800 font-bold">
+      All tasks completed. Check in tomorrow for new ones!
+    </p>
   {:else}
     <ul class="space-y-4">
       {#each randomTasks as task}
         <li class="flex items-start space-x-3">
-          <input 
-            type="checkbox" 
-            class="h-5 w-5 mt-1 text-green-600" 
+          <input
+            type="checkbox"
+            class="h-5 w-5 mt-1 text-green-600"
             on:change={() => markTaskAsCompleted(task)}
           />
           <div>
@@ -654,6 +779,41 @@ async function refreshTask(task) {
   </div>
 {/if}
 
+<div class="relative">
+
+  <!-- Tutorial Popup -->
+  {#if showTutorial}
+    <div
+      class="fixed inset-0 flex items-center justify-center bg-black/50 z-50"
+      in:fade
+    >
+      <div class="bg-white p-6 rounded-lg shadow-lg max-w-md w-full text-center">
+        <p class="text-gray-800 text-lg mb-4">{tutorialText[currentStep]}</p>
+        <div class="mt-4">
+          <!-- Show "Next" button for all steps except the last -->
+          {#if currentStep < tutorialText.length - 1}
+            <button
+              class="bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600 transition-all"
+              on:click={nextTutorialStep}
+            >
+              Next
+            </button>
+          {/if}
+
+          <!-- Show "Got it!" button on the last step -->
+          {#if currentStep === tutorialText.length - 1}
+            <button
+              class="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition-all"
+              on:click={dismissTutorial}
+            >
+              Got it!
+            </button>
+          {/if}
+        </div>
+      </div>
+    </div>
+  {/if}
+</div>
 
 <style>
   .animal-walk {

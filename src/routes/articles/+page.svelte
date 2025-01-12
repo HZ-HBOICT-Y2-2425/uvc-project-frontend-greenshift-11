@@ -1,6 +1,5 @@
 <script>
   import "../../app.css";
-  import { quoteStore } from "./stores/quoteStore.js";
   import { onMount } from "svelte";
 
   let view = "default";
@@ -8,6 +7,17 @@
   let favorites = [];
   let notification = {visible: false, message: ""};
   let error = null;
+   let showTutorial = false; // Controls tutorial visibility
+  let currentStep = 0;
+  let showHelpText = false;
+  let helpText = "Need help? Click here to view the tutorial.";
+  let tutorialText = [
+    "Welcome to the article page! 📚",
+    "here you can read up on numerous articles which may catch your eye 🤓.",
+    "find anyone interesting just add it to favorites! you can always delte it later 😊.",
+    "to read an article simply click on read full articles and you will be redirected to the article page 📰.",
+    "Have fun reading! 🎉"
+  ];
 
   // Initialize readArticles from localStorage or as empty set if none exists
   let readArticles = new Set(JSON.parse(localStorage.getItem('readArticles') || '[]'));
@@ -98,7 +108,32 @@
     }, 3000);
   }
 
-  onMount(fetchArticles);
+  function nextTutorialStep() {
+    if (currentStep < tutorialText.length - 1) {
+      currentStep++;
+    }
+  }
+
+  // Dismiss the tutorial and mark it as seen
+  function dismissTutorial() {
+    showTutorial = false;
+    localStorage.setItem("tutorialSeen", "true"); // Save flag in local storage
+  }
+
+  function toggleHelpText() {
+    showHelpText = !showHelpText;
+    helpText = showHelpText ? "Hide help text" : "Need help? Click here to view the tutorial.";
+  }
+
+
+  onMount(() => {
+    fetchArticles();
+    const tutorialSeen = localStorage.getItem("tutorialSeen");
+    if (!tutorialSeen) {
+      showTutorial = true; // Show tutorial if it's the user's first visit
+    }
+  });
+
 </script>
 
 <div class="flex flex-col items-center py-8">
@@ -109,13 +144,6 @@
       class="bg-green-300 text-green-700 font-semibold py-2 px-4 rounded shadow-md hover:bg-green-700 hover:text-white transition-all"
     >
       📅 Current
-    </button>
-
-    <button
-      on:click={() => (view = "current")}
-      class="bg-green-300 text-green-700 font-semibold py-2 px-4 rounded shadow-md hover:bg-green-700 hover:text-white transition-all"
-    >
-      🌱 Quote
     </button>
 
     <button
@@ -136,7 +164,23 @@
 
   {#if view === "default"}
     <div class="w-3/4">
-      <h2 class="text-xl font-bold text-green-700 mb-4">Available Articles</h2>
+      <h2 class="text-xl font-bold text-green-700 mb-4 flex items-center">
+        Available Articles
+        <button
+        class="ml-2 bg-green-500 text-white rounded-full shadow-lg hover:bg-green-600 transition-all p-1 w-6 h-6 flex items-center justify-center"
+        on:mouseenter={() => (showHelpText = true)}
+        on:mouseleave={() => (showHelpText = false)}
+        on:click={() => (showTutorial = true)}
+        aria-label="Help"
+      >
+        ❓
+      </button>
+      </h2>
+      {#if showHelpText}
+      <div class="absolute mt-[-2rem] ml-[2rem] bg-gray-800 text-white text-sm rounded-lg shadow-lg p-2 z-50">
+        Need help? Click here to view the tutorial.
+      </div>
+      {/if}
       {#if error}
         <p class="text-red-600">{error}</p>
       {:else if currentArticles.length === 0}
@@ -179,20 +223,6 @@
           {/each}
         </div>
       {/if}
-    </div>
-  {:else if view === "current"}
-    <div class="w-3/4 bg-green-100 p-6 rounded-lg shadow-lg text-center">
-      <h2 class="text-xl font-bold text-green-700 mb-4">Inspirational Quote</h2>
-      <p class="text-green-600 text-center italic mb-4 text-xl">
-        "{ $quoteStore }"
-      </p>
-      <div class="flex justify-center mb-4">
-        <img
-          src="Earthug.png"
-          alt="Earth Hugging Illustration"
-          class="w-90% h-auto"
-        />
-      </div>
     </div>
   {:else if view === "previous"}
     <div class="w-3/4">
@@ -239,3 +269,37 @@
     </div>
   {/if}
 </div>
+
+  <!-- Tutorial Popup -->
+  {#if showTutorial}
+    <div
+      class="fixed inset-0 flex items-center justify-center bg-black/50 z-50"
+      in:fade
+    >
+      <div class="bg-white p-6 rounded-lg shadow-lg max-w-md w-full text-center">
+        <p class="text-gray-800 text-lg mb-4">{tutorialText[currentStep]}</p>
+        <div class="mt-4">
+          <!-- Show "Next" button for all steps except the last -->
+          {#if currentStep < tutorialText.length - 1}
+            <button
+              class="bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600 transition-all"
+              on:click={nextTutorialStep}
+            >
+              Next
+            </button>
+          {/if}
+
+          <!-- Show "Got it!" button on the last step -->
+          {#if currentStep === tutorialText.length - 1}
+            <button
+              class="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition-all"
+              on:click={dismissTutorial}
+            >
+              Got it!
+            </button>
+          {/if}
+        </div>
+      </div>
+    </div>
+  {/if}
+  
