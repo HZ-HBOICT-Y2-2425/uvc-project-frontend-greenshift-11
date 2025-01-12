@@ -1,6 +1,5 @@
 <script>
   import "../../app.css";
-  import { quoteStore } from "./stores/quoteStore.js";
   import { onMount } from "svelte";
 
   let view = "default";
@@ -148,13 +147,6 @@
     </button>
 
     <button
-      on:click={() => (view = "current")}
-      class="bg-green-300 text-green-700 font-semibold py-2 px-4 rounded shadow-md hover:bg-green-700 hover:text-white transition-all"
-    >
-      🌱 Quote
-    </button>
-
-    <button
       on:click={() => (view = "previous")}
       class="bg-green-300 text-green-700 font-semibold py-2 px-4 rounded shadow-md hover:bg-green-700 hover:text-white transition-all"
     >
@@ -231,20 +223,6 @@
           {/each}
         </div>
       {/if}
-    </div>
-  {:else if view === "current"}
-    <div class="w-3/4 bg-green-100 p-6 rounded-lg shadow-lg text-center">
-      <h2 class="text-xl font-bold text-green-700 mb-4">Inspirational Quote</h2>
-      <p class="text-green-600 text-center italic mb-4 text-xl">
-        "{ $quoteStore }"
-      </p>
-      <div class="flex justify-center mb-4">
-        <img
-          src="Earthug.png"
-          alt="Earth Hugging Illustration"
-          class="w-90% h-auto"
-        />
-      </div>
     </div>
   {:else if view === "previous"}
     <div class="w-3/4">

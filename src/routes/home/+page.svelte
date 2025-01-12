@@ -309,7 +309,7 @@
 // Function to fetch tasks from backend
 async function fetchAllTasks() {
   try {
-    const response = await fetch("http://localhost:3011/api/tasks");
+    const response = await fetch("http://localhost:3013/api/tasks");
     if (response.ok) {
       const data = await response.json();
       tasks = data.tasks;
@@ -325,7 +325,7 @@ async function fetchAllTasks() {
 async function refreshTask(task) {
     try {
       const response = await fetch(
-        `http://localhost:3011/api/tasks/alternative/${task.category}?currentTask=${encodeURIComponent(task.text)}`
+        `http://localhost:3013/api/tasks/alternative/${task.category}?currentTask=${encodeURIComponent(task.text)}`
       );
       if (response.ok) {
         const data = await response.json();

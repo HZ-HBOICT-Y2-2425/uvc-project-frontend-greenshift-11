@@ -10,6 +10,8 @@
   let activeSection = '';
   let streakCount = 0;
   let showStreakTooltip = false;
+  let quotes = [];
+  let currentQuote = ""; // Displayed quote
   
   // Audio-related variables
   let audio;
@@ -20,10 +22,52 @@
     currentTime = audio?.currentTime || 0;
   }
 
+  const fetchQuotes = async () => {
+  try {
+    const response = await fetch("http://localhost:3014/api/quotes");
+    if (response.ok) {
+      quotes = await response.json();
+      startQuoteLoop();
+    }
+  } catch (error) {
+    console.error("Error fetching quotes:", error);
+  }
+};
+
+      // Displays quotes on a 5-second interval
+      function startQuoteLoop() {
+    if (quotes.length > 0) {
+      let index = 0;
+      currentQuote = quotes[index] || "Loading...";
+
+      setInterval(() => {
+        index = (index + 1) % quotes.length; // Loop through the quotes
+        currentQuote = quotes[index];
+      }, 5000);
+    }
+  }
+
+const fetchStreakCount = async () => {
+    try {
+      const username = localStorage.getItem("username");
+      const response = await fetch(`http://localhost:3010/auth/users/${username}`);
+      if (response.ok) {
+        const data = await response.json();
+        streakCount = data.user.streakCount; // Update the streakCount
+      } else {
+        console.error("Failed to fetch streak count");
+      }
+    } catch (error) {
+      console.error("Error fetching streak count:", error);
+    }
+  };
+
   onMount(() => {
     const token = localStorage.getItem("authToken");
     const currentPath = $page.url.pathname;
     const publicPages = ["/", "/login", "/signup", "/questions", "/thank-you"];
+
+    fetchQuotes();
 
     // Audio initialization
     if (audio) {
@@ -58,20 +102,7 @@
       });
     }
 
-    const fetchStreakCount = async () => {
-    try {
-      const username = localStorage.getItem("username");
-      const response = await fetch(`http://localhost:3010/auth/users/${username}`);
-      if (response.ok) {
-        const data = await response.json();
-        streakCount = data.user.streakCount; // Update the streakCount
-      } else {
-        console.error("Failed to fetch streak count");
-      }
-    } catch (error) {
-      console.error("Error fetching streak count:", error);
-    }
-  };
+
 
     // Cleanup on unmount
     return () => {
@@ -173,6 +204,9 @@
           <h1 class="text-2xl font-bold sm:text-3xl transition-all duration-300 ease-in-out">
             {activeSection}
           </h1>
+          <div class="mt-2 text-sm text-green-100 italic">
+            <p>"{currentQuote}"</p>
+          </div>
         </div>
       </header>
 
