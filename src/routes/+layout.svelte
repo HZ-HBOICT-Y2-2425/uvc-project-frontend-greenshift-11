@@ -24,7 +24,7 @@
 
   const fetchQuotes = async () => {
   try {
-    const response = await fetch("http://localhost:3014/api/quotes");
+    const response = await fetch("https://uvc-project-backend-greenshift-11-quote.onrender.com/api/quotes");
     if (response.ok) {
       quotes = await response.json();
       startQuoteLoop();
@@ -50,7 +50,7 @@
 const fetchStreakCount = async () => {
     try {
       const username = localStorage.getItem("username");
-      const response = await fetch(`http://localhost:3010/auth/users/${username}`);
+      const response = await fetch(`https://uvc-project-backend-greenshift-11.onrender.com/auth/users/${username}`);
       if (response.ok) {
         const data = await response.json();
         streakCount = data.user.streakCount; // Update the streakCount
@@ -115,7 +115,7 @@ const fetchStreakCount = async () => {
 
   const validateToken = async (token) => {
     try {
-      const response = await fetch("http://localhost:3010/auth/validate-token", {
+      const response = await fetch("https://uvc-project-backend-greenshift-11.onrender.com/auth/validate-token", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

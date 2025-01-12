@@ -27,7 +27,7 @@
   ];
 
   async function fetchAppliance(id: string) {
-    const response = await fetch(`http://localhost:3012/appliance/${id}`);
+    const response = await fetch(`https://uvc-project-backend-greenshift-11-5q6c.onrender.com/appliance/${id}`);
     if (response.ok) {
       appliance = await response.json();
 

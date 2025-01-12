@@ -13,7 +13,7 @@
 
   const fetchData = async () => {
     try {
-      const response = await fetch(`http://localhost:3012/appliance/${appliance.id}`);
+      const response = await fetch(`https://uvc-project-backend-greenshift-11-5q6c.onrender.com/appliance/${appliance.id}`);
       if (!response.ok) {
         throw new Error('Failed to fetch data');
       }
@@ -61,11 +61,11 @@
     { emoji: '🧊', label: 'Ice' }
   ];
 
-  const BASE_URL = "http://localhost:3010/appliance/appliance";
+  const BASE_URL = "https://uvc-project-backend-greenshift-11.onrender.com/appliance/appliance";
 
   const handleSubmit = async () => {
   try {
-    const url = appliance.id ?  `http://localhost:3012/appliance/${appliance.id}` : `http://localhost:3012/appliance/`;
+    const url = appliance.id ?  `https://uvc-project-backend-greenshift-11-5q6c.onrender.com/appliance/${appliance.id}` : `https://uvc-project-backend-greenshift-11-5q6c.onrender.com/appliance/`;
 
     const method = appliance.id ? 'PUT' : 'POST';
 

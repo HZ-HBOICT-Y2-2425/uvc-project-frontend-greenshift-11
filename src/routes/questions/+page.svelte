@@ -23,19 +23,19 @@
   let generalTasks = []; 
 
    // Fetch general tasks from the backend API
-  async function fetchGeneralTasks() {
-    try {
-      const response = await fetch("http://localhost:3011/api/tasks/general_users");
-      if (response.ok) {
-        const data = await response.json();
-        generalTasks = data.tasks;
-      } else {
-        console.error("Failed to fetch general tasks");
-      }
-    } catch (error) {
-      console.error("Error fetching general tasks:", error);
+   async function fetchAllTasks() {
+  try {
+    const response = await fetch("https://uvc-project-backend-greenshift-11-task.onrender.com/api/tasks");
+    if (response.ok) {
+      const data = await response.json();
+      tasks = data.tasks;
+    } else {
+      console.error("Failed to fetch tasks:", response.status);
     }
+  } catch (error) {
+    console.error("Error fetching tasks:", error);
   }
+}
 
    // Function to generate tasks based on responses
    async function generateTasks() {
@@ -128,7 +128,7 @@
   }
 
   //Fetch general tasks when component is intiialized 
-  fetchGeneralTasks();
+  fetchAllTasks();
 
   $: progress = ((currentQuestionIndex + 1) / questions.length) * 100;
 </script>

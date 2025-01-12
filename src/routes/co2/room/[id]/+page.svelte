@@ -38,7 +38,7 @@
 
   const fetchData = async () => {
     try {
-      const response = await fetch('http://localhost:3012/appliance/api/appliance-names');
+      const response = await fetch('https://uvc-project-backend-greenshift-11-5q6c.onrender.com/appliance/api/appliance-names');
       if (!response.ok) {
         throw new Error('Failed to fetch data');
       }
@@ -54,7 +54,7 @@
 
   const handleDeleteRoom = async () => {
     try {
-      const res = await fetch(`http://localhost:3012/room/${room.id}`, {
+      const res = await fetch(`https://uvc-project-backend-greenshift-11-5q6c.onrender.com/room/${room.id}`, {
         method: 'DELETE',
       });
 
@@ -85,7 +85,7 @@
         appliances,
       };
 
-      const res = await fetch(`http://localhost:3012/room/${room.id}`, {
+      const res = await fetch(`https://uvc-project-backend-greenshift-11-5q6c.onrender.com/room/${room.id}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(updatedRoom),

@@ -63,7 +63,7 @@
 
   const fetchData = async () => {
     try {
-      const response = await fetch("http://localhost:3012/appliance/api/appliance-usage");
+      const response = await fetch("https://uvc-project-backend-greenshift-11-5q6c.onrender.com/appliance/api/appliance-usage");
       if (!response.ok) {
         throw new Error("Network response was not ok");
       }

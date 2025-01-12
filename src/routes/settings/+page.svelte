@@ -45,7 +45,7 @@
     isMusicEnabled.set(newValue);
   };
 
-  const BASE_URL = "http://localhost:3010/";
+  const BASE_URL = "https://uvc-project-backend-greenshift-11.onrender.com";
 
   const confirmChanges = async () => {
     try {
@@ -156,28 +156,6 @@
   // Content type dropdown state
   let contentType = "all";
   $: taskSelected = contentType === "tasks";
-
-  // get all task gategories
-   // Task categories
-  let taskCategories = [];
-  async function getTaskCategories() {
-    try {
-      const response = await fetch("http://localhost:3011/api/tasks");
-      if (response.ok) {
-        const data = await response.json();
-        return data.categories;
-      } else {
-        console.error("Failed to fetch task categories.");
-        return [];
-      }
-    } catch (error) {
-      console.error("Error fetching task categories:", error);
-      return [];
-    }
-  }
-  onMount(async () => {
-    taskCategories = await getTaskCategories();
-  });
 
 </script>
 

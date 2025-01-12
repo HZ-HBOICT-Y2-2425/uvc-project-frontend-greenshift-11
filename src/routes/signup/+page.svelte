@@ -11,7 +11,7 @@
   let successMessage = '';
 
   //base URL of the backend
-  const BASE_URL = "http://localhost:3010/";
+  const BASE_URL = "https://uvc-project-backend-greenshift-11.onrender.com";
   
 
   // Function to handle the form submission

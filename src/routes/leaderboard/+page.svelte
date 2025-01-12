@@ -8,7 +8,7 @@
     // Fetch the leaderboard data
     const fetchLeaderboard = async () => {
       try {
-        const response = await fetch("http://localhost:3010/auth/leaderboard"); // Replace with your backend URL
+        const response = await fetch("https://uvc-project-backend-greenshift-11.onrender.com/auth/leaderboard"); // Replace with your backend URL
         if (!response.ok) {
           throw new Error(`Failed to fetch leaderboard: ${response.statusText}`);
         }
