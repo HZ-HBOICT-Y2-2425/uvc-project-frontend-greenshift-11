@@ -7,6 +7,18 @@
   let notes = {};
   let username = localStorage.getItem("username");
   let completedTasks = []; // Will now be populated from backend
+  let showTutorial = false; // Controls tutorial visibility
+  let currentStep = 0;
+  let showHelpText = false;
+  let helpText = "Need help? Click here to view the tutorial.";
+  let tutorialText = [
+    "Now this is the Calendar page!",
+    "You can write notes for each day and view your completed tasks here.",
+    "Select a date to write a note and view your notes for that day.",
+    "But please try to keep it PG :)",
+    "This is where you can see all the tasks you performed from now all the way back to probably months😱",
+    "Get started by selecting a date and writing a note!",
+  ];
 
   async function saveNote() {
     if (selectedDate && note) {
@@ -82,12 +94,32 @@
     loadNotes();
   }
 
+  function nextTutorialStep() {
+    if (currentStep < tutorialText.length - 1) {
+      currentStep++;
+    }
+  }
+
+  function dismissTutorial() {
+    showTutorial = false;
+    localStorage.setItem("shopTutorialSeen", "true");
+  }
+
+  function toggleHelpText() {
+    showHelpText = !showHelpText;
+    helpText = showHelpText ? "Hide help text" : "Need help? Click here to view the tutorial.";
+  }
+
   onMount(() => {
     if (!username) {
       alert("No user logged in. Redirecting to login page...");
       window.location.href = "/login";
     } else {
       loadCompletedTasks();
+    }
+    const tutorialSeen = localStorage.getItem("shopTutorialSeen");
+    if (!tutorialSeen) {
+      showTutorial = true; // Show tutorial if it's the user's first visit
     }
   });
 </script>
@@ -105,7 +137,22 @@
     <div class="relative pgNote p-6 rounded-lg shadow-lg w-full max-w-lg">
       <!-- Notebook Spine -->
       <div class="absolute top-0 bottom-0 left-4 w-1 bg-green-500 rounded-full"></div>
-      <h2 class="text-lg font-semibold mb-4 relative">Notes</h2>
+      <h2 class="text-xl font-bold text-green-700 mb-4 flex items-center">
+        Notes <button
+        class="ml-2 bg-green-500 text-white rounded-full shadow-lg hover:bg-green-600 transition-all p-1 w-6 h-6 flex items-center justify-center relative"
+        on:mouseenter={() => (showHelpText = true)}
+        on:mouseleave={() => (showHelpText = false)}
+        on:click={() => (showTutorial = true)}
+        aria-label="Help"
+      >
+        ❓
+      </button>
+      </h2>
+      {#if showHelpText}
+      <div class="absolute mt-[-2rem] ml-[2rem] bg-gray-800 text-white text-sm rounded-lg shadow-lg p-2 z-50">
+        Need help? Click here to view the tutorial.
+      </div>
+    {/if}
       <textarea 
         bind:value={note} 
         placeholder="Write your notes here..."
@@ -173,4 +220,36 @@
   </div>
 </div>
 
+  <!-- Tutorial Popup -->
+  {#if showTutorial}
+    <div
+      class="fixed inset-0 flex items-center justify-center bg-black/50 z-50"
+      in:fade
+    >
+      <div class="bg-white p-6 rounded-lg shadow-lg max-w-md w-full text-center">
+        <p class="text-gray-800 text-lg mb-4">{tutorialText[currentStep]}</p>
+        <div class="mt-4">
+          <!-- Show "Next" button for all steps except the last -->
+          {#if currentStep < tutorialText.length - 1}
+            <button
+              class="bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600 transition-all"
+              on:click={nextTutorialStep}
+            >
+              Next
+            </button>
+          {/if}
+
+          <!-- Show "Got it!" button on the last step -->
+          {#if currentStep === tutorialText.length - 1}
+            <button
+              class="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition-all"
+              on:click={dismissTutorial}
+            >
+              Got it!
+            </button>
+          {/if}
+        </div>
+      </div>
+    </div>
+  {/if}
 

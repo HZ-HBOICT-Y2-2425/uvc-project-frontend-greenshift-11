@@ -8,6 +8,8 @@
 
   let isAuthenticated = false;
   let activeSection = '';
+  let streakCount = 0;
+  let showStreakTooltip = false;
   
   // Audio-related variables
   let audio;
@@ -42,10 +44,11 @@
         window.location.href = "/login";
       }
     } else {
-      validateToken(token).then((valid) => {
+      validateToken(token).then(async (valid) => {
         if (valid) {
           isAuthenticated = true;
           setActiveSection(currentPath);
+          fetchStreakCount();
         } else {
           localStorage.removeItem("authToken");
           if (!publicPages.includes(currentPath)) {
@@ -54,6 +57,21 @@
         }
       });
     }
+
+    const fetchStreakCount = async () => {
+    try {
+      const username = localStorage.getItem("username");
+      const response = await fetch(`http://localhost:3010/auth/users/${username}`);
+      if (response.ok) {
+        const data = await response.json();
+        streakCount = data.user.streakCount; // Update the streakCount
+      } else {
+        console.error("Failed to fetch streak count");
+      }
+    } catch (error) {
+      console.error("Error fetching streak count:", error);
+    }
+  };
 
     // Cleanup on unmount
     return () => {
@@ -174,19 +192,20 @@
             { href: "/co2", src: "/CO2.png", alt: "CO2 Info" },
             { href: "/shop", src: "/shop.png", alt: "Shop" },
             { href: "/calendar", src: "/calendar.png", alt: "Calendar" },
-            { href: "/settings", src: "/profile.png", alt: "Settings" },
-            {href: "/leaderboard", src: "/leaderboard.png", alt: "Leaderboard"}
+            { href: "/settings", src: "/profile.png", alt: "Settings", showStreak: true }, 
+            { href: "/leaderboard", src: "/leaderboard.png", alt: "Leaderboard" }
           ] as item}
-            <a 
-              href={item.href} 
-              class="text-white opacity-70 hover:opacity-100 transition-all duration-300 ease-in-out transform hover:scale-110"
-            >
-              <img 
-                src={item.src} 
-                alt={item.alt} 
-                class="w-10 sm:w-14 h-auto"
-              />
-            </a>
+            <div class="relative">
+              <a href={item.href} class="text-white opacity-70 hover:opacity-100 transition-all duration-300 ease-in-out transform hover:scale-110">
+                <img src={item.src} alt={item.alt} class="w-10 sm:w-14 h-auto"/>
+              </a>
+              <!-- Streak Badge -->
+              {#if item.showStreak && streakCount > 0}
+              <div class="absolute -top-2 -right-2 bg-green-500 text-white text-xs font-bold rounded-full w-6 h-6 flex items-center justify-center" role="tooltip" on:mouseenter={() => (showStreakTooltip = true)} on:mouseleave={() => (showStreakTooltip = false)}>
+                {streakCount}
+              </div>
+              {/if}
+            </div>
           {/each}
         </div>
       </footer>
@@ -197,6 +216,14 @@
 {#if isMainPage || isSignupPage || isLoginPage || isQuestionPage || isThankYouPage}
   <!-- The Custom layout  -->
   <slot />
+{/if}
+
+
+    <!-- Tooltip -->
+{#if showStreakTooltip}
+<div class="absolute bottom-20 left-[50%] transform -translate-x-1/2 bg-gray-800 text-white text-sm rounded-lg shadow-lg p-2 z-50">
+  Complete all your tasks daily to maintain your streak!
+</div>
 {/if}
 
 <style>

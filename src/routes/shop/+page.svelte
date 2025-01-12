@@ -27,6 +27,18 @@
   const plants = writable<Item[]>([]);
   const selectedItem = writable<{ item: Item; type: ItemType } | null>(null);
   const showModal = derived(selectedItem, ($selectedItem) => $selectedItem !== null);
+  let showTutorial = false; // Controls tutorial visibility
+  let currentStep = 0;
+  let showHelpText = false;
+  let helpText = "Need help? Click here to view the tutorial.";
+  let tutorialText = [
+    "Welcome to the shop! 🛒",
+    "Here you can purchase items using your coins 🪙.",
+    "Animals and plants can be bought to decorate your garden 🌱.",
+    "Click on an item to see more details and purchase options.",
+    "Make sure to manage your coins wisely 💰!"
+  ];
+
  
   async function fetchItems() {
     try {
@@ -119,9 +131,31 @@
   function closeModal() {
     selectedItem.set(null);
   }
+
+  function nextTutorialStep() {
+    if (currentStep < tutorialText.length - 1) {
+      currentStep++;
+    }
+  }
+
+  function dismissTutorial() {
+    showTutorial = false;
+    localStorage.setItem("shopTutorialSeen", "true");
+  }
+
+  function toggleHelpText() {
+    showHelpText = !showHelpText;
+    helpText = showHelpText ? "Hide help text" : "Need help? Click here to view the tutorial.";
+  }
+
  
   onMount(async () => {
     await Promise.all([fetchUserData(), fetchItems()]);
+
+    const tutorialSeen = localStorage.getItem("shopTutorialSeen");
+    if (!tutorialSeen) {
+      showTutorial = true; // Show tutorial if it's the user's first visit
+    }
   });
  </script>
  
@@ -177,6 +211,20 @@
   <div class="w-1/4 currency-container border rounded-md">
     <p class="text-6xl font-bold">{$coins}</p>
     <img src="https://emojicdn.elk.sh/💰" alt="Money Icon" class="w-16 h-16" />
+    <button
+      class="ml-2 bg-green-500 text-white rounded-full shadow-lg hover:bg-green-600 transition-all p-1 w-6 h-6 flex items-center justify-center relative"
+      on:mouseenter={() => (showHelpText = true)}
+      on:mouseleave={() => (showHelpText = false)}
+      on:click={() => (showTutorial = true)}
+      aria-label="Help"
+    >
+      ❓
+    </button>
+    {#if showHelpText}
+    <div class="absolute mt-[-2rem] ml-[2rem] bg-gray-800 text-white text-sm rounded-lg shadow-lg p-2 z-50">
+      Need help? Click here to view the tutorial.
+    </div>
+  {/if}
   </div>
  </div>
  
@@ -214,6 +262,34 @@
     </div>
   </div>
  {/if}
+
+ <!-- Tutorial Popup -->
+{#if showTutorial}
+<div class="fixed inset-0 flex items-center justify-center bg-black/50 z-50">
+  <div class="bg-white p-6 rounded-lg shadow-lg max-w-md w-full text-center">
+    <p class="text-gray-800 text-lg mb-4">{tutorialText[currentStep]}</p>
+    <div class="mt-4">
+      {#if currentStep < tutorialText.length - 1}
+        <button
+          class="bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600 transition-all"
+          on:click={nextTutorialStep}
+        >
+          Next
+        </button>
+      {/if}
+
+      {#if currentStep === tutorialText.length - 1}
+        <button
+          class="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition-all"
+          on:click={dismissTutorial}
+        >
+          Got it!
+        </button>
+      {/if}
+    </div>
+  </div>
+</div>
+{/if}
 
 <style>
   .scrollable {
