@@ -18,7 +18,7 @@
   const handleSubmit = async () => {
     // Send POST request to the backend
     try {
-      const response = await fetch(`${BASE_URL}auth/signup`, {
+      const response = await fetch(`${BASE_URL}/auth/signup`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
