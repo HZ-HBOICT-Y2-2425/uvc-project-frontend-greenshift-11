@@ -7,32 +7,11 @@
   let showPassword = false;
   let errorMessage = '';
 
-  const BASE_URL = "http://localhost:3010/auth";
+
 
   // Function to handle form submission
-  const handleSubmit = async () => {
-    try {
-        const response = await fetch(`${BASE_URL}/login`, {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-            },
-            body: JSON.stringify({ name, password }),
-        });
-
-        if (response.ok) {
-            const data = await response.json();
-            localStorage.setItem("authToken", data.accessToken); // Store token
-            localStorage.setItem("username", data.username); // Store username
-            window.location.href = "/home"; // Redirect to app's home page
-        } else {
-            const errorData = await response.json();
-            errorMessage = errorData.message || "Login failed!";
-        }
-    } catch (error) {
-        errorMessage = "Could not connect to the server.";
-        console.error("Error:", error);
-    }
+  function handleSubmt() {
+    window.location.href = '/home'
 };
 
 
@@ -44,7 +23,7 @@
 <div class="min-h-screen flex items-center justify-center bg-gradient-to-r from-greenLight to-greenDeep">
   <div class="w-full max-w-lg p-8 rounded-md bg-black shadow-md">
     <h1 class="text-center font-bold text-3xl mb-8 text-greenDeep">Login</h1>
-    <form on:submit|preventDefault={handleSubmit} class="space-y-5">
+    <form on:submit|preventDefault={handleSubmt} class="space-y-5">
       <div>
         <label for="username" class="block mb-2 text-sm font-medium text-gray-900 dark:text-greenDeep">
           Username
