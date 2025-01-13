@@ -9,7 +9,7 @@
     const fetchAppliances = async () => {
       try {
         isLoading = true; // Start loading state
-        const response = await fetch('https://uvc-project-backend-greenshift-11-5q6c.onrender.com2/appliance/api/appliance-names'); // Correct API endpoint
+        const response = await fetch('https://uvc-project-backend-greenshift-11-5q6c.onrender.com/appliance/api/appliance-names'); // Correct API endpoint
   
         if (!response.ok) {
           throw new Error(`Failed to fetch appliances: ${response.statusText}`);
