@@ -37,7 +37,7 @@
     "Animals and plants can be bought to decorate your garden 🌱.",
     "Click on an item to see more details and purchase options.",
     "Make sure to manage your coins wisely 💰!",
-    "and have fun shopping! 🎉",
+    "and have fun shopping! 🎉"
   ];
 
  
