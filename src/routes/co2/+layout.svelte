@@ -1,9 +1,7 @@
-
 <script>
   import { onMount } from 'svelte';
   import { page } from '$app/stores';
 
-  // State variables to hold appliances and rooms data
   let appliances = [];
   let rooms = [];
   let currentRoomId;
@@ -48,7 +46,7 @@
   const navigateToRoom = (roomId) => {
     window.location.href = `/co2/room/${roomId}`;
   };
-
+  
   // Fetch data on component mount
   onMount(fetchData);
 </script>
@@ -58,8 +56,7 @@
 <div class="flex h-screen mx-0 my-0 p-0">
   <aside class="w-1/4 bg-aside p-3 shadow-lg transition-all h-100%">
     <nav class="text-xl">
-      <h1 class="text-white text-lg font-bold mb-2"><a href={`/co2`}>Appliance Statistics</a></h1>
-      <h1 class="text-white text-lg font-bold mb-2">Detailed CO₂ Footprint</h1>
+      <h1 class="text-white text-lg font-bold mb-2 pb-3"><a href={`/co2`}>Appliance Statistics</a></h1>
       <h1 class="text-white text-lg font-bold mb-2">Manage Appliances</h1>
       <h2 class="block text-white text-base font-bold mt-4 hover:underline"><a href={`/co2/appliance`}>All Appliances</a></h2>
   
@@ -110,15 +107,6 @@
   
       <h1><a class="block text-white text-base font-bold mt-4 hover:underline" href="/co2/addAppliance">Add an Appliance</a></h1>
       <h1><a class="block text-white text-base font-bold mt-4 hover:underline" href="/co2/addRoom">Add a Room</a></h1>
-  
-      <!-- New CO₂ Data Table Link -->
-      <h1 class="text-white text-lg font-bold mt-4">CO₂ Data Table</h1>
-      <a 
-        class="block text-white text-base font-bold mt-2 hover:underline" 
-        href="/co2/table"
-      >
-        View CO₂ Table
-      </a>
     </nav>
   </aside>
   
