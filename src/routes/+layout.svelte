@@ -143,7 +143,6 @@
 
 <ToastContainer />
 
-{#if isAuthenticated}
   {#if !isMainPage && !isSignupPage && !isLoginPage && !isQuestionPage && !isThankYouPage}
     <div class="fixed inset-0 flex flex-col bg-greenDeep">
       <!-- Header (Sticky) -->
@@ -188,7 +187,6 @@
       </footer>
     </div>
   {/if}
-{/if}
 
 {#if isMainPage || isSignupPage || isLoginPage || isQuestionPage || isThankYouPage}
   <!-- The Custom layout  -->
