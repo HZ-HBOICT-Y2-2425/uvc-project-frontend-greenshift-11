@@ -30,6 +30,25 @@
         isLoading = false; // End loading state
       }
     };
+     // Delete a appliance from the list
+  const deleteappliance = async (id) => {
+    try {
+      appliances = appliances.filter(appliance => appliance.id !== id); // Update local state
+      const res = await fetch(`http://localhost:3012/appliance/${id}`, {
+        method: 'DELETE',
+      });
+
+      if (res.ok) {        
+        setTimeout(() => {
+          window.location.href = '/co2/appliance';
+        }, 1500);
+      } else {
+        throw new Error('Failed to delete appliance');
+      }
+    } catch (err) {
+      error = `Failed to delete appliance: ${err.message}`;
+    }
+  };
   
     onMount(fetchAppliances); // Fetch data on component mount
   </script>
@@ -66,12 +85,21 @@
     {:else}
       <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {#each appliances as appliance (appliance.id)} <!-- Use `id` as the key -->
-          <div class="bg-white rounded-lg shadow-md p-6">
+          <div class="bg-white rounded-lg shadow-md p-6">  
+            <div class="flex justify-between items-start mb-4">                       
             <div class="mb-4">
               <h2 class="text-xl font-semibold text-gray-800">{appliance.brand} {appliance.type}</h2>
               <p class="text-gray-500">{appliance.emoji}</p>
             </div>
-  
+            <button
+              on:click={() => deleteappliance(appliance.id)}
+              class="text-red-600 hover:text-red-700"
+              aria-label="Delete appliance"
+              title="Delete appliance"
+            >
+              ✕
+            </button>  
+          </div>
             <div class="mt-4">
               <a 
                 href={`/co2/appliance/${appliance.id}`}

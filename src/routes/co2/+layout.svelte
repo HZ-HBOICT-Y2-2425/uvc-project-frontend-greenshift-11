@@ -58,10 +58,11 @@
 <div class="flex h-screen mx-0 my-0 p-0">
   <aside class="w-1/4 bg-aside p-3 shadow-lg transition-all h-100%">
     <nav class="text-xl">
-      <h1 class="text-white text-lg font-bold mb-2">Manage appliances</h1>
-      <h2 class="block text-white text-base font-bold mt-4 hover:underline"><a href={`/co2/appliance`}>All appliances</a></h2>
-
-      <!-- Show appliance links if available -->
+      <h1 class="text-white text-lg font-bold mb-2"><a href={`/co2`}>Appliance Statistics</a></h1>
+      <h1 class="text-white text-lg font-bold mb-2">Detailed CO₂ Footprint</h1>
+      <h1 class="text-white text-lg font-bold mb-2">Manage Appliances</h1>
+      <h2 class="block text-white text-base font-bold mt-4 hover:underline"><a href={`/co2/appliance`}>All Appliances</a></h2>
+  
       {#if appliances.length > 0}
         {#each appliances as appliance}
           <p>
@@ -84,11 +85,8 @@
           </a>
         </p>
       {/if}
-
-      <!-- Rooms Section -->
-      <h1>
-        <a class="text-white text-lg font-bold mb-2" href="/co2/room">All rooms</a>
-      </h1>
+  
+      <h1><a class="text-white text-lg font-bold mb-2" href="/co2/room">All Rooms</a></h1>
       {#if rooms.length > 0}
         {#each rooms as room}
           <button 
@@ -109,26 +107,21 @@
           </a>
         </p>
       {/if}
-
-      <!-- Add Appliance and Room Links -->
-      <h1>
-        <a 
-          class="block text-white text-base font-bold mt-4 hover:underline" 
-          href="/co2/addAppliance"
-        >
-          Add an appliance
-        </a>
-      </h1>
-      <h1>
-        <a 
-          class="block text-white text-base font-bold mt-4 hover:underline" 
-          href="/co2/addRoom"
-        >
-          Add a room
-        </a>
-      </h1>
+  
+      <h1><a class="block text-white text-base font-bold mt-4 hover:underline" href="/co2/addAppliance">Add an Appliance</a></h1>
+      <h1><a class="block text-white text-base font-bold mt-4 hover:underline" href="/co2/addRoom">Add a Room</a></h1>
+  
+      <!-- New CO₂ Data Table Link -->
+      <h1 class="text-white text-lg font-bold mt-4">CO₂ Data Table</h1>
+      <a 
+        class="block text-white text-base font-bold mt-2 hover:underline" 
+        href="/co2/table"
+      >
+        View CO₂ Table
+      </a>
     </nav>
   </aside>
+  
 
   <main class="flex-1 p-4 overflow-hidden">
     <div class="h-[70vh] flex flex-col"> 
