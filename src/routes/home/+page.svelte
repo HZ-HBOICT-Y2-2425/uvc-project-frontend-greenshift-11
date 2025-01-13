@@ -261,7 +261,6 @@
 
   onMount(() => {
     fetchUserData();
-    const username = localStorage.getItem("username");
     fetchInventoryAndItems();
     setTimeout(() => {
        notifications.add("Welcome to your GreenShift Garden! 🌿", 'success');
@@ -276,16 +275,11 @@
        notifications.add("New eco-friendly products available in the shop! 🛍", 'info');
      }, 6000);
 
-    const oldTasks = localStorage.getItem("dailyTasks");
-    if (oldTasks) {
-      localStorage.removeItem("dailyTasks"); // Remove old format
-    }
-
      fetchAllTasks();
     const savedCompletedTasks = JSON.parse(localStorage.getItem("completedTasks")) || {};
     completedTasks = savedCompletedTasks[username] || [];
 
-    const tutorialSeen = localStorage.getItem(`tutorialSeen_${username}`);
+    const tutorialSeen = localStorage.getItem("tutorialSeen");
     if (!tutorialSeen) {
       showTutorial = true; // Show tutorial if it's the user's first visit
     }
@@ -329,7 +323,6 @@ async function fetchAllTasks() {
 }
 
 async function refreshTask(task) {
-  const username = localStorage.getItem("username");
     try {
       const response = await fetch(
         `https://uvc-project-backend-greenshift-11-task.onrender.com/api/tasks/alternative/${task.category}?currentTask=${encodeURIComponent(task.text)}`
@@ -347,7 +340,7 @@ async function refreshTask(task) {
           randomTasks = [...randomTasks]; // Trigger Svelte reactivity
           // Update localStorage with the new task list
           localStorage.setItem(
-           `dailyTasks_${username}`,
+            "dailyTasks",
             JSON.stringify({ timestamp: Date.now(), tasks: randomTasks })
           );
         }
@@ -365,14 +358,13 @@ async function refreshTask(task) {
   }
 
   function handleDailyTasks() {
-    const username = localStorage.getItem("username");
-    const storedTasks = JSON.parse(localStorage.getItem(`dailyTasks_${username}`)) || {};
+    const storedTasks = JSON.parse(localStorage.getItem("dailyTasks")) || {};
     const now = Date.now();
 
     if (!storedTasks.timestamp || now - storedTasks.timestamp > TASK_REFRESH_INTERVAL) {
       selectRandomTasks();
       localStorage.setItem(
-       `dailyTasks_${username}`,
+        "dailyTasks",
         JSON.stringify({ timestamp: now, tasks: randomTasks })
       );
     } else {
@@ -386,7 +378,6 @@ async function refreshTask(task) {
   }
 
   async function markTaskAsCompleted(task) {
-    const username = localStorage.getItem("username");
     // Remove the task from randomTasks
     randomTasks = randomTasks.filter((t) => t.text !== task.text);
 
@@ -430,7 +421,7 @@ async function refreshTask(task) {
 
     // Update localStorage with updated tasks
     localStorage.setItem(
-      `dailyTasks_${username}`,
+      "dailyTasks",
       JSON.stringify({ timestamp: Date.now(), tasks: randomTasks })
     );
   }

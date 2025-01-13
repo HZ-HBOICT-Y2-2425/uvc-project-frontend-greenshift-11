@@ -1,4 +1,3 @@
-<!-- co2 link https://uvc-project-backend-greenshift-11-5q6c.onrender.com -->
 <script>
   import "../../app.css";
   import { onMount } from "svelte";
