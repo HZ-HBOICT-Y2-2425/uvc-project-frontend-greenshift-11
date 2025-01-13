@@ -36,7 +36,8 @@
     "Here you can purchase items using your coins 🪙.",
     "Animals and plants can be bought to decorate your garden 🌱.",
     "Click on an item to see more details and purchase options.",
-    "Make sure to manage your coins wisely 💰!"
+    "Make sure to manage your coins wisely 💰!",
+    "and have fun shopping! 🎉"
   ];
 
  

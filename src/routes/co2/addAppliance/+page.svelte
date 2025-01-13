@@ -15,7 +15,7 @@
 
   const fetchApplianceTypes = async () => {
     try {
-      const response = await fetch('http://localhost:3012/appliance/api/appliance-types');
+      const response = await fetch('https://uvc-project-backend-greenshift-11-5q6c.onrender.com/appliance/api/appliance-types');
       if (!response.ok) {
         throw new Error('Failed to fetch appliance types');
       }
@@ -34,42 +34,12 @@
         throw new Error('Failed to fetch data');
       }
 
-        const applianceData = await response.json();
-        // Uncomment if you want to populate appliance state with fetched data
-        // appliance = applianceData;
+          const applianceData = await response.json();
+          // Uncomment if you want to populate appliance state with fetched data
+          // appliance = applianceData;
+      } catch (error) {
+        console.error('Error fetching data:', error);
       }
-    } catch (error) {
-      console.error('Error fetching data:', error);
-    }
-  };
-
-  const handleSubmit = async () => {
-    try {
-      const url = appliance.id
-        ? `http://localhost:3012/appliance/${appliance.id}`
-        : `http://localhost:3012/appliance/`;
-
-      const method = appliance.id ? 'PUT' : 'POST';
-
-      const response = await fetch(url, {
-        method,
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(appliance)
-      });
-
-      if (response.ok) {
-        const data = await response.json();
-        console.log('Success:', data);
-        window.location.href = '/co2';
-      } else {
-        const errorData = await response.json();
-        console.error('Error:', errorData.message);
-      }
-    } catch (error) {
-      console.error('Error:', error);
-    }
   };
 
   onMount(() => {
