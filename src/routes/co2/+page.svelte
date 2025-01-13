@@ -1,13 +1,14 @@
 <script>
   import { onMount } from 'svelte';
 
-  let chartType = 'bar';
+  let chartType = 'bar'; // Default chart type
   let chart = null;
-  let footprintSummary = {}; // Store summary data from `/co2-footprint`
+  let footprintSummary = {}; // Store summary data from /co2-footprint
   let totalFootprint = 0;
 
   const ecoColors = ["#2E8B57", "#3CB371", "#66CDAA", "#8FBC8F", "#20B2AA", "#2E8B57", "#556B2F"];
 
+  // Initialize chart
   const initializeChart = async (chartOptions) => {
     if (!chartOptions) return;
     if (typeof window !== 'undefined') {
@@ -22,6 +23,7 @@
     }
   };
 
+  // Fetch data for the chart
   const fetchChartData = async () => {
     try {
       const response = await fetch("http://localhost:3012/appliance/api/appliance-usage");
@@ -48,6 +50,7 @@
     }
   };
 
+  // Fetch data for the CO₂ footprint table
   const fetchTableData = async () => {
     try {
       const response = await fetch("http://localhost:3012/appliance/api/co2-footprint");
@@ -58,30 +61,33 @@
     }
   };
 
+  // Change chart type (to table, bar, or pie)
   const changeChartType = async (newType) => {
     chartType = newType;
     if (newType === "table") {
-      await fetchTableData();
+      await fetchTableData(); // Fetch the table data when switching to table view
     } else {
-      await fetchChartData();
+      await fetchChartData(); // Fetch chart data when switching to chart view
     }
   };
 
+  // On component mount, fetch chart data
   onMount(async () => {
     await fetchChartData();
   });
 </script>
 
+<!-- Layout HTML -->
 <div class="text-center my-4">
   <h2 class="text-xl font-bold">Total Carbon Footprint</h2>
   <p class="text-lg">{totalFootprint > 0 ? `${totalFootprint.toFixed(2)} kg CO₂ per year` : 'Loading...'}</p>
 </div>
 
 <!-- Chart Container -->
-<div id="chart" class="w-3/4 h-80 mx-auto" style:display={chartType === 'table' ? 'none' : 'block'}></div>
+<div id="chart" class="w-3/4 h-80 mx-auto" style="display: {chartType === 'table' ? 'none' : 'block'};"></div>
 
 <!-- Table for Summary Data -->
-<table class="table-auto border-collapse border border-gray-400 w-3/4 mx-auto mt-4" style:display={chartType === 'table' ? 'table' : 'none'}>
+<table id="table" class="table-auto border-collapse border border-gray-400 w-3/4 mx-auto mt-4" style="display: {chartType === 'table' ? 'table' : 'none'};">
   <thead>
     <tr class="bg-green-200">
       <th class="border px-4 py-2">Metric</th>
@@ -114,5 +120,3 @@
   <button class="fa fa-pie-chart text-4xl mx-2" on:click={() => changeChartType("pie")} aria-label="Pie Chart"></button>
   <button class="fa fa-table text-4xl mx-2" on:click={() => changeChartType("table")} aria-label="Table"></button>
 </div>
-
-
