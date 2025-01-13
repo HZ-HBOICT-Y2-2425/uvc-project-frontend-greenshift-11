@@ -43,7 +43,7 @@
       setInterval(() => {
         index = (index + 1) % quotes.length; // Loop through the quotes
         currentQuote = quotes[index];
-      }, 5000);
+      }, 10000);
     }
   }
 
