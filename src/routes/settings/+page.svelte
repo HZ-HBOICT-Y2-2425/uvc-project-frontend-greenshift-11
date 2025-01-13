@@ -50,7 +50,7 @@
   const confirmChanges = async () => {
     try {
       const response = await fetch(
-        `${BASE_URL}auth/users/${localStorage.getItem("username")}`,
+        `${BASE_URL}/auth/users/${localStorage.getItem("username")}`,
         {
           method: "PUT",
           headers: {
@@ -84,7 +84,7 @@
   const fetchUserData = async () => {
     try {
       const username = localStorage.getItem("username");
-      const response = await fetch(`${BASE_URL}auth/users/${username}`, {
+      const response = await fetch(`${BASE_URL}/auth/users/${username}`, {
         headers: {
           Authorization: `Bearer ${localStorage.getItem("authToken")}`,
         },
