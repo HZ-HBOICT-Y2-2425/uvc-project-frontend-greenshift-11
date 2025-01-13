@@ -66,7 +66,7 @@
   const handleSubmit = async (event) => {
     event.preventDefault(); // Prevent the default form submission
     try {
-      const url = `${BASE_URL}room`; // Remove URL constructor since we're using template literal
+      const url = `${BASE_URL}/room`; // Remove URL constructor since we're using template literal
       const roomData = {
         name,
         icon: icon || "🛋️", // Provide default icon if none selected
