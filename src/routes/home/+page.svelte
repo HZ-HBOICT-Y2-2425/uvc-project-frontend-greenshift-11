@@ -262,6 +262,12 @@
   onMount(() => {
     fetchUserData();
     fetchInventoryAndItems();
+    const username = localStorage.getItem("username");
+  // Clear previous user's tasks if they exist
+  const oldTasks = localStorage.getItem("dailyTasks");
+  if (oldTasks) {
+    localStorage.removeItem("dailyTasks"); // Remove old format
+  }
     setTimeout(() => {
        notifications.add("Welcome to your GreenShift Garden! 🌿", 'success');
      }, 2000);
@@ -274,15 +280,16 @@
      setTimeout(() => {
        notifications.add("New eco-friendly products available in the shop! 🛍", 'info');
      }, 6000);
+     
 
      fetchAllTasks();
-    const savedCompletedTasks = JSON.parse(localStorage.getItem("completedTasks")) || {};
-    completedTasks = savedCompletedTasks[username] || [];
+     const savedCompletedTasks = JSON.parse(localStorage.getItem("completedTasks")) || {};
+     completedTasks = savedCompletedTasks[username] || [];
 
-    const tutorialSeen = localStorage.getItem("tutorialSeen");
-    if (!tutorialSeen) {
-      showTutorial = true; // Show tutorial if it's the user's first visit
-    }
+    const tutorialSeen = localStorage.getItem(`tutorialSeen_${username}`);
+  if (!tutorialSeen) {
+    showTutorial = true;
+  }
 
    });
 
@@ -323,34 +330,32 @@ async function fetchAllTasks() {
 }
 
 async function refreshTask(task) {
-    try {
-      const response = await fetch(
-        `https://uvc-project-backend-greenshift-11-task.onrender.com/api/tasks/alternative/${task.category}?currentTask=${encodeURIComponent(task.text)}`
-      );
-      if (response.ok) {
-        const data = await response.json();
-        const newTask = data.task;
-        
-        // Remove the old task from completedTasks if it was completed
-        completedTasks = completedTasks.filter(t => t.text !== task.text);
-        // Replace the refreshed task in randomTasks
-        const taskIndex = randomTasks.findIndex((t) => t.text === task.text);
-        if (taskIndex !== -1) {
-          randomTasks[taskIndex] = newTask;
-          randomTasks = [...randomTasks]; // Trigger Svelte reactivity
-          // Update localStorage with the new task list
-          localStorage.setItem(
-            "dailyTasks",
-            JSON.stringify({ timestamp: Date.now(), tasks: randomTasks })
-          );
-        }
-      } else {
-        console.error("Failed to refresh task:", response.status);
+  const username = localStorage.getItem("username");
+  try {
+    const response = await fetch(
+      `https://uvc-project-backend-greenshift-11-task.onrender.com/api/tasks/alternative/${task.category}?currentTask=${encodeURIComponent(task.text)}`
+    );
+    if (response.ok) {
+      const data = await response.json();
+      const newTask = data.task;
+      
+      completedTasks = completedTasks.filter(t => t.text !== task.text);
+      const taskIndex = randomTasks.findIndex((t) => t.text === task.text);
+      if (taskIndex !== -1) {
+        randomTasks[taskIndex] = newTask;
+        randomTasks = [...randomTasks];
+        localStorage.setItem(
+          `dailyTasks_${username}`,
+          JSON.stringify({ timestamp: Date.now(), tasks: randomTasks })
+        );
       }
-    } catch (error) {
-      console.error("Error refreshing task:", error);
+    } else {
+      console.error("Failed to refresh task:", response.status);
     }
+  } catch (error) {
+    console.error("Error refreshing task:", error);
   }
+}
 
 
   function isTaskCompleted(task) {
@@ -358,19 +363,20 @@ async function refreshTask(task) {
   }
 
   function handleDailyTasks() {
-    const storedTasks = JSON.parse(localStorage.getItem("dailyTasks")) || {};
-    const now = Date.now();
+  const username = localStorage.getItem("username");
+  const storedTasks = JSON.parse(localStorage.getItem(`dailyTasks_${username}`)) || {};
+  const now = Date.now();
 
-    if (!storedTasks.timestamp || now - storedTasks.timestamp > TASK_REFRESH_INTERVAL) {
-      selectRandomTasks();
-      localStorage.setItem(
-        "dailyTasks",
-        JSON.stringify({ timestamp: now, tasks: randomTasks })
-      );
-    } else {
-      randomTasks = storedTasks.tasks || [];
-    }
+  if (!storedTasks.timestamp || now - storedTasks.timestamp > TASK_REFRESH_INTERVAL) {
+    selectRandomTasks();
+    localStorage.setItem(
+      `dailyTasks_${username}`,
+      JSON.stringify({ timestamp: now, tasks: randomTasks })
+    );
+  } else {
+    randomTasks = storedTasks.tasks || [];
   }
+}
 
   function selectRandomTasks() {
     const shuffled = [...tasks].sort(() => 0.5 - Math.random());
@@ -378,53 +384,49 @@ async function refreshTask(task) {
   }
 
   async function markTaskAsCompleted(task) {
-    // Remove the task from randomTasks
-    randomTasks = randomTasks.filter((t) => t.text !== task.text);
+  const username = localStorage.getItem("username");
+  randomTasks = randomTasks.filter((t) => t.text !== task.text);
+  completedTasks.push(task.text);
 
-    // Add the task to completedTasks
-    completedTasks.push(task.text);
+  await updateUserCoins();
 
-    await updateUserCoins(); // Update user coins when a task is completed
+  taskPopupMessage = "Congratulations! You earned 10 coins 🥳 Perform more tasks to earn more points";
+  showTaskPopup = true;
+  setTimeout(() => {
+    showTaskPopup = false;
+  }, 3000);
 
-      // Show the popup
-    taskPopupMessage = "Congratulations! You earned 10 coins 🥳 Perform more tasks to earn more points";
-    showTaskPopup = true;
-    setTimeout(() => {
-       showTaskPopup = false;
-    }, 3000); // Hide the popup after 3 second
+  // Update localStorage with user-specific keys
+  const savedCompletedTasks = JSON.parse(localStorage.getItem("completedTasks")) || {};
+  savedCompletedTasks[username] = completedTasks;
+  localStorage.setItem("completedTasks", JSON.stringify(savedCompletedTasks));
 
-    // Update localStorage for immediate UI sync
-    const savedCompletedTasks = JSON.parse(localStorage.getItem("completedTasks")) || {};
-    savedCompletedTasks[username] = completedTasks;
-    localStorage.setItem("completedTasks", JSON.stringify(savedCompletedTasks));
+  try {
+    const response = await fetch("https://uvc-project-backend-greenshift-11.onrender.com/auth/completed-tasks", {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        user: username,
+        task: task.text,
+        action: "complete",
+      }),
+    });
 
-    // Send the completed task to the backend
-    try {
-      const response = await fetch("https://uvc-project-backend-greenshift-11.onrender.com/auth/completed-tasks", {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          user: username,
-          task: task.text, // Send only the task text
-          action: "complete",
-        }),
-      });
-
-      if (!response.ok) {
-        console.error("Failed to update completed tasks in the backend");
-      }
-    } catch (err) {
-      console.error("Error updating completed tasks in backend:", err);
+    if (!response.ok) {
+      console.error("Failed to update completed tasks in the backend");
     }
-
-    // Update localStorage with updated tasks
-    localStorage.setItem(
-      "dailyTasks",
-      JSON.stringify({ timestamp: Date.now(), tasks: randomTasks })
-    );
+  } catch (err) {
+    console.error("Error updating completed tasks in backend:", err);
   }
+
+  // Update localStorage with user-specific daily tasks
+  localStorage.setItem(
+    `dailyTasks_${username}`,
+    JSON.stringify({ timestamp: Date.now(), tasks: randomTasks })
+  );
+}
 
   $: gardenDetails = getGardenDetails($gardenState);
   $: allTasksCompleted = randomTasks.every((task) => isTaskCompleted(task));
