@@ -9,10 +9,43 @@
   let isPasswordMatching = false; 
   let errorMessage = '';
   let successMessage = '';
+
+  //base URL of the backend
+  const BASE_URL = "http://localhost:3010/";
   
+
   // Function to handle the form submission
-  function handleSubmit() {
-      window.location.href = '/questions'
+  const handleSubmit = async () => {
+    // Send POST request to the backend
+    try {
+      const response = await fetch(`${BASE_URL}auth/signup`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ name, email, password }), // Send form data
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        successMessage = "User registered successfully!";
+        console.log("Response from server:", data);
+
+         // Save the username to localStorage
+        localStorage.setItem("username", name);
+
+        // Redirect the user to the questions page
+        window.location.href = "/questions";
+      } else {
+        // Handle errors
+        const errorText = await response.text(); 
+        errorMessage = `Error: ${errorText}`;
+        console.error(errorMessage);
+      }
+    } catch (error) {
+      errorMessage = "Could not connect to the server.";
+      console.error("Network error:", error);
+    }
   };
 
  
