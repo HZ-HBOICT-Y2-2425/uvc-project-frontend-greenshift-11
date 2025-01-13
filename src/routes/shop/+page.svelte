@@ -2,7 +2,7 @@
   import { writable, derived } from "svelte/store";
   import { onMount } from "svelte";
  
-  const BASE_URL = "http://localhost:3010/auth";
+  const BASE_URL = "https://uvc-project-backend-greenshift-11.onrender.com/auth";
  
   type ItemType = "animal" | "plant";
   type Item = {

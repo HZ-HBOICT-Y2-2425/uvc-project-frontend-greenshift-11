@@ -11,14 +11,14 @@
   let successMessage = '';
 
   //base URL of the backend
-  const BASE_URL = "http://localhost:3010/";
+  const BASE_URL = "https://uvc-project-backend-greenshift-11.onrender.com";
   
 
   // Function to handle the form submission
   const handleSubmit = async () => {
     // Send POST request to the backend
     try {
-      const response = await fetch(`${BASE_URL}auth/signup`, {
+      const response = await fetch(`${BASE_URL}/auth/signup`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

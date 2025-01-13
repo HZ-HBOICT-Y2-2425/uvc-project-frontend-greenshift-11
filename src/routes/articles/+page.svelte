@@ -42,7 +42,7 @@
 
   async function fetchArticles() {
     try {
-      const response = await fetch("http://localhost:3011/api/articles");
+      const response = await fetch("https://uvc-project-backend-greenshift-11-s4m3.onrender.com/api/articles");
       if (response.ok) {
         const data = await response.json();
         const categories = data.categories;
@@ -50,7 +50,7 @@
         const allArticlesPromises = categories.map(async (category) => {
           try {
             const categoryResponse = await fetch(
-              `http://localhost:3011/api/articles/${category}`
+              `https://uvc-project-backend-greenshift-11-s4m3.onrender.com/api/articles/${category}`
             );
             if (categoryResponse.ok) {
               const categoryData = await categoryResponse.json();

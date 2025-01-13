@@ -55,16 +55,13 @@
 
   // Fetch data from API
   const fetchData = async () => {
-  try {
-    const response = await fetch("http://localhost:3012/appliance/api/appliance-usage");
-    if (!response.ok) {
-      throw new Error("Network response was not ok");
-    }
-    const data = await response.json();
-    
-    //console.log("Fetched data:", data);  // Log the fetched data to check the structure
-
-    let chartOptions;
+    try {
+      const response = await fetch("https://uvc-project-backend-greenshift-11-5q6c.onrender.com/appliance/api/appliance-usage");
+      if (!response.ok) {
+        throw new Error("Network response was not ok");
+      }
+      const data = await response.json();
+      let chartOptions;
 
     // For bar chart, we'll use the appliance types as the x-axis categories and the carbon emissions as the data
     if (chartType === "bar") {
