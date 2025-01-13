@@ -58,6 +58,8 @@
 <div class="flex h-screen mx-0 my-0 p-0">
   <aside class="w-1/4 bg-aside p-3 shadow-lg transition-all h-100%">
     <nav class="text-xl">
+      <h1 class="text-white text-lg font-bold mb-2"><a href={`/co2`}>Appliace statistics</a></h1>
+      <h1 class="text-white text-lg font-bold mb-2">Detailed CO₂ footprint</h1>
       <h1 class="text-white text-lg font-bold mb-2">Manage appliances</h1>
       <h2 class="block text-white text-base font-bold mt-4 hover:underline"><a href={`/co2/appliance`}>All appliances</a></h2>
 
