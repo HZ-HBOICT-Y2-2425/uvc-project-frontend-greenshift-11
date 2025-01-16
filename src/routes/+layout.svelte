@@ -115,7 +115,7 @@ const fetchStreakCount = async () => {
 
   const validateToken = async (token) => {
     try {
-      const response = await fetch("http://localhost:3010//auth/validate-token", {
+      const response = await fetch("http://localhost:3010/auth/validate-token", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
