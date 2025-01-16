@@ -29,18 +29,8 @@ jobs:
         env:
           CI: true
 
-      # - name: Run tests
-      #   run: npm test
-
       - name: Build application
         run: npm run build
-
-      - name: Dockerize application (Containerization for 2.4)
-        run: |
-          docker build -t my-app .
-          docker tag my-app:latest my-dockerhub-user/my-app:latest
-          echo "$DOCKER_HUB_TOKEN" | docker login -u "$DOCKER_HUB_USERNAME" --password-stdin
-          docker push my-dockerhub-user/my-app:latest
 
       - name: Manage environment parameters (for 3.1)
         run: |
@@ -51,3 +41,10 @@ jobs:
       - name: Deploy application (Optional)
         run: |
           echo "Deploying application..."
+
+      - name: Dockerize application (Containerization for 2.4)
+        run: |
+          docker build -t my-app .
+          docker tag my-app:latest my-dockerhub-user/my-app:latest
+          echo "$DOCKER_HUB_TOKEN" | docker login -u "$DOCKER_HUB_USERNAME" --password-stdin
+          docker push my-dockerhub-user/my-app:latest
