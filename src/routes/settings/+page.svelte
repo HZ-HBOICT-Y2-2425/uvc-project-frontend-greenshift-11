@@ -420,37 +420,6 @@
       <h3 class="text-2xl font-bold text-greenDeep mb-4">Sound Settings</h3>
 
       <div class="space-y-6">
-        <div>
-          <label for="volume" class="block text-lg font-semibold mb-2"
-            >Volume</label
-          >
-          <input
-            type="range"
-            id="volume"
-            min="0"
-            max="100"
-            step="1"
-            bind:value={$volumeLevel}
-            on:input={handleVolumeChange}
-          />
-          <p class="mt-2">Volume: {volume}%</p>
-        </div>
-
-        <div class="flex items-center space-x-2">
-          <label for="music-toggle" class="text-lg font-semibold"
-            >Enable Music</label
-          >
-          <input
-            type="checkbox"
-            id="music-toggle"
-            checked={$isMusicEnabled}
-            on:change={(e) => {
-              isMusicEnabled.set(e.target.checked);
-              console.log("Checkbox changed:", e.target.checked);
-            }}
-            class="form-checkbox h-5 w-5"
-          />
-        </div>
         <h2>Select Background Music</h2>
         <select
           bind:value={currentTrack}
