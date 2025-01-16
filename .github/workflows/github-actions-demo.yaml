@@ -11,9 +11,9 @@ permissions:
   statuses: write
 
 jobs:
-  Build-and-Test:
+  Build-Test-Lint:
     runs-on: ubuntu-latest
-    name: Build and Test Job
+    name: Build, Test, and Lint Job
 
     steps:
       - name: Checkout code
@@ -29,7 +29,5 @@ jobs:
       - name: Run container for testing
         run: docker run --rm my-app npm test
 
-      - name: (Optional) Run the container locally
-        run: |
-          echo "Run the container locally for manual testing."
-          docker run --rm -p 3000:3000 my-app
+      - name: Run container for linting
+        run: docker run --rm my-app npm run lint
