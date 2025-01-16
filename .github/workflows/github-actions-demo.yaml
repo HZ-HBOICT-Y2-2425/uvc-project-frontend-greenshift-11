@@ -23,6 +23,15 @@ jobs:
         run: |
           echo "Docker is already installed on the GitHub-hosted runner."
 
+      - name: Manage environment parameters
+        run: |
+          echo "DATABASE_URL=${{ secrets.DATABASE_URL }}" >> .env
+          echo "API_KEY=${{ secrets.API_KEY }}" >> .env
+          cat .env
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+          API_KEY: ${{ secrets.API_KEY }}
+
       - name: Build Docker image
         run: docker build -t my-app .
 
