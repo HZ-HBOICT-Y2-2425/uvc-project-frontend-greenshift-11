@@ -7,7 +7,6 @@
 		"test": "jest",
 		"build": "vite build",
 		"preview": "vite preview",
-		 "lint:svelte": "svelte-check --tsconfig ./jsconfig.json",
 		"check": "svelte-kit sync && svelte-check --tsconfig ./jsconfig.json",
 		"check:watch": "svelte-kit sync && svelte-check --tsconfig ./jsconfig.json --watch"
 	},
@@ -28,7 +27,6 @@
 		"autoprefixer": "^10.4.20",
 		"eslint": "^9.18.0",
 		"eslint-plugin-svelte": "^2.46.1",
-		"eslint-plugin-svelte3": "^4.0.0",
 		"globals": "^15.14.0",
 		"jest": "^29.7.0",
 		"jest-environment-jsdom": "^29.7.0",

@@ -1,32 +1,22 @@
-import { FlatCompat } from "@eslint/eslintrc";
 import js from "@eslint/js";
 import globals from "globals";
-import sveltePlugin from "eslint-plugin-svelte3";
-
-const compat = new FlatCompat({
-  baseDirectory: new URL(".", import.meta.url).pathname,
-});
+import svelte from "eslint-plugin-svelte";
 
 export default [
   js.configs.recommended,
   {
     files: ["src/**/*.svelte"],
     languageOptions: {
-      globals: globals.browser,
+      globals: {
+        ...globals.browser,
+      },
       parserOptions: {
         ecmaVersion: "latest",
         sourceType: "module",
       },
     },
-    processor: "svelte3/svelte3",
     plugins: {
-      svelte3: sveltePlugin,
-    },
-    settings: {
-      "svelte3/ignore-warnings": () => true, // Ignore irrelevant warnings
-      "svelte3/compiler-options": {
-        dev: true, // Enable development mode
-      },
+      svelte,
     },
     rules: {
       "no-unused-vars": "warn",
