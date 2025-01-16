@@ -12,7 +12,7 @@
   let coins;
   let randomTasks = [];
   let completedTasks = [];
-  const TASK_REFRESH_INTERVAL = 0; // 24 hours in milliseconds
+  const TASK_REFRESH_INTERVAL = 24 * 60 * 60 * 1000; // 24 hours in milliseconds
   let username = localStorage.getItem("username");
   let allTasksCompleted = false;
   let showTaskPopup = false;
