@@ -45,6 +45,6 @@ jobs:
       - name: Dockerize application (Containerization for 2.4)
         run: |
           docker build -t my-app .
-          docker tag my-app:latest my-dockerhub-user/my-app:latest
-          echo "$DOCKER_HUB_TOKEN" | docker login -u "$DOCKER_HUB_USERNAME" --password-stdin
-          docker push my-dockerhub-user/my-app:latest
+          docker tag my-app:latest ${{ secrets.DOCKER_HUB_USERNAME }}/my-app:latest
+          echo "${{ secrets.DOCKER_HUB_TOKEN }}" | docker login -u "${{ secrets.DOCKER_HUB_USERNAME }}" --password-stdin
+          docker push ${{ secrets.DOCKER_HUB_USERNAME }}/my-app:latest
