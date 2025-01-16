@@ -42,6 +42,7 @@ jobs:
         run: |
           echo "Deploying application..."
 
+      #does it work??
       - name: Dockerize application (Containerization for 2.4)
         run: |
           docker build -t my-app .
