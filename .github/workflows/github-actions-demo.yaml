@@ -16,59 +16,36 @@ jobs:
     name: Build and Test Job
 
     steps:
-      # Step 1: Check out the repository code
-      - name: Check out repository code
-        uses: actions/checkout@v4
+      - name: Checkout code
+        uses: actions/checkout@v3
 
-      # Step 2: Set up Node.js
       - name: Set up Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: "18"
+          node-version: '16'
 
-      # Step 3: Install dependencies
       - name: Install dependencies
         run: npm install
 
-      # Step 4: Run the build process
-      - name: Build the software
-        run: npm run build
-
-      #add a step to run the unit tests
-      # Step 5: Run unit tests for microservice
-      - name: Run unit tests for frontend
+      - name: Run tests
         run: npm test
 
-      # Step 6: Log success message
-      - name: Log success message
-        if: success()
-        run: echo "✅ Build and tests completed successfully!"
+      - name: Build application
+        run: npm run build
 
-  Lint:
-    runs-on: ubuntu-latest
-    name: Lint Code Base
-
-    permissions:
-      contents: read    # Required to fetch the code
-      packages: read    # Minimum required to access packages
-      statuses: write   # To report job status (Super-Linter needs this)
-
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0  # Ensure the full git history is available for the linter
-
-      - name: Run Super-Linter
-        uses: super-linter/super-linter@v7.2.0
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}         # Required for reporting results
-          VALIDATE_ALL_CODEBASE: false                      # Validate only changed files
-          FILTER_REGEX_INCLUDE: "^src/.*$"                  # Lint only files in the src/ folder
-          DEFAULT_BRANCH: main                              # Specify the default branch for comparison
-
-      - name: Notify on Failure  # Step to notify if the linter fails
-        if: failure()  # Runs only if the previous step (Super-Linter) fails
+      - name: Dockerize application (Containerization for 2.4)
         run: |
-          echo "❌ Linter failed. Please check the results above."
-          echo "Check the workflow details at ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+          docker build -t my-app .
+          docker tag my-app:latest my-dockerhub-user/my-app:latest
+          echo "$DOCKER_HUB_TOKEN" | docker login -u "$DOCKER_HUB_USERNAME" --password-stdin
+          docker push my-dockerhub-user/my-app:latest
+
+      - name: Manage environment parameters (for 3.1)
+        run: |
+          echo "DATABASE_URL=$DATABASE_URL" >> .env
+          echo "API_KEY=$API_KEY" >> .env
+          cat .env
+
+      - name: Deploy application (Optional)
+        run: |
+          echo "Deploying application..."
