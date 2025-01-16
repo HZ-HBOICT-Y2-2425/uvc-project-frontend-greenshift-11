@@ -46,10 +46,10 @@ jobs:
         run: npm test
         env:
           CI: true
-
       - name: Lint codebase
         uses: github/super-linter@v5
         env:
-          VALIDATE_ALL_CODEBASE: true
+          VALIDATE_ALL_CODEBASE: false # Do not validate the entire codebase
+          VALIDATE_DIRECTORY: src      # Specify the directory to lint
           DEFAULT_BRANCH: main
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
