@@ -11,9 +11,9 @@ permissions:
   statuses: write
 
 jobs:
-  Build-Test-Lint:
+  Build-Test:
     runs-on: ubuntu-latest
-    name: Build, Test, and Lint Job
+    name: Build, Test
 
     steps:
       - name: Checkout code
@@ -37,3 +37,15 @@ jobs:
 
       - name: Run container for testing
         run: docker run --rm my-app npm test
+
+      - name: Run unit tests
+        run: npm test
+        env:
+          CI: true
+
+      - name: Lint codebase
+        uses: github/super-linter@v5
+        env:
+          VALIDATE_ALL_CODEBASE: true
+          DEFAULT_BRANCH: main
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
