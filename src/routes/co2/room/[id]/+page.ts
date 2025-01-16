@@ -5,7 +5,7 @@ import type { PageLoad } from './$types';
 export const load = (async ({ fetch, params }) => {
   try {
     // Fetch room data from correct endpoint
-    const roomRes = await fetch(`https://uvc-project-backend-greenshift-11-5q6c.onrender.com/room/${params.id}`);
+    const roomRes = await fetch(`http://localhost:3012/room/${params.id}`);
     
     if (!roomRes.ok) {
       throw error(404, 'Room not found');
@@ -15,7 +15,7 @@ export const load = (async ({ fetch, params }) => {
     
     // Fetch appliance details for each appliance ID
     const appliancePromises = room.appliances.map(async (applianceId: number) => {
-      const appRes = await fetch(`https://uvc-project-backend-greenshift-11-5q6c.onrender.com/appliance/${applianceId}`);
+      const appRes = await fetch(`http://localhost:3012/appliance/${applianceId}`);
       if (!appRes.ok) {
         console.warn(`Failed to fetch appliance ${applianceId}`);
         return null;

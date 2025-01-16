@@ -15,7 +15,7 @@ export const load: PageLoad = async ({ params, fetch }) => {
   const { id } = params; // Capture appliance ID from URL
 
   try {
-    const response = await fetch(`https://uvc-project-backend-greenshift-11-5q6c.onrender.com/appliance/${id}`);
+    const response = await fetch(`http://localhost:3012/appliance/${id}`);
     if (response.ok) {
       const appliance: Appliance = await response.json();
       return {

@@ -32,7 +32,7 @@
   ];
 
      
-  const BASE_URL = "https://uvc-project-backend-greenshift-11.onrender.com/auth";
+  const BASE_URL = "http://localhost:3010/auth";
   const GARDEN_IMAGE = "/images/garden/level1.jpg";
 
   type ItemType = "animal" | "plant";
@@ -309,7 +309,7 @@
 // Function to fetch tasks from backend
 async function fetchAllTasks() {
   try {
-    const response = await fetch("https://uvc-project-backend-greenshift-11-task.onrender.com/api/tasks");
+    const response = await fetch("http://localhost:3013/api/tasks");
     if (response.ok) {
       const data = await response.json();
       tasks = data.tasks;
@@ -325,7 +325,7 @@ async function fetchAllTasks() {
 async function refreshTask(task) {
     try {
       const response = await fetch(
-        `https://uvc-project-backend-greenshift-11-task.onrender.com/api/tasks/alternative/${task.category}?currentTask=${encodeURIComponent(task.text)}`
+        `http://localhost:3013/api/tasks/alternative/${task.category}?currentTask=${encodeURIComponent(task.text)}`
       );
       if (response.ok) {
         const data = await response.json();
@@ -400,7 +400,7 @@ async function refreshTask(task) {
 
     // Send the completed task to the backend
     try {
-      const response = await fetch("https://uvc-project-backend-greenshift-11.onrender.com/auth/completed-tasks", {
+      const response = await fetch("http://localhost:3010/auth/completed-tasks", {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
@@ -438,7 +438,7 @@ async function refreshTask(task) {
   const fetchUserData = async () => {
   try {
     const username = localStorage.getItem("username");
-    const response = await fetch(`https://uvc-project-backend-greenshift-11.onrender.com/auth/users/${username}`, {
+    const response = await fetch(`http://localhost:3010/auth/users/${username}`, {
       headers: {
         Authorization: `Bearer ${localStorage.getItem("authToken")}`,
       },
@@ -470,7 +470,7 @@ async function updateUserCoins() {
       return;
     }
 
-    const response = await fetch(`https://uvc-project-backend-greenshift-11.onrender.com/auth/${username}/update-coins`, {
+    const response = await fetch(`http://localhost:3010/auth/${username}/update-coins`, {
       method: "PUT",
       headers: {
         "Content-Type": "application/json",

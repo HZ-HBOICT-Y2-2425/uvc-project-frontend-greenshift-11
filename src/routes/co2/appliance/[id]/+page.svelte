@@ -46,7 +46,7 @@
   }
 
   async function fetchApplianceTypes() {
-    const response = await fetch(`https://uvc-project-backend-greenshift-11-5q6c.onrender.com/appliance/api/appliance-types`);
+    const response = await fetch(`http://localhost:3012/appliance/api/appliance-types`);
     if (response.ok) {
       applianceTypes = await response.json();
     } else {

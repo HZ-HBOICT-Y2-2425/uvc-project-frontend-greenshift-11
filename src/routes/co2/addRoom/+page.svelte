@@ -47,7 +47,7 @@
 
   const fetchData = async () => {
     try {
-      const response = await fetch('https://uvc-project-backend-greenshift-11-5q6c.onrender.com/appliance/api/appliance-names');
+      const response = await fetch('http://localhost:3012/appliance/api/appliance-names');
       if (!response.ok) {
         throw new Error('Failed to fetch data');
       }
@@ -61,7 +61,7 @@
     fetchData();
   });
 
-  const BASE_URL = "https://uvc-project-backend-greenshift-11-5q6c.onrender.com";
+  const BASE_URL = "http://localhost:3012";
 
   const handleSubmit = async (event) => {
     event.preventDefault(); // Prevent the default form submission

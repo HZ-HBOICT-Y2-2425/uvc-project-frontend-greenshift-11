@@ -25,7 +25,7 @@
    // Fetch general tasks from the backend API
    async function fetchAllTasks() {
   try {
-    const response = await fetch("https://uvc-project-backend-greenshift-11-task.onrender.com/api/tasks");
+    const response = await fetch("http://localhost:3013/api/tasks");
     if (response.ok) {
       const data = await response.json();
       tasks = data.tasks;

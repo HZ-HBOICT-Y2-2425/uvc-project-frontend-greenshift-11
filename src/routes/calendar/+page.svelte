@@ -24,7 +24,7 @@
     if (selectedDate && note) {
       try {
         console.log("Sending note to backend:", { user: username, note, date: selectedDate });
-        const response = await fetch("https://uvc-project-backend-greenshift-11.onrender.com/auth/notes", {
+        const response = await fetch("http://localhost:3010/auth/notes", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
@@ -60,7 +60,7 @@
   async function loadNotes() {
     if (selectedDate) {
       try {
-        const response = await fetch(`https://uvc-project-backend-greenshift-11.onrender.com/auth/notes/${username}`);
+        const response = await fetch(`http://localhost:3010/auth/notes/${username}`);
         if (response.ok) {
           const data = await response.json();
           console.log("Loaded notes:", data);
@@ -78,7 +78,7 @@
   // New function to load completed tasks from backend
   async function loadCompletedTasks() {
     try {
-      const response = await fetch(`https://uvc-project-backend-greenshift-11.onrender.com/auth/users/${username}`);
+      const response = await fetch(`http://localhost:3010/auth/users/${username}`);
       if (response.ok) {
         const data = await response.json();
         completedTasks = data.user.completedTasks || [];

@@ -12,7 +12,7 @@
   const fetchData = async () => {
     try {
       // Fetch appliances data
-      const appliancesResponse = await fetch('https://uvc-project-backend-greenshift-11-5q6c.onrender.com/appliance/api/appliance-names');
+      const appliancesResponse = await fetch('http://localhost:3012/appliance/api/appliance-names');
       if (!appliancesResponse.ok) {
         throw new Error(`Failed to fetch appliances: ${appliancesResponse.statusText}`);
       }
@@ -26,7 +26,7 @@
       }));
 
       // Fetch rooms data
-      const roomsResponse = await fetch('https://uvc-project-backend-greenshift-11-5q6c.onrender.com/api/room-names');
+      const roomsResponse = await fetch('http://localhost:3012/api/room-names');
       if (!roomsResponse.ok) {
         throw new Error(`Failed to fetch rooms: ${roomsResponse.statusText}`);
       }

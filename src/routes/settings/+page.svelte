@@ -45,7 +45,7 @@
     isMusicEnabled.set(newValue);
   };
 
-  const BASE_URL = "https://uvc-project-backend-greenshift-11.onrender.com";
+  const BASE_URL = "http://localhost:3010/";
 
   const confirmChanges = async () => {
     try {

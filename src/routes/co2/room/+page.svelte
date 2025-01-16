@@ -20,7 +20,7 @@
   const fetchData = async () => {
     try {
       isLoading = true; // Set loading state
-      const roomsResponse = await fetch('https://uvc-project-backend-greenshift-11-5q6c.onrender.com/api/room-names');
+      const roomsResponse = await fetch('http://localhost:3012/api/room-names');
       if (!roomsResponse.ok) {
         throw new Error('Failed to fetch rooms');
       }
@@ -38,7 +38,7 @@
         };
       });
 
-      const appliancesResponse = await fetch('https://uvc-project-backend-greenshift-11-5q6c.onrender.com/appliance/api/appliance-names');
+      const appliancesResponse = await fetch('http://localhost:3012/appliance/api/appliance-names');
       if (!appliancesResponse.ok) {
         throw new Error('Failed to fetch appliances');
       }
@@ -67,7 +67,7 @@
   const deleteRoom = async (id) => {
     try {
       rooms = rooms.filter(room => room.id !== id); // Update local state
-      const res = await fetch(`https://uvc-project-backend-greenshift-11-5q6c.onrender.com/room/${id}`, {
+      const res = await fetch(`http://localhost:3012/room/${id}`, {
         method: 'DELETE',
       });
 

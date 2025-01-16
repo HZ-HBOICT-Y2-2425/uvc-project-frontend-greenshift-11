@@ -11,7 +11,7 @@
   async function fetchAllArticles() {
   try {
     // Fetch all articles from the backend
-    const response = await fetch("https://uvc-project-backend-greenshift-11-s4m3.onrender.com/api/articles");
+    const response = await fetch("http://localhost:3011/api/articles");
     if (!response.ok) {
       throw new Error("Failed to fetch articles");
     }
@@ -20,7 +20,7 @@
 
     // Fetch and combine all articles into a single array
     const articlesPromises = categories.map(async (category) => {
-      const categoryResponse = await fetch(`https://uvc-project-backend-greenshift-11-s4m3.onrender.com/api/articles/${category}`);
+      const categoryResponse = await fetch(`http://localhost:3011/api/articles/${category}`);
       if (categoryResponse.ok) {
         const data = await categoryResponse.json();
         return data.articles.map((article) => ({
