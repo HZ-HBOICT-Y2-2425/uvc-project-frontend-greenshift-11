@@ -6,50 +6,30 @@ on:
   pull_request:
 
 permissions:
-  contents: read    # Minimum required to check out code
-  packages: read    # Minimum required for accessing packages (if necessary)
-  statuses: write   # To report job statuses
+  contents: read
+  packages: read
+  statuses: write
 
 jobs:
-  Build-Test-and-Containerize:
+  Build-and-Test:
     runs-on: ubuntu-latest
-    name: Build, Test, and Containerize Job
+    name: Build and Test Job
 
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
 
-      - name: Set up Node.js
-        uses: actions/setup-node@v3
-        with:
-          node-version: '18.13'
-
-      - name: Install dependencies
-        run: npm install
-        env:
-          CI: true
-
-      - name: Build application
-        run: npm run build
-
-      - name: Run tests
-        run: npm test
-        env:
-          CI: true
-
-      - name: Configure AWS credentials
-        uses: aws-actions/configure-aws-credentials@v3
-        with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: us-east-1
-
-      - name: Log in to Amazon ECR
-        uses: aws-actions/amazon-ecr-login@v1
-
-      - name: Build Docker Image
+      - name: Set up Docker
         run: |
-          IMAGE_URI=$(aws ecr describe-repositories --repository-names my-app --query 'repositories[0].repositoryUri' --output text)
-          docker build -t $IMAGE_URI:latest .
-          docker push $IMAGE_URI:latest
+          echo "Docker is already installed on the GitHub-hosted runner."
 
+      - name: Build Docker image
+        run: docker build -t my-app .
+
+      - name: Run container for testing
+        run: docker run --rm my-app npm test
+
+      - name: (Optional) Run the container locally
+        run: |
+          echo "Run the container locally for manual testing."
+          docker run --rm -p 3000:3000 my-app
