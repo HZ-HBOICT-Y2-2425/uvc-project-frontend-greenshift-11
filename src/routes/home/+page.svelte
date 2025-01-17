@@ -187,11 +187,34 @@
   }
 
   function setGardenState(percentage: number) {
-    gardenStatePercentage.set(percentage);
-    if (percentage <= 33) {
-      displayedItems.set([]);
-    }
+  if ($gardenStatePercentage === percentage) {
+    notifications.add(
+      "Garden is already in this state!",
+      "info"
+    );
+    return;
   }
+
+  gardenStatePercentage.set(percentage);
+
+  if (percentage <= 33) {
+    displayedItems.set([]);
+    notifications.add(
+      "Garden health set to 'Bad'. All garden items removed.",
+      "warning"
+    );
+  } else if (percentage <= 66) {
+    notifications.add(
+      "Garden health set to 'Average'. You can now add up to 3 plants and animals.",
+      "info"
+    );
+  } else {
+    notifications.add(
+      "Garden health set to 'Great'. Your garden is thriving!",
+      "success"
+    );
+  }
+}
 
   function getGardenDetails(state: number) {
     const baseDetails = {
@@ -533,35 +556,35 @@ userCoins.subscribe(value => {
       <div class="bg-white/90 p-2 rounded-lg shadow-lg">
         <div class="flex gap-2 justify-between">
           <button
-            class="flex-1 px-2 py-1 text-sm font-medium rounded transition-colors"
-            class:bg-red-500={$gardenState === 1}
-            class:bg-gray-200={$gardenState !== 1}
-            class:text-white={$gardenState === 1}
-            class:text-gray-700={$gardenState !== 1}
-            on:click={() => setGardenState(33)}
-          >
-            Bad
-          </button>
-          <button
-            class="flex-1 px-2 py-1 text-sm font-medium rounded transition-colors"
-            class:bg-yellow-500={$gardenState === 2}
-            class:bg-gray-200={$gardenState !== 2}
-            class:text-white={$gardenState === 2}
-            class:text-gray-700={$gardenState !== 2}
-            on:click={() => setGardenState(66)}
-          >
-            Average
-          </button>
-          <button
-            class="flex-1 px-2 py-1 text-sm font-medium rounded transition-colors"
-            class:bg-green-500={$gardenState === 3}
-            class:bg-gray-200={$gardenState !== 3}
-            class:text-white={$gardenState === 3}
-            class:text-gray-700={$gardenState !== 3}
-            on:click={() => setGardenState(100)}
-          >
-            Great
-          </button>
+          class="flex-1 px-2 py-1 text-sm font-medium rounded transition-colors"
+          class:bg-red-500={$gardenState === 1}
+          class:bg-gray-200={$gardenState !== 1}
+          class:text-white={$gardenState === 1}
+          class:text-gray-700={$gardenState !== 1}
+          on:click={() => setGardenState(33)}
+        >
+          Bad
+        </button>
+        <button
+          class="flex-1 px-2 py-1 text-sm font-medium rounded transition-colors"
+          class:bg-yellow-500={$gardenState === 2}
+          class:bg-gray-200={$gardenState !== 2}
+          class:text-white={$gardenState === 2}
+          class:text-gray-700={$gardenState !== 2}
+          on:click={() => setGardenState(66)}
+        >
+          Average
+        </button>
+        <button
+          class="flex-1 px-2 py-1 text-sm font-medium rounded transition-colors"
+          class:bg-green-500={$gardenState === 3}
+          class:bg-gray-200={$gardenState !== 3}
+          class:text-white={$gardenState === 3}
+          class:text-gray-700={$gardenState !== 3}
+          on:click={() => setGardenState(100)}
+        >
+          Great
+        </button>
         </div>
       </div>
     </div>
