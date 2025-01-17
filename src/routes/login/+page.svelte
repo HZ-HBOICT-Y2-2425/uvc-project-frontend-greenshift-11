@@ -7,7 +7,7 @@
   let showPassword = false;
   let errorMessage = '';
 
-  const BASE_URL = "http://localhost:3010/auth";
+  const BASE_URL = "https://uvc-project-backend-greenshift-11.onrender.com/auth";
 
   // Function to handle form submission
   const handleSubmit = async () => {
