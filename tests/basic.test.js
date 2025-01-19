@@ -1,4 +1,5 @@
-// tests/basic.test.js
+import { describe, test, expect } from '@jest/globals';
+
 describe('Basic Test', () => {
     test('Should return true for basic assertion', () => {
       expect(true).toBe(true);

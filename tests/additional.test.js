@@ -1,3 +1,5 @@
+import { describe, test, expect } from '@jest/globals';
+
 describe('Additional Tests', () => {
     test('Should verify if a number is even', () => {
       const isEven = (num) => num % 2 === 0;
