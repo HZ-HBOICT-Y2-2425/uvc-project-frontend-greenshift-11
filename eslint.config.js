@@ -1,6 +1,7 @@
 import js from "@eslint/js";
 import globals from "globals";
 import svelte from "eslint-plugin-svelte";
+import cypress from "eslint-plugin-cypress"; // Import Cypress plugin
 
 export default [
   js.configs.recommended,
@@ -41,6 +42,27 @@ export default [
     rules: {
       "no-unused-vars": "warn",
       "no-undef": "error",
+    },
+  },
+  {
+    files: ["cypress/**/*.js", "cypress/**/*.cy.js"], // Add Cypress test files
+    languageOptions: {
+      globals: {
+        ...globals.browser,
+        ...globals.node,
+        ...cypress.configs.recommended.env.globals, // Add Cypress globals
+      },
+      parserOptions: {
+        ecmaVersion: "latest",
+        sourceType: "module",
+      },
+    },
+    plugins: {
+      cypress, // Add Cypress plugin
+    },
+    rules: {
+      "no-unused-vars": "warn",
+      "no-undef": "off", // Turn off no-undef for Cypress files
     },
   },
   {
