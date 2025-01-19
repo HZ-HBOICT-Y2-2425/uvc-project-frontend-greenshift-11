@@ -1,0 +1,25 @@
+{
+    "compilerOptions": {
+      "target": "ES6",
+      "module": "commonjs",
+      "lib": ["ES6", "DOM"],
+      "strict": true,
+      "esModuleInterop": true,
+      "skipLibCheck": true,
+      "moduleResolution": "node",
+      "baseUrl": ".",
+      "paths": {
+        "*": ["node_modules/*"]
+      }
+    },
+    "include": [
+      "cypress/**/*.ts", // Cypress test files
+      "src/**/*.ts", // Source TypeScript files
+      "src/**/*.js" // Optional: Include JavaScript files
+    ],
+    "exclude": [
+      "node_modules",
+      "dist" // Exclude build outputs
+    ]
+  }
+  
