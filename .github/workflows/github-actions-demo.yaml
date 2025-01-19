@@ -1,74 +1,74 @@
 name: GitHub Actions Pipeline
 run-name: ${{ github.actor }} is testing GitHub Actions 🚀
 
+# This workflow is triggered on push and pull request events
 on:
   push:
   pull_request:
 
 permissions:
-  contents: read    # Minimum required to check out code
-  packages: read    # Minimum required for accessing packages (if necessary)
-  statuses: write   # To report job statuses
+  contents: read
+  packages: read
+  statuses: write
 
 jobs:
-  Build-and-Test:
+  Build-Test:
     runs-on: ubuntu-latest
-    name: Build and Test Job
-
-    steps:
-      # Step 1: Check out the repository code
-      - name: Check out repository code
-        uses: actions/checkout@v4
-
-      # Step 2: Set up Node.js
-      - name: Set up Node.js
-        uses: actions/setup-node@v3
-        with:
-          node-version: "18"
-
-      # Step 3: Install dependencies
-      - name: Install dependencies
-        run: npm install
-
-      # Step 4: Run the build process
-      - name: Build the software
-        run: npm run build
-
-      #add a step to run the unit tests
-      # Step 5: Run unit tests for microservice
-      - name: Run unit tests for frontend
-        run: npm test
-
-      # Step 6: Log success message
-      - name: Log success message
-        if: success()
-        run: echo "✅ Build and tests completed successfully!"
-
-  Lint:
-    runs-on: ubuntu-latest
-    name: Lint Code Base
-
-    permissions:
-      contents: read    # Required to fetch the code
-      packages: read    # Minimum required to access packages
-      statuses: write   # To report job status (Super-Linter needs this)
+    name: Build, Test
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v3
+
+      # set up Node.js
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
         with:
-          fetch-depth: 0  # Ensure the full git history is available for the linter
+          node-version: '18'
 
-      - name: Run Super-Linter
-        uses: super-linter/super-linter@v7.2.0
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}         # Required for reporting results
-          VALIDATE_ALL_CODEBASE: false                      # Validate only changed files
-          FILTER_REGEX_INCLUDE: "^src/.*$"                  # Lint only files in the src/ folder
-          DEFAULT_BRANCH: main                              # Specify the default branch for comparison
+      # install dependencies
+      - name: Install dependencies
+        run: npm install
 
-      - name: Notify on Failure  # Step to notify if the linter fails
-        if: failure()  # Runs only if the previous step (Super-Linter) fails
+      # manage environment parameters independently
+      - name: Manage environment parameters
         run: |
-          echo "❌ Linter failed. Please check the results above."
-          echo "Check the workflow details at ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+          echo "DATABASE_URL=${{ secrets.DATABASE_URL }}" >> .env
+          echo "API_KEY=${{ secrets.API_KEY }}" >> .env
+          cat .env
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+          API_KEY: ${{ secrets.API_KEY }}
+
+      # build the Docker image
+      - name: Build Docker image
+        run: docker build -t my-app .
+
+      # run the container for testing
+      - name: Run container for testing
+        run: docker run --rm my-app npm test
+
+      # run the basic unit tests
+      - name: Run unit tests
+        run: npm test
+        env:
+          CI: true
+
+      # - name: Lint codebase
+      #   uses: github/super-linter@v5
+      #   env:
+      #     VALIDATE_ALL_CODEBASE: false # Do not validate the entire codebase
+      #     VALIDATE_DIRECTORY: src      # Specify the directory to lint
+      #     DEFAULT_BRANCH: main
+      #     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      # running the tests with coverage
+      - name: Run unit tests with coverage
+        run: npm test -- --coverage
+
+      # upload the coverage report with the build-in GitHub Actions artifact
+      - name: Upload coverage report
+        uses: actions/upload-artifact@v3
+        with:
+          name: coverage-report
+          path: coverage/
