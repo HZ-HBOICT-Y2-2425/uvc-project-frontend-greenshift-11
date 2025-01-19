@@ -1,6 +1,7 @@
 name: GitHub Actions Pipeline
 run-name: ${{ github.actor }} is testing GitHub Actions 🚀
 
+# This workflow is triggered on push and pull request events
 on:
   push:
   pull_request:
@@ -19,14 +20,17 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
 
+      # set up Node.js
       - name: Set up Node.js
         uses: actions/setup-node@v3
         with:
           node-version: '18'
 
+      # install dependencies
       - name: Install dependencies
         run: npm install
 
+      # manage environment parameters independently
       - name: Manage environment parameters
         run: |
           echo "DATABASE_URL=${{ secrets.DATABASE_URL }}" >> .env
@@ -36,12 +40,15 @@ jobs:
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
           API_KEY: ${{ secrets.API_KEY }}
 
+      # build the Docker image
       - name: Build Docker image
         run: docker build -t my-app .
 
+      # run the container for testing
       - name: Run container for testing
         run: docker run --rm my-app npm test
 
+      # run the basic unit tests
       - name: Run unit tests
         run: npm test
         env:
@@ -55,9 +62,11 @@ jobs:
           DEFAULT_BRANCH: main
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
+      # running the tests with coverage
       - name: Run unit tests with coverage
         run: npm test -- --coverage
 
+      # upload the coverage report with the build-in GitHub Actions artifact
       - name: Upload coverage report
         uses: actions/upload-artifact@v3
         with:
