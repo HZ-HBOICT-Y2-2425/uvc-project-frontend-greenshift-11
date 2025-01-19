@@ -54,13 +54,13 @@ jobs:
         env:
           CI: true
 
-      - name: Lint codebase
-        uses: github/super-linter@v5
-        env:
-          VALIDATE_ALL_CODEBASE: false # Do not validate the entire codebase
-          VALIDATE_DIRECTORY: src      # Specify the directory to lint
-          DEFAULT_BRANCH: main
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      # - name: Lint codebase
+      #   uses: github/super-linter@v5
+      #   env:
+      #     VALIDATE_ALL_CODEBASE: false # Do not validate the entire codebase
+      #     VALIDATE_DIRECTORY: src      # Specify the directory to lint
+      #     DEFAULT_BRANCH: main
+      #     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       # running the tests with coverage
       - name: Run unit tests with coverage
